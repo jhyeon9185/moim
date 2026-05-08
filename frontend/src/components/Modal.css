@@ -1,0 +1,81 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 2000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.modal-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-content {
+  background: var(--color-surface);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  padding: 0 var(--space-lg) calc(var(--space-2xl) + env(safe-area-inset-bottom));
+  width: 100%;
+  max-width: var(--max-width);
+  max-height: 90dvh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.12);
+  will-change: transform;
+}
+
+.modal-handle-area {
+  width: 100%;
+  padding: 12px 0 20px;
+  cursor: grab;
+  display: flex;
+  justify-content: center;
+  touch-action: none;
+}
+
+.modal-handle-area:active {
+  cursor: grabbing;
+}
+
+.modal-handle {
+  width: 40px;
+  height: 4px;
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+}
+
+.modal-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-lg);
+  text-align: center;
+  color: var(--color-text);
+}
+
+.modal-body {
+  width: 100%;
+}
+
+/* Desktop Styles */
+@media (min-width: 481px) {
+  .modal-overlay {
+    align-items: center;
+  }
+
+  .modal-content {
+    border-radius: var(--radius-xl);
+    max-height: 85vh;
+    padding-bottom: var(--space-xl);
+    transform: none !important; /* Disable swipe on desktop if you prefer */
+  }
+
+  .modal-handle-area {
+    display: none;
+  }
+}

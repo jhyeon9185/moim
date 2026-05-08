@@ -49,7 +49,15 @@
       "Bash(taskkill //PID 29644 //F)",
       "Bash(taskkill //PID 30976 //F)",
       "Bash(./gradlew bootRun)",
-      "Bash(cmd //c \"gradlew.bat bootRun > backend.log 2>&1\")"
+      "Bash(cmd //c \"gradlew.bat bootRun > backend.log 2>&1\")",
+      "Bash(xargs cat *)",
+      "Bash(taskkill //PID 31452 //F)",
+      "Bash(cmd //c \"cd /d c:\\\\works\\\\moim\\\\backend && gradlew.bat bootRun > backend.log 2>&1\")",
+      "PowerShell(Start-Process -FilePath \"cmd.exe\" -ArgumentList \"/c cd c:\\\\works\\\\moim\\\\backend && gradlew.bat bootRun > backend.log 2>&1\" -WorkingDirectory \"c:\\\\works\\\\moim\\\\backend\" -WindowStyle Hidden)",
+      "Bash(wait)",
+      "Bash(awk '{print $5}')",
+      "Bash(xargs -I{} taskkill //PID {} //F)",
+      "PowerShell(Start-Process -FilePath \"c:\\\\works\\\\moim\\\\backend\\\\gradlew.bat\" -ArgumentList \"bootRun\" -RedirectStandardOutput \"c:\\\\works\\\\moim\\\\backend\\\\backend.log\" -RedirectStandardError \"c:\\\\works\\\\moim\\\\backend\\\\backend-err.log\" -WorkingDirectory \"c:\\\\works\\\\moim\\\\backend\" -WindowStyle Hidden)"
     ]
   }
 }

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Clock } from 'lucide-react'
 import api from '../api'
+import Modal from './Modal'
 
 export default function JoinRoomModal({ onClose, onJoined }) {
   const [code, setCode] = useState('')
@@ -28,38 +29,26 @@ export default function JoinRoomModal({ onClose, onJoined }) {
     }
   }
 
-  if (result === 'pending') {
-    return (
-      <div className="modal-overlay" onClick={onClose}>
-        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-          <div className="modal-handle" />
-          <div className="empty-state">
-            <div className="empty-state-icon">
-              <Clock size={48} strokeWidth={1.5} color="var(--color-primary)" />
-            </div>
-            <h2 className="empty-state-title">신청 완료!</h2>
-            <p className="empty-state-desc">
-              방장이 승인하면<br />모임에 참가할 수 있어요.
-            </p>
-            <button
-              className="btn btn-primary btn-full"
-              onClick={() => { onJoined(); onClose() }}
-              style={{ marginTop: 'var(--space-md)' }}
-            >
-              확인
-            </button>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-handle" />
-        <h2 className="modal-title">초대 코드 입력</h2>
-
+    <Modal isOpen={true} onClose={onClose} title={result === 'pending' ? '' : '초대 코드 입력'}>
+      {result === 'pending' ? (
+        <div className="empty-state">
+          <div className="empty-state-icon">
+            <Clock size={48} strokeWidth={1.5} color="var(--color-primary)" />
+          </div>
+          <h2 className="empty-state-title">신청 완료!</h2>
+          <p className="empty-state-desc">
+            방장이 승인하면<br />모임에 참가할 수 있어요.
+          </p>
+          <button
+            className="btn btn-primary btn-full"
+            onClick={() => { onJoined(); onClose() }}
+            style={{ marginTop: 'var(--space-md)' }}
+          >
+            확인
+          </button>
+        </div>
+      ) : (
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
           {error && <div className="login-error">{error}</div>}
 
@@ -90,7 +79,7 @@ export default function JoinRoomModal({ onClose, onJoined }) {
             취소
           </button>
         </form>
-      </div>
-    </div>
+      )}
+    </Modal>
   )
 }

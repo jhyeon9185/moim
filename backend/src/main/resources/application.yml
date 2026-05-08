@@ -59,7 +59,7 @@ spring:
     host: ${SPRING_MAIL_HOST:smtp.gmail.com}
     port: ${SPRING_MAIL_PORT:587}
     username: ${SPRING_MAIL_USERNAME:entmoim@gmail.com}
-    password: ${SPRING_MAIL_PASSWORD:xjlmiewvhfpqcxos}
+    password: ${SPRING_MAIL_PASSWORD:}
     properties:
       mail:
         smtp:
@@ -93,6 +93,7 @@ oauth:
 # OpenAI 설정 (선택)
 openai:
   api-key: ${OPENAI_API_KEY:}
+
 
 # CORS
 cors:

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Clock, Link as LinkIcon } from 'lucide-react'
 import api from '../api'
+import Modal from './Modal'
 
 export default function InviteCodeModal({ roomId, roomName, onClose }) {
   const [code, setCode] = useState(null)
@@ -54,63 +55,58 @@ export default function InviteCodeModal({ roomId, roomName, onClose }) {
   }
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-handle" />
-        <h2 className="modal-title">초대 코드</h2>
+    <Modal isOpen={true} onClose={onClose} title="초대 코드">
+      {code ? (
+        <>
+          <p style={{ textAlign: 'center', fontSize: 'var(--font-size-base)', color: 'var(--color-text-secondary)', marginBottom: 'var(--space-md)' }}>
+            아래 코드를 가족에게 보내주세요
+          </p>
 
-        {code ? (
-          <>
-            <p style={{ textAlign: 'center', fontSize: 'var(--font-size-base)', color: 'var(--color-text-secondary)', marginBottom: 'var(--space-md)' }}>
-              아래 코드를 가족에게 보내주세요
-            </p>
+          <div className="invite-code-display">
+            <span className="invite-code-text">{code}</span>
+          </div>
 
-            <div className="invite-code-display">
-              <span className="invite-code-text">{code}</span>
+          <p style={{ textAlign: 'center', fontSize: 'var(--font-size-sm)', color: 'var(--color-text-light)', margin: 'var(--space-sm) 0 var(--space-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+            <Clock size={14} /> 24시간 후 만료 · 1회만 사용 가능
+          </p>
+
+          <button className="btn btn-kakao btn-full" onClick={shareKakao} style={{ marginBottom: 'var(--space-sm)' }}>
+            <img src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png" alt="" style={{ width: '22px', height: '22px', marginRight: '6px' }} />
+            카카오톡으로 공유하기
+          </button>
+
+          <button className="btn btn-secondary btn-full" onClick={copyCode}>
+            {copied ? '✓ 복사됨!' : '코드 복사하기'}
+          </button>
+        </>
+      ) : (
+        <>
+          <div className="empty-state" style={{ padding: 'var(--space-lg)' }}>
+            <div className="empty-state-icon">
+              <LinkIcon size={48} strokeWidth={1.5} color="var(--color-primary)" />
             </div>
-
-            <p style={{ textAlign: 'center', fontSize: 'var(--font-size-sm)', color: 'var(--color-text-light)', margin: 'var(--space-sm) 0 var(--space-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-              <Clock size={14} /> 24시간 후 만료 · 1회만 사용 가능
+            <p className="empty-state-desc">
+              초대 코드를 만들어<br />가족을 모임에 초대하세요
             </p>
+          </div>
 
-            <button className="btn btn-kakao btn-full" onClick={shareKakao} style={{ marginBottom: 'var(--space-sm)' }}>
-              <img src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png" alt="" style={{ width: '22px', height: '22px', marginRight: '6px' }} />
-              카카오톡으로 공유하기
-            </button>
+          <button
+            className="btn btn-primary btn-full"
+            onClick={generateCode}
+            disabled={loading}
+          >
+            {loading ? '만드는 중...' : '초대 코드 만들기'}
+          </button>
+        </>
+      )}
 
-            <button className="btn btn-secondary btn-full" onClick={copyCode}>
-              {copied ? '✓ 복사됨!' : '코드 복사하기'}
-            </button>
-          </>
-        ) : (
-          <>
-            <div className="empty-state" style={{ padding: 'var(--space-lg)' }}>
-              <div className="empty-state-icon">
-                <LinkIcon size={48} strokeWidth={1.5} color="var(--color-primary)" />
-              </div>
-              <p className="empty-state-desc">
-                초대 코드를 만들어<br />가족을 모임에 초대하세요
-              </p>
-            </div>
-
-            <button
-              className="btn btn-primary btn-full"
-              onClick={generateCode}
-              disabled={loading}
-            >
-              {loading ? '만드는 중...' : '초대 코드 만들기'}
-            </button>
-          </>
-        )}
-
-        <button
-          className="btn btn-secondary btn-full"
-          onClick={onClose}
-          style={{ marginTop: 'var(--space-sm)' }}
-        >
-          닫기
-        </button>
-      </div>
-    </div>
+      <button
+        className="btn btn-secondary btn-full"
+        onClick={onClose}
+        style={{ marginTop: 'var(--space-sm)' }}
+      >
+        닫기
+      </button>
+    </Modal>
   )
 }

@@ -4,6 +4,7 @@ import { ChevronLeft, Settings, Calendar, Users, Link as LinkIcon, ChevronRight,
 import { useAuth } from '../auth/AuthContext'
 import CreateScheduleModal from '../components/CreateScheduleModal'
 import InviteCodeModal from '../components/InviteCodeModal'
+import Modal from '../components/Modal'
 import LoadingSpinner from '../components/LoadingSpinner'
 import api from '../api'
 import './RoomPage.css'
@@ -114,6 +115,7 @@ export default function RoomPage() {
   const [showInvite, setShowInvite] = useState(false)
   const [rejectConfirmUserId, setRejectConfirmUserId] = useState(null)
   const [viewingMember, setViewingMember] = useState(null)
+  const [zoomingImageUrl, setZoomingImageUrl] = useState(null)
   const [notifSetting, setNotifSetting] = useState({ enabled: true, alert1h: true, alert3h: false, alertDay: false })
 
   const isOwner = room?.ownerId === user?.id
@@ -554,15 +556,23 @@ export default function RoomPage() {
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <div className="modal-handle" />
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-md)', paddingBottom: 'var(--space-lg)' }}>
-              <div className="member-avatar" style={{ width: '72px', height: '72px', fontSize: 'var(--font-size-2xl)' }}>
-                {viewingMember.profileImage ? (
-                  <img
-                    src={viewingMember.profileImage.startsWith('http') ? viewingMember.profileImage : `${import.meta.env.VITE_API_URL}${viewingMember.profileImage}`}
-                    alt=""
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
-                  />
-                ) : getInitial(viewingMember.nickname)}
-              </div>
+                <div className="member-avatar" 
+                  style={{ width: '72px', height: '72px', fontSize: 'var(--font-size-2xl)', cursor: viewingMember.profileImage ? 'zoom-in' : 'default' }}
+                  onClick={() => {
+                    if (viewingMember.profileImage) {
+                      const src = viewingMember.profileImage.startsWith('http') ? viewingMember.profileImage : `${import.meta.env.VITE_API_URL}${viewingMember.profileImage}`
+                      setZoomingImageUrl(src)
+                    }
+                  }}
+                >
+                  {viewingMember.profileImage ? (
+                    <img
+                      src={viewingMember.profileImage.startsWith('http') ? viewingMember.profileImage : `${import.meta.env.VITE_API_URL}${viewingMember.profileImage}`}
+                      alt=""
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+                    />
+                  ) : getInitial(viewingMember.nickname)}
+                </div>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 'var(--font-size-xl)', fontWeight: 'var(--font-weight-bold)', marginBottom: '4px' }}>
                   {viewingMember.nickname}
@@ -608,6 +618,21 @@ export default function RoomPage() {
           </div>
         </div>
       )}
+      {/* 이미지 확대 모달 */}
+      <Modal isOpen={!!zoomingImageUrl} onClose={() => setZoomingImageUrl(null)} title="사진 확대">
+        <div style={{ display: 'flex', justifyContent: 'center', padding: 'var(--space-md) 0' }}>
+          {zoomingImageUrl && (
+            <img 
+              src={zoomingImageUrl} 
+              alt="확대된 사진" 
+              style={{ width: '100%', maxWidth: '100%', borderRadius: 'var(--radius-lg)', objectFit: 'contain' }} 
+            />
+          )}
+        </div>
+        <button className="btn btn-secondary btn-full" onClick={() => setZoomingImageUrl(null)} style={{ marginTop: 'var(--space-md)' }}>
+          닫기
+        </button>
+      </Modal>
     </div>
   )
 }

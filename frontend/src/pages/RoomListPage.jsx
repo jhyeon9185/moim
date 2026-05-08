@@ -6,6 +6,7 @@ import { useNotificationContext } from '../notification/NotificationContext'
 import CreateRoomModal from '../components/CreateRoomModal'
 import JoinRoomModal from '../components/JoinRoomModal'
 import UpdateNicknameModal from '../components/UpdateNicknameModal'
+import Modal from '../components/Modal'
 import LoadingSpinner from '../components/LoadingSpinner'
 import api from '../api'
 import './RoomListPage.css'
@@ -101,30 +102,31 @@ export default function RoomListPage() {
     <div className="room-list-page">
       {/* 유저 프로필 */}
       <div className="user-profile">
-        <div className="user-avatar" onClick={() => navigate('/profile')} style={{ cursor: 'pointer' }}>
-          {user?.profileImage ? (
-            <img
-              src={user.profileImage.startsWith('http') ? user.profileImage : `${import.meta.env.VITE_API_URL}${user.profileImage}`}
-              alt=""
-            />
-          ) : (
-            getInitial(user?.nickname)
-          )}
-        </div>
-        <div className="user-greeting">
-          <div className="user-greeting-row">
-            <span className="user-greeting-name">{user?.nickname}</span>
-            {user?.role === 'ADMIN' && (
-              <span className="user-admin-badge" onClick={() => navigate('/admin')}>ADMIN</span>
+        <div className="user-profile-main">
+          <div className="user-avatar" onClick={() => navigate('/profile')} style={{ cursor: 'pointer' }}>
+            {user?.profileImage ? (
+              <img
+                src={user.profileImage.startsWith('http') ? user.profileImage : `${import.meta.env.VITE_API_URL}${user.profileImage}`}
+                alt=""
+              />
+            ) : (
+              getInitial(user?.nickname)
             )}
           </div>
-          <span className="user-greeting-sub">님, 안녕하세요!</span>
+          <div className="user-greeting">
+            <div className="user-greeting-row">
+              <span className="user-greeting-name">
+                {user?.nickname}님, 안녕하세요!
+              </span>
+              {user?.role === 'ADMIN' && (
+                <span className="user-admin-badge" onClick={() => navigate('/admin')}>ADMIN</span>
+              )}
+            </div>
+          </div>
         </div>
         <div className="user-actions">
           <button className="user-action-btn" onClick={() => navigate('/profile')}>정보 수정</button>
-          <span className="user-actions-divider">|</span>
           <button className="user-action-btn" onClick={() => navigate('/settings')}>설정</button>
-          <span className="user-actions-divider">|</span>
           <button className="user-action-btn" onClick={logout}>로그아웃</button>
         </div>
       </div>
@@ -259,32 +261,31 @@ export default function RoomListPage() {
       )}
 
       {/* 알림 패널 */}
-      {showNotifPanel && (
-        <div className="modal-overlay" onClick={() => setShowNotifPanel(false)}>
-          <div className="modal-content notif-panel" onClick={e => e.stopPropagation()}>
-            <div className="modal-handle" />
-            <div className="notif-panel-header">
-              <span>알림</span>
-              {notifications.length > 0 && (
-                <button className="notif-panel-clear" onClick={clearAll}>전체 삭제</button>
-              )}
-            </div>
-            {notifications.length === 0 ? (
-              <div className="notif-panel-empty">새로운 알림이 없어요</div>
-            ) : (
-              <div className="notif-panel-list">
-                {notifications.map(n => (
-                  <div key={n.id} className="notif-panel-item">
-                    <div className="notif-panel-item-title">{n.title}</div>
-                    {n.body && <div className="notif-panel-item-body">{n.body}</div>}
-                    <div className="notif-panel-item-time">{formatNotifTime(n.time)}</div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+      <Modal 
+        isOpen={showNotifPanel} 
+        onClose={() => setShowNotifPanel(false)} 
+        title="알림"
+        className="notif-panel"
+      >
+        <div className="notif-panel-header-actions">
+          {notifications.length > 0 && (
+            <button className="notif-panel-clear" onClick={clearAll}>전체 삭제</button>
+          )}
         </div>
-      )}
+        {notifications.length === 0 ? (
+          <div className="notif-panel-empty">새로운 알림이 없어요</div>
+        ) : (
+          <div className="notif-panel-list">
+            {notifications.map(n => (
+              <div key={n.id} className="notif-panel-item">
+                <div className="notif-panel-item-title">{n.title}</div>
+                {n.body && <div className="notif-panel-item-body">{n.body}</div>}
+                <div className="notif-panel-item-time">{formatNotifTime(n.time)}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </Modal>
 
       {/* 모달들 */}
       {showNicknameModal && (

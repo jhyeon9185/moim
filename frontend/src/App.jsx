@@ -106,6 +106,19 @@ function AppRoutes() {
 }
 
 export default function App() {
+  useEffect(() => {
+    const handleFocus = (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        // Give time for mobile keyboard to slide up
+        setTimeout(() => {
+          e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
+      }
+    }
+    window.addEventListener('focusin', handleFocus);
+    return () => window.removeEventListener('focusin', handleFocus);
+  }, []);
+
   return (
     <AuthProvider>
       <NotificationProvider>

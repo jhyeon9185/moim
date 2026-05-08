@@ -1,5 +1,7 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import api from '../api'
+import Modal from './Modal'
+import './MomiChat.css'
 
 export default function CreateScheduleModal({ roomId, onClose, onCreated, defaultDate = '', schedule = null }) {
   const isEdit = !!schedule
@@ -12,6 +14,38 @@ export default function CreateScheduleModal({ roomId, onClose, onCreated, defaul
   })
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+
+  const [chatMessages, setChatMessages] = useState([])
+  const [chatInput, setChatInput] = useState('')
+  const [chatLoading, setChatLoading] = useState(false)
+  const chatEndRef = useRef(null)
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [chatMessages])
+
+  const handleChatSend = async () => {
+    if (!chatInput.trim() || chatLoading) return
+    const userMsg = chatInput.trim()
+    const next = [...chatMessages, { role: 'user', content: userMsg }]
+    setChatMessages(next)
+    setChatInput('')
+    setChatLoading(true)
+    try {
+      const res = await api.post('/ai/momi', {
+        message: userMsg,
+        history: chatMessages.slice(-6),
+        date: form.eventDate,
+        location: form.location,
+        title: form.title,
+      })
+      setChatMessages([...next, { role: 'assistant', content: res.data.reply }])
+    } catch {
+      setChatMessages([...next, { role: 'assistant', content: '오류가 발생했어요. 다시 시도해주세요 😥' }])
+    } finally {
+      setChatLoading(false)
+    }
+  }
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -52,75 +86,114 @@ export default function CreateScheduleModal({ roomId, onClose, onCreated, defaul
   }
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-handle" />
-        <h2 className="modal-title">{isEdit ? '일정 수정' : '일정 추가'}</h2>
+    <Modal isOpen={true} onClose={onClose} title={isEdit ? '일정 수정' : '일정 추가'}>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
+        {error && <div className="login-error">{error}</div>}
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
-          {error && <div className="login-error">{error}</div>}
+        <div className="input-group">
+          <label className="input-label" htmlFor="schedule-title">무슨 모임인가요?</label>
+          <input
+            id="schedule-title"
+            className="input-field"
+            type="text"
+            name="title"
+            placeholder="예) 어버이날 가족 식사"
+            value={form.title}
+            onChange={handleChange}
+            autoFocus
+          />
+        </div>
 
-          <div className="input-group">
-            <label className="input-label" htmlFor="schedule-title">무슨 모임인가요?</label>
-            <input
-              id="schedule-title"
-              className="input-field"
-              type="text"
-              name="title"
-              placeholder="예) 어버이날 가족 식사"
-              value={form.title}
-              onChange={handleChange}
-              autoFocus
-            />
+        <div className="input-group">
+          <label className="input-label" htmlFor="schedule-date">날짜</label>
+          <input
+            id="schedule-date"
+            className="input-field"
+            type="date"
+            name="eventDate"
+            value={form.eventDate}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div className="input-group">
+          <label className="input-label" htmlFor="schedule-time">시간 (선택)</label>
+          <input
+            id="schedule-time"
+            className="input-field"
+            type="time"
+            name="eventTime"
+            value={form.eventTime}
+            onChange={handleChange}
+            onClick={(e) => e.target.showPicker?.()}
+          />
+        </div>
+
+        <div className="input-group">
+          <label className="input-label" htmlFor="schedule-location">장소 (선택)</label>
+          <input
+            id="schedule-location"
+            className="input-field"
+            type="text"
+            name="location"
+            placeholder="예) 할머니 댁"
+            value={form.location}
+            onChange={handleChange}
+          />
+        </div>
+
+        <button type="submit" className="btn btn-primary btn-full" disabled={submitting}>
+          {submitting ? (isEdit ? '수정 중...' : '추가 중...') : (isEdit ? '수정하기' : '일정 추가하기')}
+        </button>
+
+        <button type="button" className="btn btn-secondary btn-full" onClick={onClose}>
+          취소
+        </button>
+      </form>
+
+      {!isEdit && (
+        <div className="momi-section">
+          <div className="momi-header">
+            <div className="momi-badge">모미</div>
+            <div className="momi-header-text">
+              <span className="momi-name">모미에게 물어봐요!</span>
+              <span className="momi-desc">날씨 · 미세먼지 등 일정 정보를 알려드려요</span>
+            </div>
           </div>
 
-          <div className="input-group">
-            <label className="input-label" htmlFor="schedule-date">날짜</label>
+          {chatMessages.length > 0 && (
+            <div className="momi-messages">
+              {chatMessages.map((m, i) => (
+                <div key={i} className={`momi-msg ${m.role}`}>{m.content}</div>
+              ))}
+              {chatLoading && (
+                <div className="momi-msg assistant momi-typing">
+                  <span /><span /><span />
+                </div>
+              )}
+              <div ref={chatEndRef} />
+            </div>
+          )}
+
+          <div className="momi-input-row">
             <input
-              id="schedule-date"
-              className="input-field"
-              type="date"
-              name="eventDate"
-              value={form.eventDate}
-              onChange={handleChange}
+              className="input-field momi-input"
+              placeholder="예) 이날 비 올까요? 우산 챙겨야 해?"
+              value={chatInput}
+              onChange={e => setChatInput(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleChatSend()}
+              disabled={chatLoading}
             />
+            <button
+              className="btn btn-primary momi-send-btn"
+              onClick={handleChatSend}
+              disabled={chatLoading || !chatInput.trim()}
+            >
+              {chatLoading ? <span className="spinner" style={{ width: 16, height: 16, borderWidth: 2 }} /> : '전송'}
+            </button>
           </div>
-
-          <div className="input-group">
-            <label className="input-label" htmlFor="schedule-time">시간 (선택)</label>
-            <input
-              id="schedule-time"
-              className="input-field"
-              type="time"
-              name="eventTime"
-              value={form.eventTime}
-              onChange={handleChange}
-              onClick={(e) => e.target.showPicker?.()}
-            />
-          </div>
-
-          <div className="input-group">
-            <label className="input-label" htmlFor="schedule-location">장소 (선택)</label>
-            <input
-              id="schedule-location"
-              className="input-field"
-              type="text"
-              name="location"
-              placeholder="예) 할머니 댁"
-              value={form.location}
-              onChange={handleChange}
-            />
-          </div>
-
-          <button type="submit" className="btn btn-primary btn-full" disabled={submitting}>
-            {submitting ? (isEdit ? '수정 중...' : '추가 중...') : (isEdit ? '수정하기' : '일정 추가하기')}
-          </button>
-
-          <button type="button" className="btn btn-secondary btn-full" onClick={onClose}>
-            취소
-          </button>
-        </form>
-      </div>
-    </div>
+        </div>
+      )}
+    </Modal>
   )
 }

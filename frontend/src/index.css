@@ -91,6 +91,8 @@ html {
   font-size: var(--font-size-base);
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
+  /* Prevent double-tap zoom delay */
+  touch-action: manipulation;
 }
 
 body {
@@ -103,6 +105,15 @@ body {
   min-height: 100dvh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Smooth scrolling */
+  scroll-behavior: smooth;
+}
+
+/* Prevent scroll when modal is open */
+body.modal-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
 }
 
 #root {
@@ -137,14 +148,15 @@ img {
   border: none;
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: background var(--transition-fast), transform 0.1s ease;
   white-space: nowrap;
   user-select: none;
   -webkit-user-select: none;
 }
 
 .btn:active {
-  transform: scale(0.97);
+  transform: scale(0.98);
+  opacity: 0.9;
 }
 
 .btn-primary {

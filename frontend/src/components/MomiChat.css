@@ -1,0 +1,113 @@
+.momi-section {
+  margin-top: var(--space-lg);
+  border-top: 1px solid var(--color-border-light);
+  padding-top: var(--space-md);
+}
+
+.momi-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.momi-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-primary), #ff8c5a);
+  color: white;
+  font-size: 11px;
+  font-weight: var(--font-weight-bold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: -0.5px;
+}
+
+.momi-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.momi-name {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+
+.momi-desc {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-light);
+}
+
+.momi-messages {
+  max-height: 220px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+  padding-right: 2px;
+}
+
+.momi-msg {
+  max-width: 85%;
+  padding: 8px 12px;
+  border-radius: 14px;
+  font-size: var(--font-size-sm);
+  line-height: 1.55;
+  word-break: break-word;
+}
+
+.momi-msg.user {
+  background: var(--color-primary);
+  color: white;
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+
+.momi-msg.assistant {
+  background: var(--color-bg, #f7f8fa);
+  color: var(--color-text);
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+  border: 1px solid var(--color-border-light);
+}
+
+.momi-typing span {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin: 0 2px;
+  background: var(--color-text-light);
+  border-radius: 50%;
+  animation: momi-bounce 1.2s infinite;
+}
+
+.momi-typing span:nth-child(2) { animation-delay: 0.2s; }
+.momi-typing span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes momi-bounce {
+  0%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-5px); }
+}
+
+.momi-input-row {
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+}
+
+.momi-input {
+  flex: 1;
+  font-size: var(--font-size-sm) !important;
+}
+
+.momi-send-btn {
+  padding: 10px 14px !important;
+  white-space: nowrap;
+  font-size: var(--font-size-sm) !important;
+}
