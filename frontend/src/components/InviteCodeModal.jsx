@@ -40,7 +40,7 @@ export default function InviteCodeModal({ roomId, roomName, onClose }) {
       return
     }
 
-    const origin = window.location.origin
+    const origin = import.meta.env.VITE_FRONTEND_URL || window.location.origin
     const name = roomName ? `"${roomName}" ` : ''
     
     window.Kakao.Share.sendDefault({
