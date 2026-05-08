@@ -7,6 +7,7 @@ export default function Modal({ isOpen, onClose, title, children, className = ''
   const [offsetY, setOffsetY] = useState(0)
   const startY = useRef(0)
   const contentRef = useRef(null)
+  const overlayRef = useRef(null)
 
   useEffect(() => {
     if (isOpen) {
@@ -19,6 +20,25 @@ export default function Modal({ isOpen, onClose, title, children, className = ''
     return () => {
       document.body.style.overflow = ''
       document.body.style.touchAction = ''
+    }
+  }, [isOpen])
+
+  useEffect(() => {
+    if (!isOpen) return
+    const vv = window.visualViewport
+    if (!vv) return
+    const update = () => {
+      const el = overlayRef.current
+      if (!el) return
+      el.style.height = `${vv.height}px`
+      el.style.top = `${vv.offsetTop}px`
+    }
+    vv.addEventListener('resize', update)
+    vv.addEventListener('scroll', update)
+    update()
+    return () => {
+      vv.removeEventListener('resize', update)
+      vv.removeEventListener('scroll', update)
     }
   }, [isOpen])
 
@@ -47,7 +67,7 @@ export default function Modal({ isOpen, onClose, title, children, className = ''
   }
 
   return createPortal(
-    <div className={`modal-overlay ${isOpen ? 'show' : ''}`} onClick={onClose}>
+    <div ref={overlayRef} className={`modal-overlay ${isOpen ? 'show' : ''}`} onClick={onClose}>
       <div
         ref={contentRef}
         className={`modal-content ${className}`}
