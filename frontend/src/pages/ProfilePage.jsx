@@ -52,6 +52,7 @@ export default function ProfilePage() {
   const [previewImage, setPreviewImage] = useState(null)
   const [imageFile, setImageFile] = useState(null)
   const [showZoom, setShowZoom] = useState(false)
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
 
   const handleUpdate = async () => {
     if (!nickname.trim() || nickname === user?.nickname) return
@@ -224,7 +225,7 @@ export default function ProfilePage() {
         <MenuRow icon={<ILink size={20}/>} label="고객센터"/>
       </MenuGroup>
 
-      <button onClick={() => { if (window.confirm('로그아웃 하시겠습니까?')) logout() }} style={{
+      <button onClick={() => setShowLogoutConfirm(true)} style={{
         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
         width: '100%', height: 48, marginTop: 8,
         color: 'var(--ink-500)', fontSize: 14, fontWeight: 600,
@@ -244,6 +245,16 @@ export default function ProfilePage() {
     </Modal>
   )
 
+  const logoutModal = (
+    <Modal isOpen={showLogoutConfirm} onClose={() => setShowLogoutConfirm(false)} title="로그아웃">
+      <p style={{ fontSize: 15, color: 'var(--ink-700)', marginBottom: 20 }}>로그아웃 하시겠습니까?</p>
+      <div style={{ display: 'flex', gap: 8 }}>
+        <button className="btn btn-secondary btn-full" onClick={() => setShowLogoutConfirm(false)}>취소</button>
+        <button className="btn btn-primary btn-full" onClick={() => { setShowLogoutConfirm(false); logout() }}>로그아웃</button>
+      </div>
+    </Modal>
+  )
+
   // ─── 데스크탑 ─────────────────────────────────────────────────────
   if (isDesktop) {
     return (
@@ -256,6 +267,7 @@ export default function ProfilePage() {
           {profileContent}
         </DesktopLayout>
         {zoomModal}
+        {logoutModal}
       </>
     )
   }
@@ -275,6 +287,7 @@ export default function ProfilePage() {
 
       <TabBar/>
       {zoomModal}
+      {logoutModal}
     </div>
   )
 }
