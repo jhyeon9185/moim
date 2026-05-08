@@ -23,6 +23,8 @@
   object-fit: contain;
   cursor: pointer;
   transition: transform 0.1s;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
 .login-logo-img:hover {
