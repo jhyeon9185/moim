@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ChevronLeft, ChevronRight, Users, Home, Trash2, Bell, Megaphone, Pencil, ToggleLeft, ToggleRight } from 'lucide-react'
+import { Megaphone, Pencil, ToggleLeft, ToggleRight } from 'lucide-react'
+import { AppHeader, IconButton } from '../components/MoimUI'
+import { IBack, IUsers, IHome, IBell, ITrash, IChevR } from '../components/Icons'
 import api from '../api'
 import './AdminPage.css'
 
@@ -176,14 +178,16 @@ export default function AdminPage() {
 
   if (loading) return <div className="loading-page"><div className="spinner" /></div>
 
+  const TABS = [
+    { id: 'users', label: '회원 관리', Icon: IUsers },
+    { id: 'rooms', label: '모임 관리', Icon: IHome },
+    { id: 'notify', label: '알림 발송', Icon: IBell },
+    { id: 'notice', label: '공지사항', Icon: Megaphone },
+  ]
+
   return (
-    <div className="room-page">
-      <div className="room-header">
-        <button className="room-header-back" onClick={() => navigate('/')}>
-          <ChevronLeft size={24} />
-        </button>
-        <h1 className="room-header-title">관리자 대시보드</h1>
-      </div>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', background: 'var(--paper-50)', fontFamily: 'var(--font-sans)' }}>
+      <AppHeader title="관리자 대시보드" left={<IconButton Icon={IBack} onClick={() => navigate('/')}/>}/>
 
       <div className="admin-stats">
         <div className="admin-stat-card">
@@ -196,22 +200,24 @@ export default function AdminPage() {
         </div>
       </div>
 
-      <div className="room-tabs">
-        <button className={`room-tab ${tab === 'users' ? 'active' : ''}`} onClick={() => setTab('users')}>
-          <Users size={16} style={{ marginRight: '4px' }} />회원 관리
-        </button>
-        <button className={`room-tab ${tab === 'rooms' ? 'active' : ''}`} onClick={() => setTab('rooms')}>
-          <Home size={16} style={{ marginRight: '4px' }} />모임 관리
-        </button>
-        <button className={`room-tab ${tab === 'notify' ? 'active' : ''}`} onClick={() => { setTab('notify'); fetchConnectedCount() }}>
-          <Bell size={16} style={{ marginRight: '4px' }} />알림 발송
-        </button>
-        <button className={`room-tab ${tab === 'notice' ? 'active' : ''}`} onClick={() => setTab('notice')}>
-          <Megaphone size={16} style={{ marginRight: '4px' }} />공지사항
-        </button>
+      <div style={{ display: 'flex', background: 'var(--surface)', borderBottom: '1px solid var(--paper-200)', padding: '0 20px' }}>
+        {TABS.map(t => (
+          <button key={t.id} onClick={() => { setTab(t.id); if (t.id === 'notify') fetchConnectedCount() }} style={{
+            flex: 1, background: 'none', border: 'none',
+            padding: '13px 4px',
+            fontFamily: 'var(--font-sans)', fontSize: 13.5,
+            fontWeight: tab === t.id ? 700 : 500,
+            color: tab === t.id ? 'var(--clay)' : 'var(--ink-300)',
+            borderBottom: `2.5px solid ${tab === t.id ? 'var(--clay)' : 'transparent'}`,
+            cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+          }}>
+            <t.Icon size={15}/>{t.label}
+          </button>
+        ))}
       </div>
 
-      <div className="room-content" style={{ padding: 'var(--space-lg)' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-lg)' }}>
         {tab === 'users' && (
           <div className="admin-list">
             {users.length === 0 && <p className="admin-empty">회원이 없습니다.</p>}
@@ -233,7 +239,7 @@ export default function AdminPage() {
                 </div>
                 {u.role !== 'ADMIN' && (
                   <button className="admin-action-btn danger" onClick={() => handleDeleteUser(u.id)} aria-label="삭제">
-                    <Trash2 size={16} />
+                    <ITrash size={16} />
                   </button>
                 )}
               </div>
@@ -259,10 +265,10 @@ export default function AdminPage() {
                       onClick={() => handleExpandRoom(r.id)}
                       aria-label="멤버 펼치기"
                     >
-                      <ChevronRight size={16} style={{ transform: expandedRoom === r.id ? 'rotate(90deg)' : 'none', transition: 'transform 150ms' }} />
+                      <IChevR size={16} style={{ transform: expandedRoom === r.id ? 'rotate(90deg)' : 'none', transition: 'transform 150ms' }} />
                     </button>
                     <button className="admin-action-btn danger" onClick={() => handleDeleteRoom(r.id)} aria-label="삭제">
-                      <Trash2 size={16} />
+                      <ITrash size={16} />
                     </button>
                   </div>
                 </div>
@@ -369,7 +375,7 @@ export default function AdminPage() {
                 disabled={notifSending || !notifTitle.trim()}
                 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
               >
-                <Bell size={16} />
+                <IBell size={16} />
                 {notifSending ? '발송 중...' : '전체 발송하기'}
               </button>
             </div>
@@ -451,7 +457,7 @@ export default function AdminPage() {
                       <Pencil size={14} />
                     </button>
                     <button className="admin-action-btn danger" onClick={() => handleDeleteNotice(a.id)} title="삭제">
-                      <Trash2 size={14} />
+                      <ITrash size={14} />
                     </button>
                   </div>
                 </div>

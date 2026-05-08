@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Clock, Link as LinkIcon } from 'lucide-react'
+import { IDesignMail } from './Icons'
 import api from '../api'
 import Modal from './Modal'
 
@@ -46,7 +47,7 @@ export default function InviteCodeModal({ roomId, roomName, onClose }) {
     
     window.Kakao.Share.sendDefault({
       objectType: 'text',
-      text: `📬 ${name}MOIM 초대 코드: ${code}\n⏰ 24시간 이내 1회 사용 가능`,
+      text: `📬 ${name}모임 초대 코드: ${code}\n⏰ 24시간 이내 1회 사용 가능`,
       link: {
         mobileWebUrl: origin,
         webUrl: origin,
@@ -82,11 +83,11 @@ export default function InviteCodeModal({ roomId, roomName, onClose }) {
       ) : (
         <>
           <div className="empty-state" style={{ padding: 'var(--space-lg)' }}>
-            <div className="empty-state-icon">
-              <LinkIcon size={48} strokeWidth={1.5} color="var(--color-primary)" />
+            <div className="empty-state-icon" style={{ color: 'var(--color-primary)' }}>
+              <IDesignMail size={48} />
             </div>
             <p className="empty-state-desc">
-              초대 코드를 만들어<br />가족을 MOIM에 초대하세요
+              초대 코드를 만들어<br />가족을 모임에 초대하세요
             </p>
           </div>
 

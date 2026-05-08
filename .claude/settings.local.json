@@ -62,7 +62,8 @@
       "Bash(curl -s http://localhost:5173)",
       "Bash(curl -s -w \"%{http_code}\" http://localhost:8080/api/auth/me)",
       "Bash(curl -s -w \"%{http_code}\" http://localhost:5174)",
-      "Bash(./gradlew compileJava)"
+      "Bash(./gradlew compileJava)",
+      "WebFetch(domain:cdn.design.dev)"
     ]
   }
 }

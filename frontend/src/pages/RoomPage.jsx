@@ -90,7 +90,7 @@ function AddScheduleSheet({ onClose, onCreated, roomId, defaultDate = '', schedu
       })
       setChatMessages([...next, { role: 'assistant', content: res.data.reply }])
     } catch {
-      setChatMessages([...next, { role: 'assistant', content: '오류가 발생했어요. 다시 시도해주세요 😥' }])
+      setChatMessages([...next, { role: 'assistant', content: '오류가 발생했어요. 다시 시도해주세요.' }])
     } finally {
       setChatLoading(false)
     }
@@ -523,7 +523,7 @@ export default function RoomPage() {
 
           {/* Invite */}
           <div style={{ marginBottom: 18 }}>
-            <h3 style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink-500)', marginBottom: 8, paddingLeft: 4 }}>MOIM 관리</h3>
+            <h3 style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink-500)', marginBottom: 8, paddingLeft: 4 }}>모임 관리</h3>
             <div style={{ background: 'var(--surface)', border: '1px solid var(--paper-200)', borderRadius: 'var(--r-lg)', overflow: 'hidden' }}>
               <div onClick={() => setShowInvite(true)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', cursor: 'pointer' }}>
                 <div style={{ width: 32, height: 32, borderRadius: 'var(--r-sm)', background: 'var(--paper-100)', color: 'var(--ink-700)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -543,7 +543,7 @@ export default function RoomPage() {
                 <div style={{ width: 32, height: 32, borderRadius: 'var(--r-sm)', background: 'var(--paper-100)', color: 'var(--ink-700)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <IBell size={18}/>
                 </div>
-                <div style={{ flex: 1, fontSize: 14.5, fontWeight: 600 }}>이 MOIM 알림</div>
+                <div style={{ flex: 1, fontSize: 14.5, fontWeight: 600 }}>이 모임 알림</div>
                 <label className="notif-toggle">
                   <input type="checkbox" checked={notifSetting.enabled} onChange={e => updateNotifSetting({ enabled: e.target.checked })}/>
                   <span className="notif-toggle-slider"/>
@@ -634,9 +634,9 @@ export default function RoomPage() {
           {/* Delete room */}
           {isOwnerOrAdmin && (
             <button onClick={async () => {
-              if (window.confirm('정말 이 MOIM을 삭제하시겠습니까? (복구할 수 없습니다)')) {
+              if (window.confirm('정말 이 모임을 삭제하시겠습니까? (복구할 수 없습니다)')) {
                 try { await api.delete(`/rooms/${id}`); navigate('/', { replace: true }) }
-                catch { alert('MOIM 삭제에 실패했습니다.') }
+                catch { alert('모임 삭제에 실패했습니다.') }
               }
             }} style={{
               width: '100%', height: 48, marginTop: 8,
@@ -644,7 +644,7 @@ export default function RoomPage() {
               background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
             }}>
-              <ITrash size={16}/> MOIM 방 삭제
+              <ITrash size={16}/> 모임 방 삭제
             </button>
           )}
         </div>

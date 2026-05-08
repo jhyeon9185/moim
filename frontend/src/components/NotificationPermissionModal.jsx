@@ -23,7 +23,7 @@ export default function NotificationPermissionModal({ onAllow, onDeny }) {
           background: 'var(--color-primary-light)',
           borderRadius: '50%',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          margin: '0 auto var(--space-md)',
+          margin: '32px auto var(--space-md)',
         }}>
           <Bell size={28} color="var(--color-primary)" />
         </div>

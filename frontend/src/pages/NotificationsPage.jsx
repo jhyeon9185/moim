@@ -1,6 +1,8 @@
 import { useNotificationContext } from '../notification/NotificationContext'
-import { AppHeader, IconButton, TabBar } from '../components/MoimUI'
-import { ISettings, IBell } from '../components/Icons'
+import { AppHeader, TabBar } from '../components/MoimUI'
+import { IBell } from '../components/Icons'
+import DesktopLayout from '../components/DesktopLayout'
+import { useIsDesktop } from '../hooks/useIsDesktop'
 
 function NotifItem({ color = 'mustard', title, sub, time, unread = false }) {
   return (
@@ -41,10 +43,63 @@ function formatTime(date) {
 }
 
 export default function NotificationsPage() {
+  const isDesktop = useIsDesktop()
   const { notifications, unreadCount, markAllRead, clearAll } = useNotificationContext()
 
   const handleMarkRead = () => markAllRead()
 
+  const notifContent = (
+    <div onClick={handleMarkRead} style={{ maxWidth: isDesktop ? 640 : undefined, margin: isDesktop ? '0 auto' : undefined }}>
+      {notifications.length === 0 ? (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '80px 0', gap: 12 }}>
+          <IBell size={48} stroke={1.2} style={{ color: 'var(--ink-300)' }}/>
+          <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--ink-500)' }}>새로운 알림이 없어요</div>
+        </div>
+      ) : (
+        <>
+          {unreadCount > 0 && (
+            <div style={{ padding: '0 4px 10px', fontSize: 12, color: 'var(--ink-500)', fontWeight: 700 }}>
+              읽지 않은 알림 {unreadCount}개
+            </div>
+          )}
+          {notifications.map((n, i) => (
+            <NotifItem
+              key={n.id}
+              color={NOTIF_COLORS[i % NOTIF_COLORS.length]}
+              title={n.title}
+              sub={n.body}
+              time={formatTime(n.time)}
+              unread={i < unreadCount}
+            />
+          ))}
+        </>
+      )}
+    </div>
+  )
+
+  // ─── 데스크탑 ─────────────────────────────────────────────────────
+  if (isDesktop) {
+    return (
+      <DesktopLayout>
+        <div style={{ textAlign: 'center', marginBottom: 28, position: 'relative' }}>
+          <div>
+            <div style={{ fontSize: 12, color: 'var(--ink-500)', fontWeight: 700 }}>알림</div>
+            <h1 style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.025em', margin: '4px 0 0' }}>알림 센터</h1>
+          </div>
+          {notifications.length > 0 && (
+            <button onClick={clearAll} style={{
+              position: 'absolute', right: 0, bottom: 4,
+              background: 'none', border: 'none', cursor: 'pointer',
+              fontSize: 13, color: 'var(--ink-500)', fontWeight: 600, fontFamily: 'inherit',
+            }}>전체 삭제</button>
+          )}
+        </div>
+        {notifContent}
+      </DesktopLayout>
+    )
+  }
+
+  // ─── 모바일 ───────────────────────────────────────────────────────
   return (
     <div className="moim paper-grain" style={{
       width: '100%', height: '100dvh', overflow: 'hidden',
@@ -63,31 +118,8 @@ export default function NotificationsPage() {
         }
       />
 
-      <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 96px' }} onClick={handleMarkRead}>
-        {notifications.length === 0 ? (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60%', gap: 12 }}>
-            <IBell size={48} stroke={1.2} style={{ color: 'var(--ink-300)' }}/>
-            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--ink-500)' }}>새로운 알림이 없어요</div>
-          </div>
-        ) : (
-          <>
-            {unreadCount > 0 && (
-              <div style={{ padding: '0 4px 10px', fontSize: 12, color: 'var(--ink-500)', fontWeight: 700 }}>
-                읽지 않은 알림 {unreadCount}개
-              </div>
-            )}
-            {notifications.map((n, i) => (
-              <NotifItem
-                key={n.id}
-                color={NOTIF_COLORS[i % NOTIF_COLORS.length]}
-                title={n.title}
-                sub={n.body}
-                time={formatTime(n.time)}
-                unread={i < unreadCount}
-              />
-            ))}
-          </>
-        )}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 96px' }}>
+        {notifContent}
       </div>
 
       <TabBar/>

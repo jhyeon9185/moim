@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useAuth } from './AuthContext'
+import { useIsDesktop } from '../hooks/useIsDesktop'
 import api from '../api'
-import { IllusLogo } from '../components/Illustrations'
 
 const KAKAO_CLIENT_ID = import.meta.env.VITE_KAKAO_CLIENT_ID
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
@@ -37,8 +37,6 @@ const inputStyle = {
   letterSpacing: '-0.01em', fontFamily: 'inherit',
 }
 
-const inputFocusStyle = { borderColor: 'var(--clay)' }
-
 function Field({ label, value, onChange, type = 'text', placeholder, autoFocus, autoComplete }) {
   const [focused, setFocused] = useState(false)
   return (
@@ -47,7 +45,7 @@ function Field({ label, value, onChange, type = 'text', placeholder, autoFocus, 
       <input
         type={type} value={value} onChange={onChange}
         placeholder={placeholder} autoFocus={autoFocus} autoComplete={autoComplete}
-        style={{ ...inputStyle, ...(focused ? inputFocusStyle : {}) }}
+        style={{ ...inputStyle, ...(focused ? { borderColor: 'var(--clay)' } : {}) }}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
       />
@@ -57,6 +55,7 @@ function Field({ label, value, onChange, type = 'text', placeholder, autoFocus, 
 
 export default function LoginPage() {
   const { login, signup } = useAuth()
+  const isDesktop = useIsDesktop(1280)
 
   const [mode, setMode] = useState('login')
   const [loginForm, setLoginForm] = useState({ email: '', password: '' })
@@ -146,177 +145,151 @@ export default function LoginPage() {
     opacity: submitting ? 0.65 : 1,
   }
 
-  return (
-    <div className="moim paper-grain" style={{
-      width: '100%', minHeight: '100dvh',
-      display: 'flex', flexDirection: 'column',
-      padding: '48px 24px 32px',
-      background: 'linear-gradient(180deg, var(--paper-100) 0%, var(--paper-50) 50%)',
-    }}>
-      {/* Logo */}
-      <div style={{ textAlign: 'center', marginBottom: 28 }}>
-        <div style={{ display: 'inline-block', marginBottom: 16, filter: 'drop-shadow(0 8px 16px rgba(200,105,74,0.25))' }}>
-          <IllusLogo size={80}/>
-        </div>
-        <h1 style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.035em', marginBottom: 6 }}>MOIM</h1>
-        <p style={{ fontSize: 14, color: 'var(--ink-500)', fontWeight: 500, letterSpacing: '-0.01em', lineHeight: 1.5, margin: 0 }}>
-          소중한 사람들과<br/>특별한 순간을 함께
-        </p>
-      </div>
+  const formBody = (
+    <>
+      {/* ── 로그인 ── */}
+      {mode === 'login' && (
+        <>
+          <button type="button" style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            width: '100%', height: 52, borderRadius: 'var(--r-md)',
+            background: '#FEE500', color: '#181600', border: 'none', cursor: 'pointer',
+            fontSize: 15.5, fontWeight: 700, marginBottom: 10, fontFamily: 'inherit',
+          }} onClick={handleKakaoLogin}>
+            <KakaoIcon/> 카카오로 시작하기
+          </button>
+          <button type="button" style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+            width: '100%', height: 52, borderRadius: 'var(--r-md)',
+            background: 'var(--surface)', color: 'var(--ink-900)',
+            border: '1.5px solid var(--paper-200)', cursor: 'pointer',
+            fontSize: 15.5, fontWeight: 700, marginBottom: 0, fontFamily: 'inherit',
+          }} onClick={handleGoogleLogin}>
+            <GoogleIcon/> 구글로 시작하기
+          </button>
 
-      {/* Card */}
-      <div style={{
-        background: 'var(--surface)', border: '1px solid var(--paper-200)',
-        borderRadius: 'var(--r-xl)', padding: 22,
-        boxShadow: 'var(--shadow-2)', flex: 1,
-      }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '18px 0 14px' }}>
+            <span style={{ flex: 1, height: 1, background: 'var(--paper-200)' }}/>
+            <span style={{ fontSize: 12, color: 'var(--ink-500)', fontWeight: 600 }}>또는 이메일</span>
+            <span style={{ flex: 1, height: 1, background: 'var(--paper-200)' }}/>
+          </div>
 
-        {/* ── 로그인 ── */}
-        {mode === 'login' && (
-          <>
-            <button type="button" style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-              width: '100%', height: 52, borderRadius: 'var(--r-md)',
-              background: '#FEE500', color: '#181600', border: 'none', cursor: 'pointer',
-              fontSize: 15.5, fontWeight: 700, marginBottom: 10, fontFamily: 'inherit',
-            }} onClick={handleKakaoLogin}>
-              <KakaoIcon/> 카카오로 시작하기
+          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column' }}>
+            {error && <div className="login-error" style={{ marginBottom: 12 }}>{error}</div>}
+            <Field label="이메일" value={loginForm.email} onChange={e => { setLoginForm(f => ({ ...f, email: e.target.value })); clearError() }} type="email" placeholder="example@email.com" autoComplete="email"/>
+            <Field label="비밀번호" value={loginForm.password} onChange={e => { setLoginForm(f => ({ ...f, password: e.target.value })); clearError() }} type="password" placeholder="비밀번호 입력" autoComplete="current-password"/>
+            <button type="submit" style={primaryBtn} disabled={submitting}>
+              {submitting ? <span className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }}/> : '로그인'}
             </button>
-            <button type="button" style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-              width: '100%', height: 52, borderRadius: 'var(--r-md)',
-              background: 'var(--surface)', color: 'var(--ink-900)',
-              border: '1.5px solid var(--paper-200)', cursor: 'pointer',
-              fontSize: 15.5, fontWeight: 700, marginBottom: 0, fontFamily: 'inherit',
-            }} onClick={handleGoogleLogin}>
-              <GoogleIcon/> 구글로 시작하기
+            <button type="button" onClick={() => switchMode('forgot')} style={{ background: 'none', border: 'none', color: 'var(--ink-500)', fontSize: 13, cursor: 'pointer', padding: '10px 0', textAlign: 'center', fontFamily: 'inherit', textDecoration: 'underline' }}>
+              비밀번호를 잊으셨나요?
             </button>
+          </form>
+        </>
+      )}
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '18px 0 14px' }}>
-              <span style={{ flex: 1, height: 1, background: 'var(--paper-200)' }}/>
-              <span style={{ fontSize: 12, color: 'var(--ink-500)', fontWeight: 600 }}>또는 이메일</span>
-              <span style={{ flex: 1, height: 1, background: 'var(--paper-200)' }}/>
-            </div>
+      {/* ── 회원가입 ── */}
+      {mode === 'signup' && (
+        <>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20 }}>
+            {[1,2,3].map((n, idx) => (
+              <div key={n} style={{ display: 'flex', flex: 1, alignItems: 'center' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, flex: 1 }}>
+                  <div style={{
+                    width: 28, height: 28, borderRadius: '50%',
+                    background: signupStep >= n ? 'var(--clay)' : 'var(--paper-200)',
+                    color: signupStep >= n ? '#fff' : 'var(--ink-500)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 12, fontWeight: 700,
+                  }}>{signupStep > n ? '✓' : n}</div>
+                  <span style={{ fontSize: 11, color: signupStep === n ? 'var(--clay)' : 'var(--ink-500)', fontWeight: 600, whiteSpace: 'nowrap' }}>{signupStepLabel[n]}</span>
+                </div>
+                {idx < 2 && <div style={{ height: 1.5, flex: 0.8, background: signupStep > n ? 'var(--clay)' : 'var(--paper-200)', marginBottom: 18 }}/>}
+              </div>
+            ))}
+          </div>
 
-            <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column' }}>
-              {error && <div className="login-error" style={{ marginBottom: 12 }}>{error}</div>}
-              <Field label="이메일" value={loginForm.email} onChange={e => { setLoginForm(f => ({ ...f, email: e.target.value })); clearError() }} type="email" placeholder="example@email.com" autoComplete="email"/>
-              <Field label="비밀번호" value={loginForm.password} onChange={e => { setLoginForm(f => ({ ...f, password: e.target.value })); clearError() }} type="password" placeholder="비밀번호 입력" autoComplete="current-password"/>
+          {error && <div className="login-error" style={{ marginBottom: 12 }}>{error}</div>}
+
+          {signupStep === 1 && (
+            <form onSubmit={handleSendCode} style={{ display: 'flex', flexDirection: 'column' }}>
+              <Field label="이메일" value={signupEmail} onChange={e => { setSignupEmail(e.target.value); clearError() }} type="email" placeholder="가입할 이메일 주소" autoFocus autoComplete="email"/>
               <button type="submit" style={primaryBtn} disabled={submitting}>
-                {submitting ? <span className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }}/> : '로그인'}
-              </button>
-              <button type="button" onClick={() => switchMode('forgot')} style={{ background: 'none', border: 'none', color: 'var(--ink-500)', fontSize: 13, cursor: 'pointer', padding: '10px 0', textAlign: 'center', fontFamily: 'inherit', textDecoration: 'underline' }}>
-                비밀번호를 잊으셨나요?
+                {submitting ? <span className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }}/> : '인증 코드 받기'}
               </button>
             </form>
-          </>
-        )}
+          )}
 
-        {/* ── 회원가입 ── */}
-        {mode === 'signup' && (
-          <>
-            {/* Step indicator */}
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20 }}>
-              {[1,2,3].map((n, idx) => (
-                <div key={n} style={{ display: 'flex', flex: 1, alignItems: 'center' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, flex: 1 }}>
-                    <div style={{
-                      width: 28, height: 28, borderRadius: '50%',
-                      background: signupStep >= n ? 'var(--clay)' : 'var(--paper-200)',
-                      color: signupStep >= n ? '#fff' : 'var(--ink-500)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 12, fontWeight: 700, zIndex: 1, position: 'relative',
-                    }}>{signupStep > n ? '✓' : n}</div>
-                    <span style={{ fontSize: 11, color: signupStep === n ? 'var(--clay)' : 'var(--ink-500)', fontWeight: 600, whiteSpace: 'nowrap' }}>{signupStepLabel[n]}</span>
-                  </div>
-                  {idx < 2 && <div style={{ height: 1.5, flex: 0.8, background: signupStep > n ? 'var(--clay)' : 'var(--paper-200)', marginBottom: 18 }}/>}
-                </div>
-              ))}
-            </div>
-
-            {error && <div className="login-error" style={{ marginBottom: 12 }}>{error}</div>}
-
-            {signupStep === 1 && (
-              <form onSubmit={handleSendCode} style={{ display: 'flex', flexDirection: 'column' }}>
-                <Field label="이메일" value={signupEmail} onChange={e => { setSignupEmail(e.target.value); clearError() }} type="email" placeholder="가입할 이메일 주소" autoFocus autoComplete="email"/>
-                <button type="submit" style={primaryBtn} disabled={submitting}>
-                  {submitting ? <span className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }}/> : '인증 코드 받기'}
-                </button>
-              </form>
-            )}
-
-            {signupStep === 2 && (
-              <form onSubmit={handleVerifyCode} style={{ display: 'flex', flexDirection: 'column' }}>
-                <div style={{ textAlign: 'center', fontSize: 13.5, color: 'var(--ink-500)', marginBottom: 16, lineHeight: 1.6 }}>
-                  <strong style={{ color: 'var(--clay)' }}>{signupEmail}</strong>으로<br/>인증 코드를 보냈습니다.
-                </div>
-                <Field label="인증 코드 6자리" value={signupCode} onChange={e => { setSignupCode(e.target.value.replace(/\D/g, '')); clearError() }} type="text" placeholder="000000" autoFocus/>
-                <button type="submit" style={primaryBtn} disabled={submitting || signupCode.length !== 6}>
-                  {submitting ? <span className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }}/> : '인증하기'}
-                </button>
-                <button type="button" onClick={() => { setSignupStep(1); clearError() }} style={{ background: 'none', border: 'none', color: 'var(--ink-500)', fontSize: 13, cursor: 'pointer', padding: '10px 0', textAlign: 'center', fontFamily: 'inherit', textDecoration: 'underline' }}>
-                  이메일 다시 입력하기
-                </button>
-              </form>
-            )}
-
-            {signupStep === 3 && (
-              <form onSubmit={handleSignup} style={{ display: 'flex', flexDirection: 'column' }}>
-                <div style={{ textAlign: 'center', fontSize: 13, color: 'var(--success)', background: 'var(--tag-sage-bg)', borderRadius: 'var(--r-sm)', padding: '8px 12px', marginBottom: 14, fontWeight: 600 }}>
-                  ✓ 이메일 인증 완료
-                </div>
-                <Field label="닉네임" value={signupForm.nickname} onChange={e => { setSignupForm(f => ({ ...f, nickname: e.target.value })); clearError() }} placeholder="지인에게 보여줄 이름" autoFocus/>
-                <Field label="비밀번호" value={signupForm.password} onChange={e => { setSignupForm(f => ({ ...f, password: e.target.value })); clearError() }} type="password" placeholder="6자 이상" autoComplete="new-password"/>
-                <Field label="비밀번호 확인" value={signupForm.passwordConfirm} onChange={e => { setSignupForm(f => ({ ...f, passwordConfirm: e.target.value })); clearError() }} type="password" placeholder="비밀번호 재입력" autoComplete="new-password"/>
-                <button type="submit" style={primaryBtn} disabled={submitting}>
-                  {submitting ? <span className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }}/> : '가입 완료'}
-                </button>
-              </form>
-            )}
-          </>
-        )}
-
-        {/* ── 비밀번호 찾기 ── */}
-        {mode === 'forgot' && (
-          <>
-            {forgotSent ? (
-              <div style={{ textAlign: 'center', padding: '16px 0 8px' }}>
-                <div style={{ fontSize: 48, marginBottom: 16 }}>📬</div>
-                <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--ink-900)', lineHeight: 1.8, marginBottom: 8 }}>
-                  <strong>{forgotEmail}</strong>으로<br/>재설정 링크를 보냈습니다.
-                </p>
-                <p style={{ fontSize: 13.5, color: 'var(--ink-500)', lineHeight: 1.7, marginBottom: 20 }}>
-                  메일함을 확인해주세요.<br/>스팸함에 있을 수도 있어요.
-                </p>
-                <button style={primaryBtn} onClick={() => switchMode('login')}>로그인으로 돌아가기</button>
+          {signupStep === 2 && (
+            <form onSubmit={handleVerifyCode} style={{ display: 'flex', flexDirection: 'column' }}>
+              <div style={{ textAlign: 'center', fontSize: 13.5, color: 'var(--ink-500)', marginBottom: 16, lineHeight: 1.6 }}>
+                <strong style={{ color: 'var(--clay)' }}>{signupEmail}</strong>으로<br/>인증 코드를 보냈습니다.
               </div>
-            ) : (
-              <>
-                <div style={{ textAlign: 'center', marginBottom: 20 }}>
-                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
-                    <LockIcon/>
-                  </div>
-                  <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: '-0.025em', marginBottom: 6 }}>비밀번호 재설정</div>
-                  <p style={{ fontSize: 13.5, color: 'var(--ink-500)', lineHeight: 1.6, margin: 0 }}>
-                    가입한 이메일 주소를 입력하면<br/>비밀번호 재설정 링크를 보내드립니다.
-                  </p>
+              <Field label="인증 코드 6자리" value={signupCode} onChange={e => { setSignupCode(e.target.value.replace(/\D/g, '')); clearError() }} type="text" placeholder="000000" autoFocus/>
+              <button type="submit" style={primaryBtn} disabled={submitting || signupCode.length !== 6}>
+                {submitting ? <span className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }}/> : '인증하기'}
+              </button>
+              <button type="button" onClick={() => { setSignupStep(1); clearError() }} style={{ background: 'none', border: 'none', color: 'var(--ink-500)', fontSize: 13, cursor: 'pointer', padding: '10px 0', textAlign: 'center', fontFamily: 'inherit', textDecoration: 'underline' }}>
+                이메일 다시 입력하기
+              </button>
+            </form>
+          )}
+
+          {signupStep === 3 && (
+            <form onSubmit={handleSignup} style={{ display: 'flex', flexDirection: 'column' }}>
+              <div style={{ textAlign: 'center', fontSize: 13, color: 'var(--success)', background: 'var(--tag-sage-bg)', borderRadius: 'var(--r-sm)', padding: '8px 12px', marginBottom: 14, fontWeight: 600 }}>
+                ✓ 이메일 인증 완료
+              </div>
+              <Field label="닉네임" value={signupForm.nickname} onChange={e => { setSignupForm(f => ({ ...f, nickname: e.target.value })); clearError() }} placeholder="지인에게 보여줄 이름" autoFocus/>
+              <Field label="비밀번호" value={signupForm.password} onChange={e => { setSignupForm(f => ({ ...f, password: e.target.value })); clearError() }} type="password" placeholder="6자 이상" autoComplete="new-password"/>
+              <Field label="비밀번호 확인" value={signupForm.passwordConfirm} onChange={e => { setSignupForm(f => ({ ...f, passwordConfirm: e.target.value })); clearError() }} type="password" placeholder="비밀번호 재입력" autoComplete="new-password"/>
+              <button type="submit" style={primaryBtn} disabled={submitting}>
+                {submitting ? <span className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }}/> : '가입 완료'}
+              </button>
+            </form>
+          )}
+        </>
+      )}
+
+      {/* ── 비밀번호 찾기 ── */}
+      {mode === 'forgot' && (
+        <>
+          {forgotSent ? (
+            <div style={{ textAlign: 'center', padding: '16px 0 8px' }}>
+              <div style={{ fontSize: 48, marginBottom: 16 }}>📬</div>
+              <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--ink-900)', lineHeight: 1.8, marginBottom: 8 }}>
+                <strong>{forgotEmail}</strong>으로<br/>재설정 링크를 보냈습니다.
+              </p>
+              <p style={{ fontSize: 13.5, color: 'var(--ink-500)', lineHeight: 1.7, marginBottom: 20 }}>
+                메일함을 확인해주세요.<br/>스팸함에 있을 수도 있어요.
+              </p>
+              <button style={primaryBtn} onClick={() => switchMode('login')}>로그인으로 돌아가기</button>
+            </div>
+          ) : (
+            <>
+              <div style={{ textAlign: 'center', marginBottom: 20 }}>
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
+                  <LockIcon/>
                 </div>
-                <form onSubmit={handleForgot} style={{ display: 'flex', flexDirection: 'column' }}>
-                  {error && <div className="login-error" style={{ marginBottom: 12 }}>{error}</div>}
-                  <Field label="이메일" value={forgotEmail} onChange={e => { setForgotEmail(e.target.value); clearError() }} type="email" placeholder="가입한 이메일 주소" autoFocus/>
-                  <button type="submit" style={primaryBtn} disabled={submitting}>
-                    {submitting ? <span className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }}/> : '재설정 링크 받기'}
-                  </button>
-                </form>
-              </>
-            )}
-          </>
-        )}
+                <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: '-0.025em', marginBottom: 6 }}>비밀번호 재설정</div>
+                <p style={{ fontSize: 13.5, color: 'var(--ink-500)', lineHeight: 1.6, margin: 0 }}>
+                  가입한 이메일 주소를 입력하면<br/>비밀번호 재설정 링크를 보내드립니다.
+                </p>
+              </div>
+              <form onSubmit={handleForgot} style={{ display: 'flex', flexDirection: 'column' }}>
+                {error && <div className="login-error" style={{ marginBottom: 12 }}>{error}</div>}
+                <Field label="이메일" value={forgotEmail} onChange={e => { setForgotEmail(e.target.value); clearError() }} type="email" placeholder="가입한 이메일 주소" autoFocus/>
+                <button type="submit" style={primaryBtn} disabled={submitting}>
+                  {submitting ? <span className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }}/> : '재설정 링크 받기'}
+                </button>
+              </form>
+            </>
+          )}
+        </>
+      )}
 
-      </div>
-
-      {/* Bottom link */}
-      <div style={{ textAlign: 'center', paddingTop: 16, fontSize: 13.5, color: 'var(--ink-500)' }}>
+      {/* 하단 링크 */}
+      <div style={{ textAlign: 'center', paddingTop: 20, fontSize: 13.5, color: 'var(--ink-500)' }}>
         {mode === 'login' && (
           <>처음이신가요? <button onClick={() => switchMode('signup')} style={{ background: 'none', border: 'none', color: 'var(--clay)', fontWeight: 700, cursor: 'pointer', fontSize: 13.5, fontFamily: 'inherit' }}>회원가입</button></>
         )}
@@ -326,6 +299,124 @@ export default function LoginPage() {
         {mode === 'forgot' && !forgotSent && (
           <button onClick={() => switchMode('login')} style={{ background: 'none', border: 'none', color: 'var(--clay)', fontWeight: 700, cursor: 'pointer', fontSize: 13.5, fontFamily: 'inherit' }}>← 로그인으로 돌아가기</button>
         )}
+      </div>
+    </>
+  )
+
+  // ─── 데스크탑 레이아웃 (1280px 이상) ──────────────────────────────
+  if (isDesktop) {
+    return (
+      <div className="moim" style={{ display: 'flex', width: '100%', height: '100dvh', overflow: 'hidden' }}>
+        {/* 왼쪽 브랜드 패널 */}
+        <div style={{
+          width: '52%', flexShrink: 0,
+          background: 'linear-gradient(150deg, var(--clay) 0%, #9C4830 100%)',
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center',
+          padding: '64px 72px',
+          color: '#fff', position: 'relative', overflow: 'hidden',
+        }}>
+          {/* 배경 원 장식 */}
+          <div style={{ position: 'absolute', width: 480, height: 480, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', top: -120, right: -140, pointerEvents: 'none' }}/>
+          <div style={{ position: 'absolute', width: 320, height: 320, borderRadius: '50%', background: 'rgba(255,255,255,0.05)', bottom: -80, left: -80, pointerEvents: 'none' }}/>
+
+          <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', width: '100%', maxWidth: 420 }}>
+            <div style={{ marginBottom: 28 }}>
+              <img
+                src="/moim_main.png"
+                alt="모임"
+                style={{
+                  width: 96, height: 96,
+                  borderRadius: 24,
+                  objectFit: 'cover',
+                  boxShadow: '0 12px 40px rgba(0,0,0,0.25)',
+                  display: 'inline-block',
+                }}
+              />
+            </div>
+            <h1 style={{ fontSize: 56, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 14, lineHeight: 1 }}>MOIM</h1>
+            <p style={{ fontSize: 18, fontWeight: 500, opacity: 0.88, lineHeight: 1.7, marginBottom: 52 }}>
+              소중한 사람들과<br/>특별한 순간을 함께
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14, textAlign: 'left' }}>
+              {[
+                ['🏠', '가족 모임 일정을 한눈에 관리'],
+                ['⚡', '카카오·구글 간편 로그인'],
+                ['✨', 'AI 일정 도우미 Momi와 함께'],
+              ].map(([emoji, text]) => (
+                <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                  <div style={{
+                    width: 40, height: 40, borderRadius: 'var(--r-sm)',
+                    background: 'rgba(255,255,255,0.15)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 18, flexShrink: 0,
+                  }}>{emoji}</div>
+                  <span style={{ fontSize: 15.5, fontWeight: 600, opacity: 0.92 }}>{text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* 오른쪽 폼 패널 */}
+        <div style={{
+          flex: 1,
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center',
+          padding: '48px 64px',
+          background: 'var(--paper-50)',
+          overflowY: 'auto',
+        }}>
+          <div style={{ width: '100%', maxWidth: 420 }}>
+            {/* 모드 타이틀 */}
+            <div style={{ marginBottom: 28 }}>
+              <h2 style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.025em', marginBottom: 6 }}>
+                {mode === 'login' && '로그인'}
+                {mode === 'signup' && '회원가입'}
+                {mode === 'forgot' && '비밀번호 재설정'}
+              </h2>
+              <p style={{ fontSize: 14, color: 'var(--ink-500)', fontWeight: 500 }}>
+                {mode === 'login' && '계정에 로그인해서 모임을 시작하세요'}
+                {mode === 'signup' && '새 계정을 만들어 모임에 합류하세요'}
+                {mode === 'forgot' && '이메일로 재설정 링크를 받으세요'}
+              </p>
+            </div>
+            {formBody}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // ─── 모바일 레이아웃 ────────────────────────────────────────────────
+  return (
+    <div className="moim paper-grain" style={{
+      width: '100%', minHeight: '100dvh',
+      display: 'flex', flexDirection: 'column',
+      padding: '48px 24px 32px',
+      background: 'linear-gradient(180deg, var(--paper-100) 0%, var(--paper-50) 50%)',
+    }}>
+      <div style={{ textAlign: 'center', marginBottom: 28 }}>
+        <div style={{ display: 'inline-block', marginBottom: 16 }}>
+          <img
+            src="/moim_main.png"
+            alt="모임"
+            style={{ width: 80, height: 80, borderRadius: 20, objectFit: 'cover', boxShadow: '0 8px 24px rgba(200,105,74,0.28)' }}
+          />
+        </div>
+        <h1 style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.035em', marginBottom: 6 }}>MOIM</h1>
+        <p style={{ fontSize: 14, color: 'var(--ink-500)', fontWeight: 500, letterSpacing: '-0.01em', lineHeight: 1.5, margin: 0 }}>
+          소중한 사람들과<br/>특별한 순간을 함께
+        </p>
+      </div>
+
+      <div style={{
+        background: 'var(--surface)', border: '1px solid var(--paper-200)',
+        borderRadius: 'var(--r-xl)', padding: 22,
+        boxShadow: 'var(--shadow-2)', flex: 1,
+      }}>
+        {formBody}
       </div>
     </div>
   )
