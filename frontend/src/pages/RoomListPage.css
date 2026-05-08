@@ -1,0 +1,469 @@
+.room-list-page {
+  flex: 1;
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: var(--space-lg);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 공지사항 흐르는 배너 */
+.notice-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  background: var(--color-primary-light);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  padding: 8px var(--space-md);
+  margin-bottom: var(--space-md);
+  overflow: hidden;
+}
+
+.notice-banner-label {
+  font-size: 11px;
+  font-weight: var(--font-weight-bold);
+  background: var(--color-primary);
+  color: white;
+  padding: 2px 7px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.notice-ticker-wrap {
+  flex: 1;
+  overflow: hidden;
+}
+
+.notice-ticker-track {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: notice-ticker linear infinite;
+}
+
+.notice-ticker-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-primary);
+  padding-right: 80px;
+}
+
+@keyframes notice-ticker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* 관리자 배너 */
+.admin-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: linear-gradient(135deg, var(--color-primary), #4f46e5);
+  color: white;
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: var(--space-md) var(--space-lg);
+  margin-bottom: var(--space-md);
+  cursor: pointer;
+  font-family: var(--font-family);
+  transition: opacity var(--transition-fast);
+}
+
+.admin-banner:active {
+  opacity: 0.85;
+}
+
+.admin-banner-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.room-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-lg);
+}
+
+.room-list-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+}
+
+.room-list-actions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.room-list-actions .btn {
+  min-height: 44px;
+  padding: 10px 16px;
+  font-size: var(--font-size-sm);
+}
+
+.room-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  flex: 1;
+}
+
+.room-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border-light);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.room-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.room-card:active {
+  transform: translateY(0);
+}
+
+.room-card-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-md);
+  background: var(--color-primary-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.room-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.room-card-name {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: 2px;
+}
+
+.room-card-meta {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.room-card-arrow {
+  color: var(--color-text-light);
+  font-size: var(--font-size-xl);
+  flex-shrink: 0;
+}
+
+/* 승인 대기 배지 */
+.room-card-pending-count {
+  display: inline-flex;
+  align-items: center;
+  background: var(--color-secondary);
+  color: #fff;
+  font-size: 11px;
+  font-weight: var(--font-weight-bold);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* 승인 대기 중 방 카드 */
+.room-card-pending {
+  cursor: default;
+  opacity: 0.8;
+  background: var(--color-bg);
+  border: 1.5px dashed var(--color-secondary);
+}
+
+.room-card-pending:hover {
+  transform: none;
+  box-shadow: var(--shadow-sm);
+}
+
+.room-card-pending .room-card-icon {
+  background: var(--color-secondary-light);
+}
+
+.room-card-pending-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-secondary) !important;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-xs) !important;
+}
+
+/* 유저 프로필 헤더 */
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) 0;
+  margin-bottom: var(--space-md);
+}
+
+.user-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-inverse);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.user-greeting {
+  flex: 1;
+  min-width: 0;
+}
+
+.user-greeting-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+}
+
+.user-greeting-name {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-greeting-sub {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  display: block;
+  margin-top: 1px;
+}
+
+.user-admin-badge {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: var(--font-weight-bold);
+  background: var(--color-primary);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.user-logout {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--color-text-light);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  padding: var(--space-sm);
+}
+
+.user-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.user-action-btn {
+  background: none;
+  border: none;
+  color: var(--color-text-light);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  padding: 4px 2px;
+  white-space: nowrap;
+}
+
+.user-action-btn:active {
+  color: var(--color-text);
+}
+
+.user-actions-divider {
+  color: var(--color-border);
+  font-size: var(--font-size-xs);
+  user-select: none;
+}
+
+/* 대기/거절 카드 공통 버튼 */
+.room-card-status-btn {
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  font-family: var(--font-family);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  padding: 6px 12px;
+  cursor: pointer;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.room-card-status-btn-danger {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+
+/* 알림 벨 버튼 */
+.notif-bell-btn {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-text);
+  flex-shrink: 0;
+  transition: background var(--transition-fast);
+}
+
+.notif-bell-btn:active {
+  background: var(--color-border-light);
+}
+
+.notif-bell-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 18px;
+  height: 18px;
+  background: var(--color-danger);
+  color: white;
+  border-radius: 9px;
+  font-size: 10px;
+  font-weight: var(--font-weight-bold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border: 2px solid var(--color-surface);
+  pointer-events: none;
+}
+
+/* 알림 패널 */
+.notif-panel {
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.notif-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: var(--space-md);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-lg);
+}
+
+.notif-panel-clear {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-family);
+  padding: 4px 0;
+}
+
+.notif-panel-empty {
+  text-align: center;
+  padding: var(--space-xl) 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.notif-panel-list {
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding-bottom: var(--space-md);
+}
+
+.notif-panel-item {
+  padding: var(--space-md);
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
+}
+
+.notif-panel-item-title {
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  margin-bottom: 2px;
+}
+
+.notif-panel-item-body {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  margin-bottom: 4px;
+}
+
+.notif-panel-item-time {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-light);
+}
+
+/* 거절된 방 카드 */
+.room-card-rejected {
+  cursor: default;
+  opacity: 0.85;
+  background: var(--color-bg);
+  border: 1.5px dashed var(--color-danger);
+}
+
+.room-card-rejected:hover {
+  transform: none;
+  box-shadow: var(--shadow-sm);
+}
+
+.room-card-rejected .room-card-icon {
+  background: #fff0f0;
+}
+
+.room-card-rejected-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-danger) !important;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-xs) !important;
+}

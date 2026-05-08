@@ -1,0 +1,763 @@
+.room-page {
+  flex: 1;
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  padding-bottom: var(--bottom-nav-height);
+}
+
+/* 모임방 헤더 */
+.room-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border-light);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.room-header-back {
+  background: none;
+  border: none;
+  font-size: var(--font-size-xl);
+  color: var(--color-text);
+  cursor: pointer;
+  padding: var(--space-sm);
+  display: flex;
+  align-items: center;
+}
+
+.room-header-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  flex: 1;
+}
+
+.room-header-menu {
+  background: none;
+  border: none;
+  font-size: var(--font-size-xl);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  padding: var(--space-sm);
+}
+
+/* 모임방 콘텐츠 */
+.room-content {
+  flex: 1;
+  padding: var(--space-lg);
+  overflow-y: auto;
+}
+
+/* 탭 영역 */
+.room-tabs {
+  display: flex;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border-light);
+  padding: 0 var(--space-lg);
+}
+
+.room-tab {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: var(--space-md) var(--space-sm);
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-light);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all var(--transition-fast);
+}
+
+.room-tab.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* 일정 카드 */
+.schedule-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: var(--space-md) var(--space-lg);
+  border-left: 4px solid var(--color-primary);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.schedule-card-date {
+  font-size: var(--font-size-xs);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-xs);
+}
+
+.schedule-card-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.schedule-card-meta {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-top: var(--space-xs);
+}
+
+/* 멤버 리스트 */
+.member-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) 0;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.member-item:last-child {
+  border-bottom: none;
+}
+
+.member-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-base);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.member-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.member-info {
+  flex: 1;
+}
+
+.member-icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-full);
+  border: none;
+  background: var(--color-primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.member-icon-btn.danger {
+  background: var(--color-danger);
+}
+
+.member-icon-btn:active {
+  opacity: 0.7;
+}
+
+.member-name {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+}
+
+.member-role {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+/* 일정 추가 FAB */
+.fab {
+  position: fixed;
+  bottom: calc(var(--bottom-nav-height) + var(--space-lg));
+  right: calc(50% - var(--max-width) / 2 + var(--space-lg));
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  border: none;
+  font-size: 28px;
+  box-shadow: var(--shadow-lg);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  z-index: 5;
+}
+
+.fab:hover {
+  background: var(--color-primary-dark);
+  transform: scale(1.05);
+}
+
+.fab:active {
+  transform: scale(0.95);
+}
+
+@media (max-width: 480px) {
+  .fab {
+    right: var(--space-lg);
+  }
+}
+
+/* 달력 뷰 */
+.calendar-view {
+  width: 100%;
+  background: var(--color-surface);
+}
+
+.calendar-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-lg) var(--space-lg) var(--space-md);
+}
+
+.calendar-nav-label {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.calendar-nav-year {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-light);
+  font-weight: var(--font-weight-medium);
+}
+
+.calendar-nav-month {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+}
+
+.calendar-nav-arrows {
+  display: flex;
+  gap: 4px;
+}
+
+.calendar-nav-btn {
+  background: var(--color-bg);
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition-fast);
+}
+
+.calendar-nav-btn:active {
+  background: var(--color-border);
+}
+
+.calendar-weekdays-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  padding: 0 var(--space-sm);
+  margin-bottom: var(--space-xs);
+}
+
+.calendar-weekday {
+  text-align: center;
+  font-size: 13px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-light);
+  padding: var(--space-xs) 0;
+}
+
+.calendar-weekday.sun { color: var(--color-danger); }
+.calendar-weekday.sat { color: var(--color-primary); }
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  padding: 0 var(--space-sm) var(--space-md);
+  row-gap: 2px;
+}
+
+.calendar-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3px 0;
+  cursor: pointer;
+  min-height: 56px;
+}
+
+.calendar-cell.empty {
+  cursor: default;
+}
+
+.calendar-day-num {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.calendar-day-num.sun { color: var(--color-danger); }
+.calendar-day-num.sat { color: var(--color-primary); }
+
+.calendar-day-num.today {
+  background: var(--color-secondary);
+  color: #fff;
+  font-weight: var(--font-weight-bold);
+}
+
+.calendar-day-num.selected {
+  background: var(--color-text);
+  color: #fff;
+  font-weight: var(--font-weight-bold);
+}
+
+.calendar-day-num.today.selected {
+  background: var(--color-text);
+}
+
+.calendar-dots {
+  display: flex;
+  gap: 3px;
+  margin-top: 3px;
+  height: 6px;
+  align-items: center;
+}
+
+.calendar-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  display: block;
+}
+
+/* 날짜 상세 섹션 */
+.date-detail-section {
+  margin: 0 var(--space-md) var(--space-md);
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  animation: slideUp var(--transition-normal);
+}
+
+.date-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) var(--space-lg);
+  background: var(--color-text);
+}
+
+.date-detail-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: #fff;
+}
+
+.date-detail-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 14px;
+  font-size: var(--font-size-xs);
+  min-height: auto;
+  background: rgba(255,255,255,0.15);
+  border-radius: var(--radius-full);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-family);
+  font-weight: var(--font-weight-semibold);
+  transition: background var(--transition-fast);
+}
+
+.date-detail-add-btn:active {
+  background: rgba(255,255,255,0.25);
+}
+
+.date-detail-body {
+  padding: var(--space-md) var(--space-lg) var(--space-lg);
+}
+
+.date-detail-empty {
+  font-size: var(--font-size-base);
+  color: var(--color-text-light);
+  text-align: center;
+  padding: var(--space-lg) 0;
+}
+
+.date-detail-schedule-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: var(--space-md) 0;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.date-detail-schedule-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.date-detail-schedule-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+.date-detail-schedule-info {
+  flex: 1;
+}
+
+.date-detail-schedule-title {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+
+.date-detail-schedule-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: 2px;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+/* 설정탭 일정 목록 */
+.schedule-list-expanded {
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
+  margin-top: var(--space-xs);
+  overflow: hidden;
+}
+
+.schedule-list-empty {
+  text-align: center;
+  color: var(--color-text-light);
+  font-size: var(--font-size-sm);
+  padding: var(--space-lg);
+}
+
+.schedule-month-group {
+  padding: var(--space-sm) var(--space-md);
+}
+
+.schedule-month-label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: var(--space-sm) 0 var(--space-xs);
+  border-bottom: 1px solid var(--color-border-light);
+  margin-bottom: var(--space-xs);
+}
+
+.schedule-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-sm) 0;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.schedule-list-item:last-child {
+  border-bottom: none;
+}
+
+.schedule-list-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.schedule-list-item-title {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.schedule-list-item-meta {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  margin-top: 2px;
+}
+
+.schedule-list-item-actions {
+  display: flex;
+  gap: var(--space-xs);
+  flex-shrink: 0;
+  margin-left: var(--space-sm);
+}
+
+.schedule-action-btn {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.schedule-action-btn:active {
+  background: var(--color-surface-hover);
+}
+
+.schedule-action-btn.danger {
+  color: var(--color-danger);
+  border-color: var(--color-danger-light);
+}
+
+/* 설정 메뉴 */
+.settings-section {
+  margin-bottom: var(--space-xl);
+}
+
+.settings-title {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.settings-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md);
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-sm);
+  cursor: pointer;
+  border: none;
+  width: 100%;
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  text-align: left;
+  transition: background var(--transition-fast);
+}
+
+.settings-item:hover {
+  background: var(--color-surface-hover);
+}
+
+.settings-item-icon {
+  font-size: var(--font-size-xl);
+  margin-right: var(--space-md);
+}
+
+.invite-code-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  background: var(--color-primary-light);
+  border-radius: var(--radius-lg);
+  margin: var(--space-md) 0;
+}
+
+.invite-code-text {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 4px;
+  color: var(--color-primary-dark);
+  font-family: monospace;
+}
+
+.invite-code-copy {
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-md);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+
+/* 승인 대기 */
+.pending-list {
+  margin-top: var(--space-md);
+}
+
+.pending-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background: var(--color-secondary-light);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-sm);
+}
+
+.pending-item-info {
+  flex: 1;
+}
+
+.pending-item-name {
+  font-weight: var(--font-weight-semibold);
+}
+
+.pending-actions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.pending-actions .btn {
+  min-height: 40px;
+  padding: 8px 16px;
+  font-size: var(--font-size-sm);
+}
+
+/* 알림 토글 스위치 */
+.notif-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.notif-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.notif-toggle-slider {
+  width: 44px;
+  height: 24px;
+  background: var(--color-border);
+  border-radius: 12px;
+  transition: background var(--transition-fast);
+  position: relative;
+}
+
+.notif-toggle-slider::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  background: white;
+  border-radius: 50%;
+  transition: transform var(--transition-fast);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.notif-toggle input:checked + .notif-toggle-slider {
+  background: var(--color-primary);
+}
+
+.notif-toggle input:checked + .notif-toggle-slider::after {
+  transform: translateX(20px);
+}
+
+/* 알림 시간 옵션 */
+.notif-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-xs) 0 var(--space-sm);
+}
+
+.notif-option-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: 12px var(--space-md);
+  background: var(--color-surface);
+  border: 2px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.notif-option-row.checked {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.notif-option-check {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+
+.notif-option-row.checked .notif-option-check {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+}
+
+.notif-option-checkmark {
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.notif-option-label {
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+}
+
+.notif-option-desc {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  margin-top: 2px;
+}
