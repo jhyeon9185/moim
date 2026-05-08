@@ -343,47 +343,41 @@ img {
 /* 심비오트 로딩 스피너 (Gooey Effect) */
 .symbiote-wrapper {
   position: relative;
-  width: 100px;
-  height: 100px;
+  width: 120px;
+  height: 120px;
   display: flex;
   align-items: center;
   justify-content: center;
-  filter: contrast(20); /* Gooey 효과의 핵심: 강한 대비 */
+  filter: contrast(18); /* 대비를 살짝 낮춰서 덜 깨지게 조절 */
   background: transparent;
 }
 
 .blob {
   position: absolute;
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   background: var(--color-primary);
   border-radius: 50%;
-  filter: blur(10px); /* Gooey 효과의 핵심: 블러 */
-  animation: symbiote-orbit 4s infinite ease-in-out;
+  filter: blur(8px); /* 블러 값을 낮춰서 더 선명하게 */
+  animation: symbiote-orbit 3s infinite ease-in-out;
 }
 
-.blob:nth-child(1) { animation-delay: 0s; background: #4A90D9; }
-.blob:nth-child(2) { animation-delay: -1s; background: #6366f1; width: 35px; height: 35px; }
-.blob:nth-child(3) { animation-delay: -2s; background: #a855f7; width: 25px; height: 25px; }
-.blob:nth-child(4) { animation-delay: -3s; background: #ec4899; }
+/* 브랜드 컬러 계열로 변경 */
+.blob:nth-child(1) { animation-delay: 0s; background: var(--color-primary); }
+.blob:nth-child(2) { animation-delay: -0.8s; background: var(--color-secondary); width: 36px; height: 36px; }
+.blob:nth-child(3) { animation-delay: -1.6s; background: var(--color-primary-dark); width: 28px; height: 28px; }
+.blob:nth-child(4) { animation-delay: -2.4s; background: var(--color-warning); }
 
 @keyframes symbiote-orbit {
   0%, 100% {
     transform: translate(0, 0) scale(1);
-    border-radius: 50% 50% 50% 50%;
   }
-  25% {
-    transform: translate(25px, -20px) scale(1.2);
-    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+  33% {
+    transform: translate(30px, -10px) scale(1.1);
   }
-  50% {
-    transform: translate(-15px, 25px) scale(0.8);
-    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-    filter: blur(12px) hue-rotate(90deg);
-  }
-  75% {
-    transform: translate(-30px, -15px) scale(1.1);
-    border-radius: 40% 60% 60% 40% / 70% 30% 30% 70%;
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+    filter: blur(10px) hue-rotate(15deg);
   }
 }
 
