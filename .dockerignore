@@ -1,0 +1,8 @@
+.git
+.github
+.claude
+frontend
+room_list_backup.jsx
+backend/build
+backend/.gradle
+**/*.md
