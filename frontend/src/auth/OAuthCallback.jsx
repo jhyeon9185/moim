@@ -49,12 +49,7 @@ export default function OAuthCallback() {
 
   return (
     <div className="loading-page">
-      <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-md)' }}>
-        <LoadingSpinner />
-        <p style={{ fontSize: 'var(--font-size-lg)', color: 'var(--color-text-secondary)' }}>
-          로그인 중입니다...
-        </p>
-      </div>
+      <LoadingSpinner />
     </div>
   )
 }

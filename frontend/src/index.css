@@ -340,45 +340,28 @@ img {
 }
 
 /* 로딩 스피너 */
-/* 심비오트 로딩 스피너 (Gooey Effect) */
-.symbiote-wrapper {
-  position: relative;
-  width: 120px;
-  height: 120px;
+/* 바운싱 도트 로더 */
+.loader {
   display: flex;
-  align-items: center;
+  gap: 8px;
   justify-content: center;
-  filter: contrast(18); /* 대비를 살짝 낮춰서 덜 깨지게 조절 */
-  background: transparent;
+  align-items: center;
 }
 
-.blob {
-  position: absolute;
-  width: 32px;
-  height: 32px;
+.loader span {
+  width: 14px;
+  height: 14px;
   background: var(--color-primary);
   border-radius: 50%;
-  filter: blur(8px); /* 블러 값을 낮춰서 더 선명하게 */
-  animation: symbiote-orbit 3s infinite ease-in-out;
+  animation: bounce 1.4s infinite ease-in-out both;
 }
 
-/* 브랜드 컬러 계열로 변경 */
-.blob:nth-child(1) { animation-delay: 0s; background: var(--color-primary); }
-.blob:nth-child(2) { animation-delay: -0.8s; background: var(--color-secondary); width: 36px; height: 36px; }
-.blob:nth-child(3) { animation-delay: -1.6s; background: var(--color-primary-dark); width: 28px; height: 28px; }
-.blob:nth-child(4) { animation-delay: -2.4s; background: var(--color-warning); }
+.loader span:nth-child(1) { animation-delay: -0.32s; }
+.loader span:nth-child(2) { animation-delay: -0.16s; }
 
-@keyframes symbiote-orbit {
-  0%, 100% {
-    transform: translate(0, 0) scale(1);
-  }
-  33% {
-    transform: translate(30px, -10px) scale(1.1);
-  }
-  66% {
-    transform: translate(-20px, 20px) scale(0.9);
-    filter: blur(10px) hue-rotate(15deg);
-  }
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0); opacity: 0.3; }
+  40% { transform: scale(1); opacity: 1; }
 }
 
 .spinner {
