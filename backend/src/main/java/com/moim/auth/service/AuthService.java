@@ -18,7 +18,10 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -36,7 +39,7 @@ public class AuthService {
 
     // ─── 이메일 인증 코드 발송 ─────────────────────────────────────
     @Transactional
-    public void sendVerificationCode(String email) {
+    public String prepareVerificationCode(String email) {
         if (userRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         }
@@ -49,7 +52,19 @@ public class AuthService {
                 .expiresAt(LocalDateTime.now().plusMinutes(5))
                 .build());
 
-        emailService.sendVerificationCode(email, code);
+        return code;
+    }
+
+    // DB 저장 후 이메일을 별도 스레드에서 발송 (즉시 응답 반환)
+    public void sendVerificationCode(String email) {
+        String code = prepareVerificationCode(email);
+        CompletableFuture.runAsync(() -> {
+            try {
+                emailService.sendVerificationCode(email, code);
+            } catch (Exception e) {
+                log.error("인증 코드 이메일 발송 실패: {}", email, e);
+            }
+        });
     }
 
     // ─── 인증 코드 확인 ───────────────────────────────────────────
@@ -152,7 +167,14 @@ public class AuthService {
                 .expiresAt(LocalDateTime.now().plusMinutes(30))
                 .build());
 
-        emailService.sendPasswordReset(email, frontendUrl + "/reset-password?token=" + token);
+        String resetLink = frontendUrl + "/reset-password?token=" + token;
+        CompletableFuture.runAsync(() -> {
+            try {
+                emailService.sendPasswordReset(email, resetLink);
+            } catch (Exception e) {
+                log.error("비밀번호 재설정 이메일 발송 실패: {}", email, e);
+            }
+        });
     }
 
     // ─── 비밀번호 재설정 ──────────────────────────────────────────

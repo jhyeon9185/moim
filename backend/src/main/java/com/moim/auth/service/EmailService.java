@@ -18,7 +18,6 @@ public class EmailService {
   @Value("${spring.mail.username}")
   private String from;
 
-  @Async
   public void sendVerificationCode(String to, String code) {
     String html = """
         <!DOCTYPE html>
@@ -57,7 +56,6 @@ public class EmailService {
     send(to, "[MOIM] 이메일 인증 코드", html);
   }
 
-  @Async
   public void sendPasswordReset(String to, String resetLink) {
     String html = """
         <!DOCTYPE html>
