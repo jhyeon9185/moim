@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useAuth } from './AuthContext'
 import { useIsDesktop } from '../hooks/useIsDesktop'
+import { IDesignHouse, IDesignClock, IDesignPin, IDesignMail } from '../components/Icons'
 import api from '../api'
 
 const KAKAO_CLIENT_ID = import.meta.env.VITE_KAKAO_CLIENT_ID
@@ -256,7 +257,9 @@ export default function LoginPage() {
         <>
           {forgotSent ? (
             <div style={{ textAlign: 'center', padding: '16px 0 8px' }}>
-              <div style={{ fontSize: 48, marginBottom: 16 }}>📬</div>
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
+                <IDesignMail size={64} color="var(--clay)" />
+              </div>
               <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--ink-900)', lineHeight: 1.8, marginBottom: 8 }}>
                 <strong>{forgotEmail}</strong>으로<br/>재설정 링크를 보냈습니다.
               </p>
@@ -341,18 +344,20 @@ export default function LoginPage() {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14, textAlign: 'left' }}>
               {[
-                ['🏠', '가족 모임 일정을 한눈에 관리'],
-                ['⚡', '카카오·구글 간편 로그인'],
-                ['✨', 'AI 일정 도우미 Momi와 함께'],
-              ].map(([emoji, text]) => (
+                { Icon: IDesignHouse, text: '가족 모임 일정을 한눈에 관리' },
+                { Icon: IDesignClock, text: '카카오·구글 간편 로그인' },
+                { Icon: IDesignPin, text: 'AI 일정 도우미 Momi와 함께' },
+              ].map(({ Icon, text }) => (
                 <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                   <div style={{
                     width: 40, height: 40, borderRadius: 'var(--r-sm)',
-                    background: 'rgba(255,255,255,0.15)',
+                    background: 'var(--tag-mustard-bg)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 18, flexShrink: 0,
-                  }}>{emoji}</div>
-                  <span style={{ fontSize: 15.5, fontWeight: 600, opacity: 0.92 }}>{text}</span>
+                    flexShrink: 0
+                  }}>
+                    <Icon size={22} color="var(--clay)" />
+                  </div>
+                  <span style={{ fontSize: 15.5, fontWeight: 600, opacity: 0.92, color: '#fff' }}>{text}</span>
                 </div>
               ))}
             </div>

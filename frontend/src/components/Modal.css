@@ -71,6 +71,7 @@
   .modal-content {
     border-radius: var(--radius-xl);
     max-height: 85vh;
+    padding-top: var(--space-xl);
     padding-bottom: var(--space-xl);
     transform: none !important; /* Disable swipe on desktop if you prefer */
   }
