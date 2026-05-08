@@ -4,6 +4,7 @@ import { ChevronLeft, Settings, Calendar, Users, Link as LinkIcon, ChevronRight,
 import { useAuth } from '../auth/AuthContext'
 import CreateScheduleModal from '../components/CreateScheduleModal'
 import InviteCodeModal from '../components/InviteCodeModal'
+import LoadingSpinner from '../components/LoadingSpinner'
 import api from '../api'
 import './RoomPage.css'
 
@@ -217,7 +218,7 @@ export default function RoomPage() {
   const getInitial = (name) => name ? name.charAt(0) : '?'
 
   if (loading) {
-    return <div className="loading-page"><div className="spinner" /></div>
+    return <div className="loading-page"><LoadingSpinner /></div>
   }
 
   return (

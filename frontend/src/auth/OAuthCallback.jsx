@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useAuth } from './AuthContext'
+import LoadingSpinner from '../components/LoadingSpinner'
 
 export default function OAuthCallback() {
   const [searchParams] = useSearchParams()
@@ -49,7 +50,7 @@ export default function OAuthCallback() {
   return (
     <div className="loading-page">
       <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-md)' }}>
-        <div className="spinner" />
+        <LoadingSpinner />
         <p style={{ fontSize: 'var(--font-size-lg)', color: 'var(--color-text-secondary)' }}>
           로그인 중입니다...
         </p>

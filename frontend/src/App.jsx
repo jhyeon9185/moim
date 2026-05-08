@@ -11,6 +11,7 @@ import ProfilePage from './pages/ProfilePage'
 import SettingsPage from './pages/SettingsPage'
 import NotificationPermissionModal from './components/NotificationPermissionModal'
 import { NotificationProvider, useNotificationContext } from './notification/NotificationContext'
+import LoadingSpinner from './components/LoadingSpinner'
 import api from './api'
 
 function ProtectedRoute({ children }) {
@@ -19,7 +20,7 @@ function ProtectedRoute({ children }) {
   if (loading) {
     return (
       <div className="loading-page">
-        <div className="spinner" />
+        <LoadingSpinner />
       </div>
     )
   }
@@ -42,7 +43,7 @@ function PublicRoute({ children }) {
   if (loading) {
     return (
       <div className="loading-page">
-        <div className="spinner" />
+        <LoadingSpinner />
       </div>
     )
   }

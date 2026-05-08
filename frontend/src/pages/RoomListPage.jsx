@@ -6,6 +6,7 @@ import { useNotificationContext } from '../notification/NotificationContext'
 import CreateRoomModal from '../components/CreateRoomModal'
 import JoinRoomModal from '../components/JoinRoomModal'
 import UpdateNicknameModal from '../components/UpdateNicknameModal'
+import LoadingSpinner from '../components/LoadingSpinner'
 import api from '../api'
 import './RoomListPage.css'
 
@@ -89,7 +90,7 @@ export default function RoomListPage() {
   if (loading) {
     return (
       <div className="loading-page">
-        <div className="spinner" />
+        <LoadingSpinner />
       </div>
     )
   }
