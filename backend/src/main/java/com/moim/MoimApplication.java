@@ -6,6 +6,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
+@EntityScan(basePackages = "com.moim")
+@EnableJpaRepositories(basePackages = "com.moim")
 public class MoimApplication {
 
     public static void main(String[] args) {
