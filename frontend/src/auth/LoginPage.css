@@ -13,18 +13,18 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: 24px;
   margin-bottom: var(--space-2xl);
 }
 
 .login-logo-img {
-  width: 120px;
-  height: 120px;
+  width: 140px;
+  height: 140px;
   object-fit: contain;
   cursor: pointer;
   transition: transform 0.1s;
   border-radius: var(--radius-lg);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
 }
 
 .login-logo-img:hover {
@@ -43,7 +43,7 @@
 }
 
 .login-logo-desc {
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   font-weight: var(--font-weight-medium);
   color: var(--color-text-secondary);
   letter-spacing: -0.01em;
