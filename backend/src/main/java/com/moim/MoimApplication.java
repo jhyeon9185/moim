@@ -6,8 +6,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
+import org.springframework.scheduling.annotation.EnableAsync;
+
 @SpringBootApplication
 @EnableScheduling
+@EnableAsync
 @EntityScan(basePackages = "com.moim")
 @EnableJpaRepositories(basePackages = "com.moim")
 public class MoimApplication {

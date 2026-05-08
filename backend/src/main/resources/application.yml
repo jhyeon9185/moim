@@ -56,10 +56,10 @@ spring:
       max-file-size: 10MB
       max-request-size: 10MB
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: entmoim@gmail.com
-    password: xjlmiewvhfpqcxos
+    host: ${SPRING_MAIL_HOST:smtp.gmail.com}
+    port: ${SPRING_MAIL_PORT:587}
+    username: ${SPRING_MAIL_USERNAME:entmoim@gmail.com}
+    password: ${SPRING_MAIL_PASSWORD:xjlmiewvhfpqcxos}
     properties:
       mail:
         smtp:
@@ -67,6 +67,9 @@ spring:
           starttls:
             enable: true
             required: true
+          connectiontimeout: 5000 # 5초 타임아웃 추가
+          timeout: 5000
+          writetimeout: 5000
 
 server:
   port: ${PORT:8080}
