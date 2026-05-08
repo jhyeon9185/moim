@@ -1,6 +1,6 @@
 spring:
   application:
-    name: moim-backend
+    name: MOIM-backend
   profiles:
     active: dev
 

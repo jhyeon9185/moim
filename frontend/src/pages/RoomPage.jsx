@@ -1,100 +1,256 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ChevronLeft, Settings, Calendar, Users, Link as LinkIcon, ChevronRight, Trash2, Clock, MapPin, Plus, Pencil, Bell } from 'lucide-react'
 import { useAuth } from '../auth/AuthContext'
-import CreateScheduleModal from '../components/CreateScheduleModal'
+import { AppHeader, IconButton, BottomSheet, Button, Avatar } from '../components/MoimUI'
+import { IBack, ISettings, IPlus, IClock, IPin, IPencil, ITrash, ILink, IUsers, IBell, ICheck, IX } from '../components/Icons'
+import { MonthCalendar } from '../components/Calendar'
 import InviteCodeModal from '../components/InviteCodeModal'
 import Modal from '../components/Modal'
 import LoadingSpinner from '../components/LoadingSpinner'
 import api from '../api'
-import './RoomPage.css'
 
-function CalendarView({ schedules, onDateClick, selectedDate }) {
-  const today = new Date()
-  const [viewDate, setViewDate] = useState(new Date())
+const EVENT_COLORS = ['coral', 'mustard', 'sage', 'plum', 'sky', 'rose']
+const hashColor = (id) => EVENT_COLORS[Math.abs(id || 0) % EVENT_COLORS.length]
 
-  const year = viewDate.getFullYear()
-  const month = viewDate.getMonth()
+const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토']
 
-  const firstDow = new Date(year, month, 1).getDay()
-  const daysInMonth = new Date(year, month + 1, 0).getDate()
+function buildEventsMap(schedules) {
+  const map = {}
+  schedules.forEach(s => {
+    const key = s.eventDate
+    if (!map[key]) map[key] = []
+    map[key].push({ color: hashColor(s.id) })
+  })
+  return map
+}
 
-  const cells = Array(firstDow).fill(null)
-  for (let d = 1; d <= daysInMonth; d++) cells.push(d)
-
-  const getEvents = (day) => {
-    if (!day) return []
-    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-    return schedules.filter(s => s.eventDate?.startsWith(dateStr))
-  }
-
-  const isToday = (day) =>
-    day && today.getFullYear() === year && today.getMonth() === month && today.getDate() === day
-
-  const isSelected = (day) => {
-    if (!day || !selectedDate) return false
-    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-    return dateStr === selectedDate
-  }
-
-  const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토']
-
+function ScheduleItem({ s, onEdit, onDelete, isOwnerOrAdmin }) {
   return (
-    <div className="calendar-view">
-      <div className="calendar-nav">
-        <div className="calendar-nav-label">
-          <span className="calendar-nav-year">{year}</span>
-          <span className="calendar-nav-month">{month + 1}월</span>
-        </div>
-        <div className="calendar-nav-arrows">
-          <button className="calendar-nav-btn" onClick={() => setViewDate(new Date(year, month - 1, 1))}>
-            <ChevronLeft size={20} />
-          </button>
-          <button className="calendar-nav-btn" onClick={() => setViewDate(new Date(year, month + 1, 1))}>
-            <ChevronRight size={20} />
-          </button>
+    <div style={{
+      display: 'flex', gap: 12,
+      background: 'var(--surface)', border: '1px solid var(--paper-200)',
+      borderRadius: 'var(--r-md)', padding: '12px 14px',
+    }}>
+      <div style={{ width: 4, alignSelf: 'stretch', borderRadius: 4, background: `var(--tag-${hashColor(s.id)})` }}/>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: '-0.015em', marginBottom: 4 }}>{s.title}</div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, fontSize: 12.5, color: 'var(--ink-500)', fontWeight: 500 }}>
+          {s.eventTime && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}><IClock size={13}/> {s.eventTime}</span>}
+          {s.location && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}><IPin size={13}/> {s.location}</span>}
         </div>
       </div>
-
-      <div className="calendar-weekdays-row">
-        {WEEKDAYS.map((w, i) => (
-          <div key={w} className={`calendar-weekday ${i === 0 ? 'sun' : i === 6 ? 'sat' : ''}`}>{w}</div>
-        ))}
-      </div>
-
-      <div className="calendar-grid">
-        {cells.map((day, i) => {
-          const col = i % 7
-          const events = getEvents(day)
-          const today_ = isToday(day)
-          const selected_ = isSelected(day)
-          return (
-            <div
-              key={i}
-              className={`calendar-cell ${!day ? 'empty' : ''}`}
-              onClick={() => {
-                if (!day) return
-                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-                onDateClick(dateStr)
-              }}
-            >
-              {day && (
-                <>
-                  <span className={`calendar-day-num ${today_ ? 'today' : ''} ${selected_ ? 'selected' : ''} ${col === 0 ? 'sun' : col === 6 ? 'sat' : ''}`}>
-                    {day}
-                  </span>
-                  <div className="calendar-dots">
-                    {events.slice(0, 3).map((_, di) => (
-                      <span key={di} className="calendar-dot" />
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-          )
-        })}
+      <div style={{ display: 'flex', gap: 4 }}>
+        <button onClick={() => onEdit(s)} style={{ width: 30, height: 30, borderRadius: 'var(--r-xs)', background: 'var(--paper-100)', color: 'var(--ink-700)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <IPencil size={14}/>
+        </button>
+        {isOwnerOrAdmin && (
+          <button onClick={() => onDelete(s.id)} style={{ width: 30, height: 30, borderRadius: 'var(--r-xs)', background: '#FDECEA', color: 'var(--danger)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <ITrash size={14}/>
+          </button>
+        )}
       </div>
     </div>
+  )
+}
+
+function AddScheduleSheet({ onClose, onCreated, roomId, defaultDate = '', schedule = null }) {
+  const isEdit = !!schedule
+  const [form, setForm] = useState({
+    title: schedule?.title ?? '',
+    eventDate: schedule?.eventDate ?? defaultDate,
+    eventTime: schedule?.eventTime ?? '',
+    location: schedule?.location ?? '',
+    category: 'mustard',
+  })
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
+  const [chatMessages, setChatMessages] = useState([])
+  const [chatInput, setChatInput] = useState('')
+  const [chatLoading, setChatLoading] = useState(false)
+  const chatEndRef = useRef(null)
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [chatMessages])
+
+  const handleChatSend = async () => {
+    if (!chatInput.trim() || chatLoading) return
+    const userMsg = chatInput.trim()
+    const next = [...chatMessages, { role: 'user', content: userMsg }]
+    setChatMessages(next)
+    setChatInput('')
+    setChatLoading(true)
+    try {
+      const res = await api.post('/ai/momi', {
+        message: userMsg,
+        history: chatMessages.slice(-6),
+        date: form.eventDate,
+        location: form.location,
+        title: form.title,
+      })
+      setChatMessages([...next, { role: 'assistant', content: res.data.reply }])
+    } catch {
+      setChatMessages([...next, { role: 'assistant', content: '오류가 발생했어요. 다시 시도해주세요 😥' }])
+    } finally {
+      setChatLoading(false)
+    }
+  }
+
+  const CATEGORIES = [
+    ['mustard', '기념일'],
+    ['sage', '모임/외식'],
+    ['coral', '약속'],
+    ['plum', '생일'],
+    ['sky', '여행'],
+    ['rose', '가족'],
+  ]
+
+  const ALERT_OPTIONS = ['1시간 전', '3시간 전', '하루 전', '꺼짐']
+  const [alertIdx, setAlertIdx] = useState(0)
+
+  const handleSubmit = async () => {
+    if (!form.title.trim()) { setError('일정 제목을 입력해주세요.'); return }
+    if (!form.eventDate) { setError('날짜를 선택해주세요.'); return }
+    setSubmitting(true)
+    try {
+      const payload = {
+        title: form.title.trim(),
+        eventDate: form.eventDate,
+        eventTime: form.eventTime || null,
+        location: form.location.trim() || null,
+        description: null,
+      }
+      if (isEdit) {
+        await api.put(`/rooms/${roomId}/schedules/${schedule.id}`, payload)
+      } else {
+        await api.post(`/rooms/${roomId}/schedules`, payload)
+      }
+      onCreated()
+    } catch {
+      setError(isEdit ? '일정 수정에 실패했습니다.' : '일정 추가에 실패했습니다.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const inputStyle = {
+    width: '100%', height: 52, padding: '0 14px',
+    background: 'var(--surface-sunken)', border: '1.5px solid transparent',
+    borderRadius: 'var(--r-md)', fontSize: 16, fontWeight: 500,
+    color: 'var(--ink-900)', fontFamily: 'inherit', outline: 'none',
+  }
+
+  return (
+    <BottomSheet open onClose={onClose}>
+      <div style={{ marginBottom: 8 }}>
+        <h2 style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.025em', marginBottom: 4 }}>{isEdit ? '일정 수정' : '새 일정 추가'}</h2>
+      </div>
+
+      {error && <div style={{ background: '#FDECEA', color: 'var(--danger)', padding: '10px 12px', borderRadius: 'var(--r-sm)', fontSize: 13.5, marginBottom: 12 }}>{error}</div>}
+
+      <div style={{ marginBottom: 14 }}>
+        <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--ink-700)', marginBottom: 6, paddingLeft: 4 }}>무슨 모임인가요?</label>
+        <input value={form.title} onChange={e => { setForm(f => ({ ...f, title: e.target.value })); setError('') }} placeholder="예: 어버이날 가족 식사" autoFocus style={inputStyle}/>
+      </div>
+
+      {!isEdit && (
+        <div style={{ marginBottom: 14 }}>
+          <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--ink-700)', marginBottom: 6, paddingLeft: 4 }}>카테고리</label>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            {CATEGORIES.map(([c, l]) => (
+              <button key={c} onClick={() => setForm(f => ({ ...f, category: c }))} style={{
+                display: 'inline-flex', alignItems: 'center', gap: 5,
+                padding: '8px 13px', borderRadius: 'var(--r-pill)',
+                background: form.category === c ? `var(--tag-${c}-bg)` : 'var(--surface-sunken)',
+                border: form.category === c ? `1.5px solid var(--tag-${c})` : '1.5px solid transparent',
+                color: form.category === c ? `var(--tag-${c})` : 'var(--ink-500)',
+                fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
+              }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: `var(--tag-${c})` }}/>
+                {l}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div style={{ display: 'flex', gap: 10, marginBottom: 0 }}>
+        <div style={{ flex: 1 }}>
+          <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--ink-700)', marginBottom: 6, paddingLeft: 4 }}>날짜</label>
+          <input type="date" value={form.eventDate} onChange={e => { setForm(f => ({ ...f, eventDate: e.target.value })); setError('') }} style={inputStyle}/>
+        </div>
+        <div style={{ flex: 1 }}>
+          <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--ink-700)', marginBottom: 6, paddingLeft: 4 }}>시간 (선택)</label>
+          <input type="time" value={form.eventTime} onChange={e => setForm(f => ({ ...f, eventTime: e.target.value }))} style={inputStyle}/>
+        </div>
+      </div>
+
+      <div style={{ marginTop: 14, marginBottom: 14 }}>
+        <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--ink-700)', marginBottom: 6, paddingLeft: 4 }}>장소 (선택)</label>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'var(--surface-sunken)', border: '1.5px solid transparent', borderRadius: 'var(--r-md)', padding: '0 14px', height: 52 }}>
+          <IPin size={18} style={{ color: 'var(--ink-500)', flexShrink: 0 }}/>
+          <input value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} placeholder="예: 한정식 모란각" style={{ flex: 1, border: 'none', outline: 'none', background: 'transparent', fontSize: 16, fontWeight: 500, color: 'var(--ink-900)', fontFamily: 'inherit' }}/>
+        </div>
+      </div>
+
+      {!isEdit && (
+        <div style={{ marginBottom: 18 }}>
+          <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--ink-700)', marginBottom: 6, paddingLeft: 4 }}>알림</label>
+          <div style={{ display: 'flex', gap: 6 }}>
+            {ALERT_OPTIONS.map((l, i) => (
+              <button key={l} onClick={() => setAlertIdx(i)} style={{
+                flex: 1, height: 40, borderRadius: 'var(--r-sm)',
+                background: alertIdx === i ? 'var(--ink-900)' : 'var(--surface-sunken)',
+                color: alertIdx === i ? 'var(--paper-50)' : 'var(--ink-500)',
+                fontSize: 12.5, fontWeight: 700, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+              }}>{l}</button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <Button variant="primary" size="lg" full onClick={handleSubmit} disabled={submitting}>
+        {submitting ? <span className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }}/> : (isEdit ? '수정하기' : '일정 추가하기')}
+      </Button>
+      <div style={{ height: 8 }}/>
+      <Button variant="ghost" size="md" full onClick={onClose}>취소</Button>
+
+      {!isEdit && (
+        <div className="momi-section">
+          <div className="momi-header">
+            <div className="momi-badge">모미</div>
+            <div className="momi-header-text">
+              <span className="momi-name">모미에게 물어봐요!</span>
+              <span className="momi-desc">날씨 · 미세먼지 등 일정 정보를 알려드려요</span>
+            </div>
+          </div>
+          {chatMessages.length > 0 && (
+            <div className="momi-messages">
+              {chatMessages.map((m, i) => (
+                <div key={i} className={`momi-msg ${m.role}`}>{m.content}</div>
+              ))}
+              {chatLoading && (
+                <div className="momi-msg assistant momi-typing"><span/><span/><span/></div>
+              )}
+              <div ref={chatEndRef}/>
+            </div>
+          )}
+          <div className="momi-input-row">
+            <input
+              className="input-field momi-input"
+              placeholder="예) 이날 비 올까요?"
+              value={chatInput}
+              onChange={e => setChatInput(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleChatSend()}
+              disabled={chatLoading}
+            />
+            <button className="btn btn-primary momi-send-btn" onClick={handleChatSend} disabled={chatLoading || !chatInput.trim()}>
+              {chatLoading ? <span className="spinner" style={{ width: 16, height: 16, borderWidth: 2 }}/> : '전송'}
+            </button>
+          </div>
+        </div>
+      )}
+    </BottomSheet>
   )
 }
 
@@ -102,23 +258,29 @@ export default function RoomPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { user } = useAuth()
+
   const [room, setRoom] = useState(null)
   const [members, setMembers] = useState([])
   const [schedules, setSchedules] = useState([])
   const [pendingMembers, setPendingMembers] = useState([])
   const [tab, setTab] = useState('calendar')
   const [loading, setLoading] = useState(true)
-  const [showCreateSchedule, setShowCreateSchedule] = useState(false)
-  const [selectedDate, setSelectedDate] = useState('')
+  const [showAddSheet, setShowAddSheet] = useState(false)
   const [editingSchedule, setEditingSchedule] = useState(null)
-  const [showScheduleList, setShowScheduleList] = useState(false)
+  const [sel, setSel] = useState(null)
   const [showInvite, setShowInvite] = useState(false)
   const [rejectConfirmUserId, setRejectConfirmUserId] = useState(null)
   const [viewingMember, setViewingMember] = useState(null)
-  const [zoomingImageUrl, setZoomingImageUrl] = useState(null)
   const [notifSetting, setNotifSetting] = useState({ enabled: true, alert1h: true, alert3h: false, alertDay: false })
+  const [showScheduleList, setShowScheduleList] = useState(false)
+
+  const today = new Date()
+  const todayObj = { y: today.getFullYear(), m: today.getMonth() + 1, d: today.getDate() }
+  const [calYear, setCalYear] = useState(todayObj.y)
+  const [calMonth, setCalMonth] = useState(todayObj.m)
 
   const isOwner = room?.ownerId === user?.id
+  const isOwnerOrAdmin = isOwner || user?.role === 'ADMIN'
 
   useEffect(() => {
     fetchRoom()
@@ -135,9 +297,7 @@ export default function RoomPage() {
   const updateNotifSetting = async (patch) => {
     const updated = { ...notifSetting, ...patch }
     setNotifSetting(updated)
-    try {
-      await api.put(`/notifications/settings/${id}`, patch)
-    } catch {}
+    try { await api.put(`/notifications/settings/${id}`, patch) } catch {}
   }
 
   const fetchRoom = async () => {
@@ -159,24 +319,11 @@ export default function RoomPage() {
   }
 
   const handleApprove = async (userId) => {
-    try {
-      await api.patch(`/rooms/${id}/members/${userId}`, { status: 'APPROVED' })
-      fetchRoom()
-    } catch { /* 에러 처리 */ }
+    try { await api.patch(`/rooms/${id}/members/${userId}`, { status: 'APPROVED' }); fetchRoom() } catch {}
   }
 
   const handleReject = async (userId) => {
-    try {
-      await api.delete(`/rooms/${id}/members/${userId}`)
-      fetchRoom()
-    } catch { /* 에러 처리 */ }
-  }
-
-  const handleScheduleCreated = () => {
-    setShowCreateSchedule(false)
-    setEditingSchedule(null)
-    setSelectedDate('')
-    fetchRoom()
+    try { await api.delete(`/rooms/${id}/members/${userId}`); fetchRoom() } catch {}
   }
 
   const handleDeleteSchedule = async (scheduleId) => {
@@ -189,313 +336,289 @@ export default function RoomPage() {
     }
   }
 
-  const groupSchedulesByMonth = () => {
+  const handleScheduleCreated = () => {
+    setShowAddSheet(false)
+    setEditingSchedule(null)
+    fetchRoom()
+  }
+
+  const selDateStr = sel ? `${sel.y}-${String(sel.m).padStart(2,'0')}-${String(sel.d).padStart(2,'0')}` : null
+  const daySchedules = selDateStr ? schedules.filter(s => s.eventDate?.startsWith(selDateStr)) : schedules
+
+  const eventsMap = buildEventsMap(schedules)
+
+  const groupByMonth = () => {
     const groups = {}
-    ;[...schedules]
-      .sort((a, b) => new Date(a.eventDate) - new Date(b.eventDate))
-      .forEach(s => {
-        const d = new Date(s.eventDate)
-        const key = `${d.getFullYear()}년 ${d.getMonth() + 1}월`
-        if (!groups[key]) groups[key] = []
-        groups[key].push(s)
-      })
+    ;[...schedules].sort((a, b) => a.eventDate.localeCompare(b.eventDate)).forEach(s => {
+      const d = new Date(s.eventDate)
+      const key = `${d.getFullYear()}년 ${d.getMonth() + 1}월`
+      if (!groups[key]) groups[key] = []
+      groups[key].push(s)
+    })
     return groups
   }
 
-  const handleDateClick = (dateStr) => {
-    setSelectedDate(prev => prev === dateStr ? '' : dateStr)
-  }
+  if (loading) return <div className="loading-page"><LoadingSpinner /></div>
 
-  const formatSelectedDate = (dateStr) => {
-    if (!dateStr) return ''
-    const d = new Date(dateStr)
-    const weekdays = ['일', '월', '화', '수', '목', '금', '토']
-    return `${d.getMonth() + 1}월 ${d.getDate()}일 (${weekdays[d.getDay()]})`
-  }
-
-  const selectedDateSchedules = selectedDate
-    ? schedules.filter(s => s.eventDate?.startsWith(selectedDate))
-    : []
-
-  const getInitial = (name) => name ? name.charAt(0) : '?'
-
-  if (loading) {
-    return <div className="loading-page"><LoadingSpinner /></div>
-  }
+  const profileSrc = (img) => img ? (img.startsWith('http') ? img : `${import.meta.env.VITE_API_URL}${img}`) : null
 
   return (
-    <div className="room-page">
-      {/* 헤더 */}
-      <div className="room-header">
-        <button className="room-header-back" onClick={() => navigate('/', { state: { skipAutoRedirect: true } })}>
-          <ChevronLeft size={24} />
-        </button>
-        <h1 className="room-header-title">{room?.name}</h1>
-        <button className="room-header-menu" onClick={() => setTab('settings')}>
-          <Settings size={24} />
-        </button>
+    <div className="moim paper-grain" style={{
+      width: '100%', height: '100dvh', overflow: 'hidden',
+      display: 'flex', flexDirection: 'column',
+      background: 'var(--paper-50)', position: 'relative',
+    }}>
+      <AppHeader
+        title={room?.name}
+        subtitle={`멤버 ${members.length}명`}
+        left={<IconButton Icon={IBack} onClick={() => navigate('/', { state: { skipAutoRedirect: true } })}/>}
+        right={<IconButton Icon={ISettings} onClick={() => setTab('settings')}/>}
+      />
+
+      {/* Tabs */}
+      <div style={{ padding: '4px 16px 14px', display: 'flex', gap: 6 }}>
+        {[
+          { id: 'calendar', label: '일정' },
+          { id: 'members', label: `멤버${pendingMembers.length > 0 && isOwner ? ` (${pendingMembers.length})` : ''}` },
+          { id: 'settings', label: '관리' },
+        ].map(t => (
+          <button key={t.id} onClick={() => setTab(t.id)} style={{
+            flex: 1, height: 36, borderRadius: 'var(--r-pill)',
+            background: tab === t.id ? 'var(--ink-900)' : 'var(--paper-100)',
+            color: tab === t.id ? 'var(--paper-50)' : 'var(--ink-500)',
+            fontSize: 13.5, fontWeight: 700, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+          }}>{t.label}</button>
+        ))}
       </div>
 
-      {/* 탭 */}
-      <div className="room-tabs">
-        <button
-          className={`room-tab ${tab === 'calendar' ? 'active' : ''}`}
-          onClick={() => setTab('calendar')}
-        >
-          <Calendar size={18} style={{ marginRight: '4px' }} /> 일정
-        </button>
-        <button
-          className={`room-tab ${tab === 'members' ? 'active' : ''}`}
-          onClick={() => setTab('members')}
-        >
-          <Users size={18} style={{ marginRight: '4px' }} /> 멤버 {pendingMembers.length > 0 && isOwner ? `(${pendingMembers.length})` : ''}
-        </button>
-        <button
-          className={`room-tab ${tab === 'settings' ? 'active' : ''}`}
-          onClick={() => setTab('settings')}
-        >
-          <Settings size={18} style={{ marginRight: '4px' }} /> 설정
-        </button>
-      </div>
-
-      {/* 콘텐츠 */}
-      <div className="room-content" style={{ padding: tab === 'calendar' ? '0' : 'var(--space-lg)' }}>
-        {/* 일정 탭 - 달력 뷰 */}
-        {tab === 'calendar' && (
-          <>
-            <CalendarView
-              schedules={schedules}
-              onDateClick={handleDateClick}
-              selectedDate={selectedDate}
+      {/* Calendar tab */}
+      {tab === 'calendar' && (
+        <>
+          <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px 220px' }}>
+            <MonthCalendar
+              year={calYear} month={calMonth}
+              today={todayObj}
+              events={eventsMap}
+              selected={sel}
+              onSelect={s => setSel(prev => prev?.d === s.d && prev?.m === s.m ? null : s)}
+              onPrev={() => { if (calMonth === 1) { setCalMonth(12); setCalYear(y => y-1) } else setCalMonth(m => m-1) }}
+              onNext={() => { if (calMonth === 12) { setCalMonth(1); setCalYear(y => y+1) } else setCalMonth(m => m+1) }}
             />
-
-            {/* 날짜 선택 시 하단 섹션 */}
-            {selectedDate && (
-              <div className="date-detail-section">
-                <div className="date-detail-header">
-                  <span className="date-detail-title">{formatSelectedDate(selectedDate)}</span>
-                  <button className="date-detail-add-btn" onClick={() => setShowCreateSchedule(true)}>
-                    <Plus size={14} />일정 추가
-                  </button>
-                </div>
-                <div className="date-detail-body">
-                  {selectedDateSchedules.length === 0 ? (
-                    <p className="date-detail-empty">이 날은 일정이 없어요</p>
-                  ) : (
-                    selectedDateSchedules.map(s => (
-                      <div key={s.id} className="date-detail-schedule-item">
-                        <span className="date-detail-schedule-dot" />
-                        <div className="date-detail-schedule-info">
-                          <div className="date-detail-schedule-title">{s.title}</div>
-                          {(s.eventTime || s.location) && (
-                            <div className="date-detail-schedule-meta">
-                              {s.eventTime && <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}><Clock size={12} />{s.eventTime}</span>}
-                              {s.eventTime && s.location && <span>·</span>}
-                              {s.location && <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}><MapPin size={12} />{s.location}</span>}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-            )}
-          </>
-        )}
-
-        {/* 멤버 탭 */}
-        {tab === 'members' && (
-          <>
-            {/* 승인 대기 (방장만 보임) */}
-            {isOwner && pendingMembers.length > 0 && (
-              <div className="pending-list">
-                <h3 style={{ fontSize: 'var(--font-size-base)', marginBottom: 'var(--space-sm)', color: 'var(--color-secondary)' }}>
-                  승인 대기 ({pendingMembers.length}명)
-                </h3>
-                {pendingMembers.map((m) => (
-                  <div key={m.userId} className="pending-item">
-                    <div className="member-avatar">{getInitial(m.nickname)}</div>
-                    <div className="pending-item-info">
-                      <div className="pending-item-name">{m.nickname}</div>
-                    </div>
-                    <div className="pending-actions">
-                      <button className="btn btn-primary" onClick={() => handleApprove(m.userId)}>
-                        승인
-                      </button>
-                      <button className="btn btn-danger" onClick={() => setRejectConfirmUserId(m.userId)}>
-                        거절
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <div style={{ marginTop: pendingMembers.length > 0 && isOwner ? 'var(--space-lg)' : 0 }}>
-              <h3 style={{ fontSize: 'var(--font-size-base)', marginBottom: 'var(--space-sm)', color: 'var(--color-text-secondary)' }}>
-                멤버 ({members.length}명)
-              </h3>
-              {members.map((m) => (
-                <div key={m.userId} className="member-item" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
-                    <div className="member-avatar">
-                      {m.profileImage ? (
-                        <img
-                          src={m.profileImage.startsWith('http') ? m.profileImage : `${import.meta.env.VITE_API_URL}${m.profileImage}`}
-                          alt=""
-                          style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
-                        />
-                      ) : getInitial(m.nickname)}
-                    </div>
-                    <div className="member-info">
-                      <div className="member-name">
-                        {m.nickname}
-                        {m.userId === user?.id && ' (나)'}
-                      </div>
-                      <div className="member-role">
-                        {m.role === 'OWNER' ? '방장' : '멤버'}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <button className="member-icon-btn" onClick={() => setViewingMember(m)} aria-label="상세보기">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 47.62 47.63" width="18" height="18">
-                        <path d="m46.99,43.94l-14.95-14.95c5.52-7.03,5.05-17.26-1.43-23.74C27.23,1.87,22.72,0,17.93,0S8.63,1.87,5.25,5.25c-6.99,6.99-6.99,18.38,0,25.37,3.43,3.43,8.05,5.25,12.72,5.25,2.54,0,5.09-.54,7.48-1.64l-1.36-2.94c-5.57,2.57-12.22,1.38-16.56-2.96C1.81,22.6,1.81,13.28,7.54,7.54c2.78-2.78,6.47-4.31,10.39-4.31s7.62,1.53,10.39,4.31c5.73,5.73,5.73,15.06,0,20.79h0c-.84.85-.84,2.21,0,3.06l15.61,15.61c.42.42.97.63,1.53.63s1.11-.21,1.53-.63c.84-.84.84-2.21,0-3.05Z" fill="currentColor"/>
-                        <path d="m29.13,15.76c-.43-2.24-1.52-4.27-3.13-5.89-3.32-3.32-8.43-4.27-12.72-2.35-.82.36-1.18,1.32-.82,2.14.36.82,1.32,1.18,2.14.82,3.07-1.37,6.73-.69,9.11,1.69,1.16,1.16,1.93,2.62,2.24,4.21.15.77.83,1.31,1.59,1.31.1,0,.21,0,.31-.03.88-.17,1.45-1.02,1.28-1.9Z" fill="currentColor"/>
-                      </svg>
-                    </button>
-
-                    {(isOwner || user?.role === 'ADMIN') && m.userId !== user?.id && m.role !== 'OWNER' && (
-                      <button
-                        className="member-icon-btn danger"
-                        aria-label="강제탈퇴"
-                        onClick={async () => {
-                          if (window.confirm('이 멤버를 정말 강제탈퇴 시키겠습니까?')) {
-                            try {
-                              await api.delete(`/rooms/${id}/members/${m.userId}`)
-                              fetchRoom()
-                            } catch {
-                              alert('멤버 강제탈퇴에 실패했습니다.')
-                            }
-                          }
-                        }}
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 37.47 37.47" width="18" height="18">
-                          <path d="m18.73,0c-3.01,0-5.86.71-8.38,1.98l3.76,3.78c1.45-.51,3-.79,4.62-.79,7.6,0,13.78,6.17,13.78,13.77,0,2.96-.95,5.79-2.66,8.12l-1.52-1.53L10.67,7.58l-1.87-1.88-1.65-1.67C2.8,7.46,0,12.78,0,18.74c0,10.33,8.4,18.73,18.73,18.73,2.54,0,5.01-.5,7.33-1.48.14-.06.29-.13.43-.2l-3.83-3.85c-1.27.38-2.58.57-3.93.57-7.59,0-13.77-6.18-13.77-13.77,0-2.8.84-5.4,2.27-7.58l1.31,1.31,17.7,17.8h.01l1.95,1.97,1.6,1.61c4.81-3.52,7.67-9.13,7.67-15.11C37.47,8.41,29.06,0,18.73,0Z" fill="currentColor"/>
-                        </svg>
-                      </button>
-                    )}
-                  </div>
+            {/* Legend */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 14 }}>
+              {[['mustard','기념일'],['sage','모임/외식'],['coral','약속'],['sky','여행'],['plum','생일'],['rose','가족']].map(([c,l]) => (
+                <div key={c} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--ink-500)', fontWeight: 600 }}>
+                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: `var(--tag-${c})` }}/>
+                  {l}
                 </div>
               ))}
             </div>
-          </>
-        )}
+          </div>
 
-        {/* 설정 탭 */}
-        {tab === 'settings' && (
-          <>
-            <div className="settings-section">
-              <div className="settings-title">모임 관리</div>
-              <button className="settings-item" onClick={() => setShowInvite(true)}>
-                <span className="settings-item-icon"><LinkIcon size={20} color="var(--color-primary)" /></span>
-                <span style={{ flex: 1 }}>초대 코드 만들기</span>
-                <span style={{ color: 'var(--color-text-light)' }}><ChevronRight size={20} /></span>
+          {/* Bottom day panel */}
+          <div style={{
+            position: 'absolute', left: 0, right: 0, bottom: 0,
+            background: 'var(--surface-raised)',
+            borderRadius: 'var(--r-xl) var(--r-xl) 0 0',
+            boxShadow: '0 -8px 24px rgba(80,60,30,0.12)',
+            padding: '12px 20px 28px', maxHeight: '52%', overflowY: 'auto', zIndex: 10,
+          }}>
+            <div style={{ width: 40, height: 4, background: 'var(--paper-300)', borderRadius: 999, margin: '0 auto 10px' }}/>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+              <div>
+                {sel ? (
+                  <>
+                    <div style={{ fontSize: 12, color: 'var(--ink-500)', fontWeight: 700 }}>
+                      {sel.y}년 {sel.m}월 {sel.d}일 {WEEKDAYS[new Date(sel.y, sel.m-1, sel.d).getDay()]}요일
+                    </div>
+                    <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: '-0.02em' }}>
+                      일정 {daySchedules.length}개
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ fontSize: 12, color: 'var(--ink-500)', fontWeight: 700 }}>전체 일정</div>
+                    <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: '-0.02em' }}>총 {schedules.length}개</div>
+                  </>
+                )}
+              </div>
+              <button onClick={() => { setEditingSchedule(null); setShowAddSheet(true) }} style={{
+                display: 'inline-flex', alignItems: 'center', gap: 4,
+                background: 'var(--clay)', color: '#fff',
+                height: 38, padding: '0 14px', borderRadius: 'var(--r-pill)',
+                fontSize: 13.5, fontWeight: 700, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+              }}>
+                <IPlus size={16}/> 일정 추가
               </button>
             </div>
-
-            {/* 알림 설정 */}
-            <div className="settings-section">
-              <div className="settings-title">알림 설정</div>
-              <div className="settings-item" style={{ cursor: 'default' }}>
-                <span className="settings-item-icon"><Bell size={20} color="var(--color-primary)" /></span>
-                <span style={{ flex: 1 }}>이 모임 알림</span>
-                <label className="notif-toggle">
-                  <input
-                    type="checkbox"
-                    checked={notifSetting.enabled}
-                    onChange={e => updateNotifSetting({ enabled: e.target.checked })}
-                  />
-                  <span className="notif-toggle-slider" />
-                </label>
-              </div>
-
-              {notifSetting.enabled && (
-                <div className="notif-options">
-                  {[
-                    { key: 'alert1h',  label: '1시간 전',  desc: '일정 시작 1시간 전 알림' },
-                    { key: 'alert3h',  label: '3시간 전',  desc: '일정 시작 3시간 전 알림' },
-                    { key: 'alertDay', label: '하루 전 알림', desc: '전날 오전 8시에 알림' },
-                  ].map(({ key, label, desc }) => {
-                    const checked = notifSetting[key] ?? false
-                    return (
-                      <button
-                        key={key}
-                        className={`notif-option-row${checked ? ' checked' : ''}`}
-                        onClick={() => updateNotifSetting({ [key]: !checked })}
-                      >
-                        <div className="notif-option-check">
-                          {checked && <span className="notif-option-checkmark">✓</span>}
-                        </div>
-                        <div>
-                          <div className="notif-option-label">{label}</div>
-                          <div className="notif-option-desc">{desc}</div>
-                        </div>
-                      </button>
-                    )
-                  })}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {daySchedules.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '16px 0', color: 'var(--ink-500)', fontSize: 14, fontWeight: 500 }}>
+                  {sel ? '이 날은 일정이 없어요' : '일정이 없어요'}
                 </div>
+              ) : (
+                daySchedules.map(s => (
+                  <ScheduleItem key={s.id} s={s}
+                    onEdit={(s) => { setEditingSchedule(s); setShowAddSheet(true) }}
+                    onDelete={handleDeleteSchedule}
+                    isOwnerOrAdmin={isOwnerOrAdmin}
+                  />
+                ))
               )}
             </div>
+          </div>
+        </>
+      )}
 
-            <div className="settings-section">
-              <div className="settings-title">정보</div>
-              <div className="settings-item" style={{ cursor: 'default' }}>
-                <span className="settings-item-icon"><Users size={20} color="var(--color-secondary)" /></span>
-                <span style={{ flex: 1 }}>멤버 수</span>
-                <span style={{ color: 'var(--color-text-secondary)' }}>{members.length}명</span>
+      {/* Members tab */}
+      {tab === 'members' && (
+        <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px 24px' }}>
+          {isOwner && pendingMembers.length > 0 && (
+            <div style={{ marginBottom: 20 }}>
+              <h3 style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink-500)', marginBottom: 10, paddingLeft: 4 }}>승인 대기 ({pendingMembers.length}명)</h3>
+              {pendingMembers.map(m => (
+                <div key={m.userId} style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'var(--tag-mustard-bg)', borderRadius: 'var(--r-md)', padding: '12px 14px', marginBottom: 8 }}>
+                  <Avatar name={m.nickname} src={profileSrc(m.profileImage)} size={40} color="var(--wood)"/>
+                  <div style={{ flex: 1, fontSize: 15, fontWeight: 700 }}>{m.nickname}</div>
+                  <button onClick={() => handleApprove(m.userId)} style={{ height: 34, padding: '0 14px', borderRadius: 'var(--r-pill)', background: 'var(--clay)', color: '#fff', fontSize: 13, fontWeight: 700, border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>승인</button>
+                  <button onClick={() => setRejectConfirmUserId(m.userId)} style={{ height: 34, padding: '0 14px', borderRadius: 'var(--r-pill)', background: '#FDECEA', color: 'var(--danger)', fontSize: 13, fontWeight: 700, border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>거절</button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <h3 style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink-500)', marginBottom: 10, paddingLeft: 4 }}>멤버 ({members.length}명)</h3>
+          <div style={{ background: 'var(--surface)', border: '1px solid var(--paper-200)', borderRadius: 'var(--r-lg)', overflow: 'hidden' }}>
+            {members.map((m, i) => (
+              <div key={m.userId} onClick={() => setViewingMember(m)} style={{
+                display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', cursor: 'pointer',
+                borderBottom: i < members.length - 1 ? '1px solid var(--paper-200)' : 'none',
+              }}>
+                <Avatar name={m.nickname} src={profileSrc(m.profileImage)} size={40} color="var(--wood)"/>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: '-0.015em' }}>
+                    {m.nickname}{m.userId === user?.id ? ' (나)' : ''}
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--ink-500)', fontWeight: 600 }}>{m.role === 'OWNER' ? '방장' : '멤버'}</div>
+                </div>
+                {isOwnerOrAdmin && m.userId !== user?.id && m.role !== 'OWNER' && (
+                  <button onClick={e => {
+                    e.stopPropagation()
+                    if (window.confirm('이 멤버를 강제탈퇴 시키겠습니까?')) {
+                      api.delete(`/rooms/${id}/members/${m.userId}`).then(() => fetchRoom()).catch(() => alert('실패했습니다.'))
+                    }
+                  }} style={{ width: 30, height: 30, borderRadius: 'var(--r-xs)', background: '#FDECEA', color: 'var(--danger)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <IX size={14}/>
+                  </button>
+                )}
               </div>
-              {/* 등록된 일정 — 클릭 시 월별 목록 펼침 */}
-              <button className="settings-item" onClick={() => setShowScheduleList(v => !v)}>
-                <span className="settings-item-icon"><Calendar size={20} color="var(--color-success)" /></span>
-                <span style={{ flex: 1 }}>등록된 일정</span>
-                <span style={{ color: 'var(--color-text-secondary)', marginRight: '4px' }}>{schedules.length}개</span>
-                <ChevronRight size={20} color="var(--color-text-light)" style={{ transform: showScheduleList ? 'rotate(90deg)' : 'none', transition: 'transform 150ms' }} />
-              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
+      {/* Settings tab */}
+      {tab === 'settings' && (
+        <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px 24px' }}>
+
+          {/* Invite */}
+          <div style={{ marginBottom: 18 }}>
+            <h3 style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink-500)', marginBottom: 8, paddingLeft: 4 }}>MOIM 관리</h3>
+            <div style={{ background: 'var(--surface)', border: '1px solid var(--paper-200)', borderRadius: 'var(--r-lg)', overflow: 'hidden' }}>
+              <div onClick={() => setShowInvite(true)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', cursor: 'pointer' }}>
+                <div style={{ width: 32, height: 32, borderRadius: 'var(--r-sm)', background: 'var(--paper-100)', color: 'var(--ink-700)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <ILink size={18}/>
+                </div>
+                <div style={{ flex: 1, fontSize: 14.5, fontWeight: 600, letterSpacing: '-0.01em' }}>초대 코드 만들기</div>
+                <span style={{ color: 'var(--ink-400)' }}>›</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Notifications */}
+          <div style={{ marginBottom: 18 }}>
+            <h3 style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink-500)', marginBottom: 8, paddingLeft: 4 }}>알림 설정</h3>
+            <div style={{ background: 'var(--surface)', border: '1px solid var(--paper-200)', borderRadius: 'var(--r-lg)', overflow: 'hidden' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderBottom: '1px solid var(--paper-200)' }}>
+                <div style={{ width: 32, height: 32, borderRadius: 'var(--r-sm)', background: 'var(--paper-100)', color: 'var(--ink-700)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <IBell size={18}/>
+                </div>
+                <div style={{ flex: 1, fontSize: 14.5, fontWeight: 600 }}>이 MOIM 알림</div>
+                <label className="notif-toggle">
+                  <input type="checkbox" checked={notifSetting.enabled} onChange={e => updateNotifSetting({ enabled: e.target.checked })}/>
+                  <span className="notif-toggle-slider"/>
+                </label>
+              </div>
+              {notifSetting.enabled && [
+                { key: 'alert1h', label: '1시간 전', desc: '일정 시작 1시간 전 알림' },
+                { key: 'alert3h', label: '3시간 전', desc: '일정 시작 3시간 전 알림' },
+                { key: 'alertDay', label: '하루 전 알림', desc: '전날 오전 8시에 알림' },
+              ].map(({ key, label, desc }) => {
+                const checked = notifSetting[key] ?? false
+                return (
+                  <div key={key} onClick={() => updateNotifSetting({ [key]: !checked })} style={{
+                    display: 'flex', alignItems: 'center', gap: 12,
+                    padding: '12px 16px', borderBottom: '1px solid var(--paper-200)', cursor: 'pointer',
+                  }}>
+                    <div style={{
+                      width: 22, height: 22, borderRadius: '50%',
+                      background: checked ? 'var(--clay)' : 'var(--paper-200)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      {checked && <ICheck size={13} style={{ color: '#fff' }}/>}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 14, fontWeight: 600 }}>{label}</div>
+                      <div style={{ fontSize: 12, color: 'var(--ink-500)' }}>{desc}</div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Info */}
+          <div style={{ marginBottom: 18 }}>
+            <h3 style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink-500)', marginBottom: 8, paddingLeft: 4 }}>정보</h3>
+            <div style={{ background: 'var(--surface)', border: '1px solid var(--paper-200)', borderRadius: 'var(--r-lg)', overflow: 'hidden' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderBottom: '1px solid var(--paper-200)' }}>
+                <div style={{ width: 32, height: 32, borderRadius: 'var(--r-sm)', background: 'var(--paper-100)', color: 'var(--ink-700)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <IUsers size={18}/>
+                </div>
+                <div style={{ flex: 1, fontSize: 14.5, fontWeight: 600 }}>멤버 수</div>
+                <span style={{ fontSize: 13.5, color: 'var(--ink-500)', fontWeight: 600 }}>{members.length}명</span>
+              </div>
+              <div onClick={() => setShowScheduleList(v => !v)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', cursor: 'pointer' }}>
+                <div style={{ width: 32, height: 32, borderRadius: 'var(--r-sm)', background: 'var(--paper-100)', color: 'var(--ink-700)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <IBell size={18}/>
+                </div>
+                <div style={{ flex: 1, fontSize: 14.5, fontWeight: 600 }}>등록된 일정</div>
+                <span style={{ fontSize: 13.5, color: 'var(--ink-500)', fontWeight: 600, marginRight: 4 }}>{schedules.length}개</span>
+                <span style={{ color: 'var(--ink-400)', transform: showScheduleList ? 'rotate(90deg)' : 'none', transition: 'transform 150ms', display: 'inline-block' }}>›</span>
+              </div>
               {showScheduleList && (
-                <div className="schedule-list-expanded">
+                <div style={{ borderTop: '1px solid var(--paper-200)', padding: '10px 16px' }}>
                   {schedules.length === 0 ? (
-                    <p className="schedule-list-empty">등록된 일정이 없어요</p>
+                    <p style={{ fontSize: 14, color: 'var(--ink-500)', textAlign: 'center', padding: '10px 0' }}>등록된 일정이 없어요</p>
                   ) : (
-                    Object.entries(groupSchedulesByMonth()).map(([month, items]) => (
-                      <div key={month} className="schedule-month-group">
-                        <div className="schedule-month-label">{month}</div>
+                    Object.entries(groupByMonth()).map(([mon, items]) => (
+                      <div key={mon} style={{ marginBottom: 12 }}>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink-500)', marginBottom: 6 }}>{mon}</div>
                         {items.map(s => (
-                          <div key={s.id} className="schedule-list-item">
-                            <div className="schedule-list-item-info">
-                              <div className="schedule-list-item-title">{s.title}</div>
-                              <div className="schedule-list-item-meta">
+                          <div key={s.id} style={{ display: 'flex', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid var(--paper-100)' }}>
+                            <div style={{ flex: 1 }}>
+                              <div style={{ fontSize: 14, fontWeight: 600 }}>{s.title}</div>
+                              <div style={{ fontSize: 12, color: 'var(--ink-500)' }}>
                                 {new Date(s.eventDate).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })}
-                                {s.eventTime && ` · ${s.eventTime}`}
+                                {s.eventTime ? ` · ${s.eventTime}` : ''}
                               </div>
                             </div>
-                            <div className="schedule-list-item-actions">
-                              <button
-                                className="schedule-action-btn"
-                                onClick={() => { setEditingSchedule(s); setShowCreateSchedule(true) }}
-                                aria-label="수정"
-                              >
-                                <Pencil size={16} />
+                            <div style={{ display: 'flex', gap: 4 }}>
+                              <button onClick={() => { setEditingSchedule(s); setShowAddSheet(true); setTab('calendar') }} style={{ width: 28, height: 28, borderRadius: 'var(--r-xs)', background: 'var(--paper-100)', color: 'var(--ink-700)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <IPencil size={13}/>
                               </button>
-                              <button
-                                className="schedule-action-btn danger"
-                                onClick={() => handleDeleteSchedule(s.id)}
-                                aria-label="삭제"
-                              >
-                                <Trash2 size={16} />
+                              <button onClick={() => handleDeleteSchedule(s.id)} style={{ width: 28, height: 28, borderRadius: 'var(--r-xs)', background: '#FDECEA', color: 'var(--danger)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <ITrash size={13}/>
                               </button>
                             </div>
                           </div>
@@ -506,133 +629,77 @@ export default function RoomPage() {
                 </div>
               )}
             </div>
+          </div>
 
-            {(isOwner || user?.role === 'ADMIN') && (
-              <div className="settings-section" style={{ marginTop: 'var(--space-xl)' }}>
-                <button
-                  className="settings-item"
-                  style={{ color: 'var(--color-danger)' }}
-                  onClick={async () => {
-                    if (window.confirm('정말 이 모임을 삭제하시겠습니까? (복구할 수 없습니다)')) {
-                      try {
-                        await api.delete(`/rooms/${id}`)
-                        navigate('/', { replace: true })
-                      } catch {
-                        alert('모임 삭제에 실패했습니다.')
-                      }
-                    }
-                  }}
-                >
-                  <span className="settings-item-icon"><Trash2 size={20} /></span>
-                  <span style={{ flex: 1 }}>모임 방 삭제</span>
-                </button>
-              </div>
-            )}
-          </>
-        )}
-      </div>
+          {/* Delete room */}
+          {isOwnerOrAdmin && (
+            <button onClick={async () => {
+              if (window.confirm('정말 이 MOIM을 삭제하시겠습니까? (복구할 수 없습니다)')) {
+                try { await api.delete(`/rooms/${id}`); navigate('/', { replace: true }) }
+                catch { alert('MOIM 삭제에 실패했습니다.') }
+              }
+            }} style={{
+              width: '100%', height: 48, marginTop: 8,
+              color: 'var(--danger)', fontSize: 14, fontWeight: 600,
+              background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            }}>
+              <ITrash size={16}/> MOIM 방 삭제
+            </button>
+          )}
+        </div>
+      )}
 
-      {/* 모달들 */}
-      {showCreateSchedule && (
-        <CreateScheduleModal
+      {/* Add/Edit schedule sheet */}
+      {showAddSheet && (
+        <AddScheduleSheet
           roomId={id}
+          defaultDate={selDateStr || ''}
           schedule={editingSchedule}
-          defaultDate={selectedDate}
-          onClose={() => { setShowCreateSchedule(false); setEditingSchedule(null); setSelectedDate('') }}
+          onClose={() => { setShowAddSheet(false); setEditingSchedule(null) }}
           onCreated={handleScheduleCreated}
         />
       )}
+
+      {/* Invite modal */}
       {showInvite && (
-        <InviteCodeModal
-          roomId={id}
-          roomName={room?.name}
-          onClose={() => setShowInvite(false)}
-        />
+        <InviteCodeModal roomId={id} roomName={room?.name} onClose={() => setShowInvite(false)}/>
       )}
 
-      {/* 멤버 상세보기 모달 */}
+      {/* Member detail modal */}
       {viewingMember && (
-        <div className="modal-overlay" onClick={() => setViewingMember(null)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <div className="modal-handle" />
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-md)', paddingBottom: 'var(--space-lg)' }}>
-                <div className="member-avatar" 
-                  style={{ width: '72px', height: '72px', fontSize: 'var(--font-size-2xl)', cursor: viewingMember.profileImage ? 'zoom-in' : 'default' }}
-                  onClick={() => {
-                    if (viewingMember.profileImage) {
-                      const src = viewingMember.profileImage.startsWith('http') ? viewingMember.profileImage : `${import.meta.env.VITE_API_URL}${viewingMember.profileImage}`
-                      setZoomingImageUrl(src)
-                    }
-                  }}
-                >
-                  {viewingMember.profileImage ? (
-                    <img
-                      src={viewingMember.profileImage.startsWith('http') ? viewingMember.profileImage : `${import.meta.env.VITE_API_URL}${viewingMember.profileImage}`}
-                      alt=""
-                      style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
-                    />
-                  ) : getInitial(viewingMember.nickname)}
-                </div>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 'var(--font-size-xl)', fontWeight: 'var(--font-weight-bold)', marginBottom: '4px' }}>
-                  {viewingMember.nickname}
-                  {viewingMember.userId === user?.id && <span style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-sm)' }}> (나)</span>}
-                </div>
-                <div style={{ display: 'inline-block', background: viewingMember.role === 'OWNER' ? 'var(--color-primary-light)' : 'var(--color-bg)', color: viewingMember.role === 'OWNER' ? 'var(--color-primary)' : 'var(--color-text-secondary)', borderRadius: 'var(--radius-full)', padding: '2px 12px', fontSize: 'var(--font-size-sm)', fontWeight: 'var(--font-weight-medium)' }}>
-                  {viewingMember.role === 'OWNER' ? '방장' : '멤버'}
-                </div>
+        <Modal isOpen={true} onClose={() => setViewingMember(null)} title="">
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, paddingBottom: 16 }}>
+            <Avatar name={viewingMember.nickname} src={profileSrc(viewingMember.profileImage)} size={72} color="var(--wood)" ring/>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 20, fontWeight: 800, marginBottom: 4 }}>
+                {viewingMember.nickname}
+                {viewingMember.userId === user?.id && <span style={{ color: 'var(--ink-500)', fontSize: 14, fontWeight: 500 }}> (나)</span>}
               </div>
+              <div style={{
+                display: 'inline-block', background: viewingMember.role === 'OWNER' ? 'var(--clay-100)' : 'var(--paper-200)',
+                color: viewingMember.role === 'OWNER' ? 'var(--clay)' : 'var(--ink-500)',
+                borderRadius: 'var(--r-pill)', padding: '3px 12px', fontSize: 13, fontWeight: 700,
+              }}>{viewingMember.role === 'OWNER' ? '방장' : '멤버'}</div>
             </div>
-            <button className="btn btn-secondary" style={{ width: '100%' }} onClick={() => setViewingMember(null)}>
-              닫기
-            </button>
           </div>
-        </div>
+          <button className="btn btn-secondary btn-full" onClick={() => setViewingMember(null)}>닫기</button>
+        </Modal>
       )}
 
-      {/* 거절 확인 모달 */}
+      {/* Reject confirm modal */}
       {rejectConfirmUserId && (
-        <div className="modal-overlay" onClick={() => setRejectConfirmUserId(null)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: 'var(--max-width)' }}>
-            <div className="modal-handle" />
-            <h2 className="modal-title">가입 거절</h2>
-            <p style={{ textAlign: 'center', color: 'var(--color-text-secondary)', marginBottom: 'var(--space-xl)' }}>
-              이 멤버의 가입을 거절하시겠습니까?<br />
-              <span style={{ fontSize: 'var(--font-size-sm)' }}>거절된 멤버에게 알림이 표시됩니다.</span>
-            </p>
-            <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
-              <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setRejectConfirmUserId(null)}>
-                취소
-              </button>
-              <button
-                className="btn btn-danger"
-                style={{ flex: 1 }}
-                onClick={async () => {
-                  await handleReject(rejectConfirmUserId)
-                  setRejectConfirmUserId(null)
-                }}
-              >
-                거절하기
-              </button>
-            </div>
+        <Modal isOpen={true} onClose={() => setRejectConfirmUserId(null)} title="가입 거절">
+          <p style={{ textAlign: 'center', color: 'var(--ink-500)', marginBottom: 20 }}>
+            이 멤버의 가입을 거절하시겠습니까?<br/>
+            <span style={{ fontSize: 13 }}>거절된 멤버에게 알림이 표시됩니다.</span>
+          </p>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setRejectConfirmUserId(null)}>취소</button>
+            <button className="btn btn-danger" style={{ flex: 1 }} onClick={async () => { await handleReject(rejectConfirmUserId); setRejectConfirmUserId(null) }}>거절하기</button>
           </div>
-        </div>
+        </Modal>
       )}
-      {/* 이미지 확대 모달 */}
-      <Modal isOpen={!!zoomingImageUrl} onClose={() => setZoomingImageUrl(null)} title="사진 확대">
-        <div style={{ display: 'flex', justifyContent: 'center', padding: 'var(--space-md) 0' }}>
-          {zoomingImageUrl && (
-            <img 
-              src={zoomingImageUrl} 
-              alt="확대된 사진" 
-              style={{ width: '100%', maxWidth: '100%', borderRadius: 'var(--radius-lg)', objectFit: 'contain' }} 
-            />
-          )}
-        </div>
-        <button className="btn btn-secondary btn-full" onClick={() => setZoomingImageUrl(null)} style={{ marginTop: 'var(--space-md)' }}>
-          닫기
-        </button>
-      </Modal>
     </div>
   )
 }

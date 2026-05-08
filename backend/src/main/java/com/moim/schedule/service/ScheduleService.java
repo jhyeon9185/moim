@@ -36,6 +36,19 @@ public class ScheduleService {
     }
 
     @Transactional
+    public Schedule updateSchedule(Long scheduleId, String title, String description,
+                                   LocalDate eventDate, LocalTime eventTime, String location) {
+        Schedule schedule = scheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new IllegalArgumentException("Schedule not found"));
+        schedule.setTitle(title);
+        schedule.setDescription(description);
+        schedule.setEventDate(eventDate);
+        schedule.setEventTime(eventTime);
+        schedule.setLocation(location);
+        return scheduleRepository.save(schedule);
+    }
+
+    @Transactional
     public void deleteSchedule(Long scheduleId) {
         scheduleRepository.deleteById(scheduleId);
     }

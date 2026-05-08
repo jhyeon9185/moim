@@ -46,7 +46,7 @@ export default function InviteCodeModal({ roomId, roomName, onClose }) {
     
     window.Kakao.Share.sendDefault({
       objectType: 'text',
-      text: `📬 ${name}모임 초대 코드: ${code}\n⏰ 24시간 이내 1회 사용 가능`,
+      text: `📬 ${name}MOIM 초대 코드: ${code}\n⏰ 24시간 이내 1회 사용 가능`,
       link: {
         mobileWebUrl: origin,
         webUrl: origin,
@@ -86,7 +86,7 @@ export default function InviteCodeModal({ roomId, roomName, onClose }) {
               <LinkIcon size={48} strokeWidth={1.5} color="var(--color-primary)" />
             </div>
             <p className="empty-state-desc">
-              초대 코드를 만들어<br />가족을 모임에 초대하세요
+              초대 코드를 만들어<br />가족을 MOIM에 초대하세요
             </p>
           </div>
 

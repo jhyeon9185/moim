@@ -8,7 +8,8 @@ import RoomListPage from './pages/RoomListPage'
 import RoomPage from './pages/RoomPage'
 import AdminPage from './pages/AdminPage'
 import ProfilePage from './pages/ProfilePage'
-import SettingsPage from './pages/SettingsPage'
+import GlobalCalendarPage from './pages/GlobalCalendarPage'
+import NotificationsPage from './pages/NotificationsPage'
 import NotificationPermissionModal from './components/NotificationPermissionModal'
 import { NotificationProvider, useNotificationContext } from './notification/NotificationContext'
 import LoadingSpinner from './components/LoadingSpinner'
@@ -96,9 +97,10 @@ function AppRoutes() {
         <Route path="/oauth/callback" element={<OAuthCallback />} />
         <Route path="/" element={<ProtectedRoute><RoomListPage /></ProtectedRoute>} />
         <Route path="/room/:id" element={<ProtectedRoute><RoomPage /></ProtectedRoute>} />
+        <Route path="/calendar" element={<ProtectedRoute><GlobalCalendarPage /></ProtectedRoute>} />
+        <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
         <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-        <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
@@ -109,15 +111,14 @@ export default function App() {
   useEffect(() => {
     const handleFocus = (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-        // Give time for mobile keyboard to slide up
         setTimeout(() => {
-          e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 300);
+          e.target.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }, 300)
       }
     }
-    window.addEventListener('focusin', handleFocus);
-    return () => window.removeEventListener('focusin', handleFocus);
-  }, []);
+    window.addEventListener('focusin', handleFocus)
+    return () => window.removeEventListener('focusin', handleFocus)
+  }, [])
 
   return (
     <AuthProvider>

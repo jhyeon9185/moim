@@ -43,6 +43,23 @@ public class ScheduleController {
         return ResponseEntity.ok(schedule);
     }
 
+    @PutMapping("/{scheduleId}")
+    public ResponseEntity<Schedule> updateSchedule(@PathVariable Long roomId,
+                                                   @PathVariable Long scheduleId,
+                                                   @RequestBody Map<String, String> body) {
+        LocalDate eventDate = LocalDate.parse(body.get("eventDate"));
+        LocalTime eventTime = body.get("eventTime") != null && !body.get("eventTime").isEmpty()
+                ? LocalTime.parse(body.get("eventTime")) : null;
+        Schedule schedule = scheduleService.updateSchedule(
+                scheduleId,
+                body.get("title"),
+                body.get("description"),
+                eventDate, eventTime,
+                body.get("location")
+        );
+        return ResponseEntity.ok(schedule);
+    }
+
     @DeleteMapping("/{scheduleId}")
     public ResponseEntity<Void> deleteSchedule(@PathVariable Long roomId,
                                                @PathVariable Long scheduleId) {

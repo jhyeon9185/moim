@@ -11,7 +11,7 @@ export default function CreateRoomModal({ onClose, onCreated }) {
     e.preventDefault()
     const trimmed = name.trim()
     if (!trimmed) {
-      setError('모임 이름을 입력해주세요.')
+      setError('MOIM 이름을 입력해주세요.')
       return
     }
 
@@ -20,24 +20,24 @@ export default function CreateRoomModal({ onClose, onCreated }) {
       const res = await api.post('/rooms', { name: trimmed })
       onCreated(res.data)
     } catch {
-      setError('모임 만들기에 실패했습니다.')
+      setError('MOIM 만들기에 실패했습니다.')
     } finally {
       setSubmitting(false)
     }
   }
 
   return (
-    <Modal isOpen={true} onClose={onClose} title="새 모임 만들기">
+    <Modal isOpen={true} onClose={onClose} title="새 MOIM 만들기">
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
         {error && <div className="login-error">{error}</div>}
 
         <div className="input-group">
-          <label className="input-label" htmlFor="room-name">모임 이름</label>
+          <label className="input-label" htmlFor="room-name">MOIM 이름</label>
           <input
             id="room-name"
             className="input-field"
             type="text"
-            placeholder="예) 김씨 가족 모임"
+            placeholder="예) 김씨 가족 MOIM"
             value={name}
             onChange={(e) => { setName(e.target.value); setError('') }}
             autoFocus
@@ -46,7 +46,7 @@ export default function CreateRoomModal({ onClose, onCreated }) {
         </div>
 
         <button type="submit" className="btn btn-primary btn-full" disabled={submitting}>
-          {submitting ? '만드는 중...' : '모임 만들기'}
+          {submitting ? '만드는 중...' : 'MOIM 만들기'}
         </button>
 
         <button type="button" className="btn btn-secondary btn-full" onClick={onClose}>

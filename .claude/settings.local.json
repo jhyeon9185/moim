@@ -57,7 +57,12 @@
       "Bash(wait)",
       "Bash(awk '{print $5}')",
       "Bash(xargs -I{} taskkill //PID {} //F)",
-      "PowerShell(Start-Process -FilePath \"c:\\\\works\\\\moim\\\\backend\\\\gradlew.bat\" -ArgumentList \"bootRun\" -RedirectStandardOutput \"c:\\\\works\\\\moim\\\\backend\\\\backend.log\" -RedirectStandardError \"c:\\\\works\\\\moim\\\\backend\\\\backend-err.log\" -WorkingDirectory \"c:\\\\works\\\\moim\\\\backend\" -WindowStyle Hidden)"
+      "PowerShell(Start-Process -FilePath \"c:\\\\works\\\\moim\\\\backend\\\\gradlew.bat\" -ArgumentList \"bootRun\" -RedirectStandardOutput \"c:\\\\works\\\\moim\\\\backend\\\\backend.log\" -RedirectStandardError \"c:\\\\works\\\\moim\\\\backend\\\\backend-err.log\" -WorkingDirectory \"c:\\\\works\\\\moim\\\\backend\" -WindowStyle Hidden)",
+      "Bash(awk -F/ '{depth=NF-2; for\\(i=0;i<depth;i++\\) printf \"  \"; print $NF}')",
+      "Bash(curl -s http://localhost:5173)",
+      "Bash(curl -s -w \"%{http_code}\" http://localhost:8080/api/auth/me)",
+      "Bash(curl -s -w \"%{http_code}\" http://localhost:5174)",
+      "Bash(./gradlew compileJava)"
     ]
   }
 }

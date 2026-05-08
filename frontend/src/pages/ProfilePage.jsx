@@ -1,36 +1,64 @@
 import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ChevronLeft, Camera, LogOut, Check, X } from 'lucide-react'
 import { useAuth } from '../auth/AuthContext'
+import { Avatar, Tag, AppHeader, IconButton, TabBar } from '../components/MoimUI'
+import { ICamera, IPencil, ISettings, IUser, ILink, ILogout, IChevR, IBack, ICheck, IX } from '../components/Icons'
 import Modal from '../components/Modal'
 import api from '../api'
 
-const providerLabel = (p) => ({ LOCAL: '이메일', KAKAO: '카카오', GOOGLE: '구글' }[p] ?? p)
+function MenuGroup({ title, children }) {
+  return (
+    <div style={{ marginBottom: 18 }}>
+      <h2 style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink-500)', marginBottom: 8, paddingLeft: 4 }}>{title}</h2>
+      <div style={{ background: 'var(--surface)', border: '1px solid var(--paper-200)', borderRadius: 'var(--r-lg)', overflow: 'hidden' }}>
+        {children}
+      </div>
+    </div>
+  )
+}
+
+function MenuRow({ icon, label, right, onClick, danger = false }) {
+  return (
+    <div onClick={onClick} style={{
+      display: 'flex', alignItems: 'center', gap: 12,
+      padding: '14px 16px', borderBottom: '1px solid var(--paper-200)',
+      cursor: onClick ? 'pointer' : 'default',
+    }}>
+      <div style={{
+        width: 32, height: 32, borderRadius: 'var(--r-sm)',
+        background: danger ? '#FDECEA' : 'var(--paper-100)',
+        color: danger ? 'var(--danger)' : 'var(--ink-700)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>{icon}</div>
+      <div style={{ flex: 1, fontSize: 14.5, fontWeight: 600, letterSpacing: '-0.01em', color: danger ? 'var(--danger)' : 'var(--ink-900)' }}>{label}</div>
+      <div style={{ color: 'var(--ink-500)' }}>{right || (onClick ? <IChevR size={18}/> : null)}</div>
+    </div>
+  )
+}
 
 export default function ProfilePage() {
   const { user, logout, fetchUser } = useAuth()
   const navigate = useNavigate()
   const fileInputRef = useRef(null)
+
   const [nickname, setNickname] = useState(user?.nickname || '')
+  const [editingNickname, setEditingNickname] = useState(false)
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [message, setMessage] = useState({ type: '', text: '' })
-  
-  // 이미지 업로드 관련 상태
   const [previewImage, setPreviewImage] = useState(null)
   const [imageFile, setImageFile] = useState(null)
   const [showZoom, setShowZoom] = useState(false)
 
-  const handleUpdate = async (e) => {
-    e.preventDefault()
-    if (!nickname.trim()) return
-
+  const handleUpdate = async () => {
+    if (!nickname.trim() || nickname === user?.nickname) return
     setLoading(true)
     setMessage({ type: '', text: '' })
     try {
       await api.put('/users/me/nickname', { nickname })
       await fetchUser()
       setMessage({ type: 'success', text: '닉네임이 변경되었습니다.' })
+      setEditingNickname(false)
     } catch {
       setMessage({ type: 'error', text: '변경에 실패했습니다.' })
     } finally {
@@ -41,7 +69,6 @@ export default function ProfilePage() {
   const handleFileChange = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
-    
     setImageFile(file)
     setPreviewImage(URL.createObjectURL(file))
     setMessage({ type: '', text: '' })
@@ -49,10 +76,8 @@ export default function ProfilePage() {
 
   const handleSaveImage = async () => {
     if (!imageFile) return
-
     const formData = new FormData()
     formData.append('file', imageFile)
-
     setUploading(true)
     setMessage({ type: '', text: '' })
     try {
@@ -76,168 +101,154 @@ export default function ProfilePage() {
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
-  const getInitial = (name) => name ? name.charAt(0).toUpperCase() : '?'
-
   const currentAvatarSrc = user?.profileImage
     ? (user.profileImage.startsWith('http') ? user.profileImage : `${import.meta.env.VITE_API_URL}${user.profileImage}`)
     : null
-  
   const displaySrc = previewImage || currentAvatarSrc
 
   return (
-    <div className="room-page">
-      <div className="room-header">
-        <button className="room-header-back" onClick={() => navigate(-1)}>
-          <ChevronLeft size={24} />
-        </button>
-        <h1 className="room-header-title">내 정보 관리</h1>
-      </div>
+    <div className="moim paper-grain" style={{
+      width: '100%', height: '100dvh', overflow: 'hidden',
+      display: 'flex', flexDirection: 'column', background: 'var(--paper-50)',
+      position: 'relative',
+    }}>
+      <AppHeader title="마이" left={<IconButton Icon={IBack} onClick={() => navigate(-1)}/>}/>
 
-      <div className="room-content" style={{ padding: 'var(--space-lg)' }}>
-        {/* 프로필 이미지 */}
-        <div style={{ textAlign: 'center', marginBottom: 'var(--space-2xl)' }}>
-          <div style={{ position: 'relative', display: 'inline-block' }}>
-            <div 
-              className="user-avatar" 
+      <div style={{ flex: 1, overflowY: 'auto', padding: '4px 20px 96px' }}>
+
+        {/* Profile card */}
+        <div style={{
+          background: 'var(--surface)', border: '1px solid var(--paper-200)',
+          borderRadius: 'var(--r-xl)', padding: 22, marginBottom: 18,
+          display: 'flex', alignItems: 'center', gap: 16,
+          boxShadow: 'var(--shadow-1)',
+        }}>
+          <div style={{ position: 'relative' }}>
+            <div
               onClick={() => displaySrc && setShowZoom(true)}
-              style={{ 
-                width: '120px', 
-                height: '120px', 
-                fontSize: '40px', 
-                margin: '0 auto', 
-                opacity: uploading ? 0.5 : 1,
-                cursor: displaySrc ? 'zoom-in' : 'default',
-                border: imageFile ? '3px solid var(--color-primary)' : 'none'
-              }}
+              style={{ cursor: displaySrc ? 'zoom-in' : 'default' }}
             >
-              {displaySrc ? (
-                <img src={displaySrc} alt="" style={{ borderRadius: '50%' }} />
-              ) : (
-                getInitial(user?.nickname)
-              )}
+              <Avatar name={user?.nickname || '?'} src={displaySrc} size={64} color="var(--wood)" ring/>
             </div>
-            
-            {/* 사진 변경 버튼 - 크기 키움 */}
             {!imageFile && (
-              <button
-                type="button"
-                className="btn-camera-float"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
-                style={{
-                  position: 'absolute',
-                  bottom: '4px',
-                  right: '4px',
-                  background: 'var(--color-primary)',
-                  color: 'white',
-                  width: '42px',
-                  height: '42px',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  border: '3px solid white',
-                  cursor: 'pointer',
-                  boxShadow: 'var(--shadow-md)',
-                }}
-              >
-                {uploading ? <div className="spinner" style={{ width: '18px', height: '18px', borderWidth: '2px' }} /> : <Camera size={20} />}
+              <button onClick={() => fileInputRef.current?.click()} style={{
+                position: 'absolute', right: -2, bottom: -2,
+                width: 26, height: 26, borderRadius: '50%',
+                background: 'var(--clay)', color: '#fff',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                border: '2px solid var(--surface)', cursor: 'pointer',
+              }}>
+                {uploading
+                  ? <span className="spinner" style={{ width: 12, height: 12, borderWidth: 1.5 }}/>
+                  : <ICamera size={13}/>}
               </button>
             )}
-
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              style={{ display: 'none' }}
-              onChange={handleFileChange}
-            />
+            <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFileChange}/>
           </div>
 
-          {/* 이미지 변경 확정 버튼 */}
-          {imageFile && !uploading && (
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--space-md)', marginTop: 'var(--space-md)' }}>
-              <button 
-                onClick={handleSaveImage}
-                className="btn btn-primary"
-                style={{ minHeight: '40px', padding: '0 16px', borderRadius: 'var(--radius-full)', fontSize: 'var(--font-size-sm)' }}
-              >
-                <Check size={16} style={{ marginRight: '4px' }} /> 변경 적용
+          {imageFile ? (
+            <div style={{ flex: 1, display: 'flex', gap: 8 }}>
+              <button onClick={handleSaveImage} disabled={uploading} style={{
+                flex: 1, height: 38, borderRadius: 'var(--r-sm)',
+                background: 'var(--clay)', color: '#fff',
+                fontSize: 13, fontWeight: 700, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+              }}>
+                <ICheck size={14}/> 적용
               </button>
-              <button 
-                onClick={cancelImageChange}
-                className="btn btn-secondary"
-                style={{ minHeight: '40px', padding: '0 16px', borderRadius: 'var(--radius-full)', fontSize: 'var(--font-size-sm)' }}
-              >
-                <X size={16} style={{ marginRight: '4px' }} /> 취소
+              <button onClick={cancelImageChange} style={{
+                flex: 1, height: 38, borderRadius: 'var(--r-sm)',
+                background: 'var(--paper-200)', color: 'var(--ink-700)',
+                fontSize: 13, fontWeight: 700, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+              }}>
+                <IX size={14}/> 취소
               </button>
+            </div>
+          ) : (
+            <div style={{ flex: 1, minWidth: 0 }}>
+              {editingNickname ? (
+                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                  <input
+                    value={nickname} onChange={e => setNickname(e.target.value)}
+                    maxLength={16} autoFocus
+                    style={{
+                      flex: 1, height: 36, padding: '0 10px',
+                      background: 'var(--surface-sunken)', border: '1.5px solid var(--clay)',
+                      borderRadius: 'var(--r-sm)', fontSize: 15, fontWeight: 600,
+                      color: 'var(--ink-900)', fontFamily: 'inherit', outline: 'none',
+                    }}
+                  />
+                  <button onClick={handleUpdate} disabled={loading} style={{
+                    height: 36, padding: '0 12px', borderRadius: 'var(--r-sm)',
+                    background: 'var(--clay)', color: '#fff',
+                    fontSize: 13, fontWeight: 700, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                  }}>{loading ? '...' : '저장'}</button>
+                  <button onClick={() => { setEditingNickname(false); setNickname(user?.nickname || '') }} style={{
+                    height: 36, width: 36, borderRadius: 'var(--r-sm)',
+                    background: 'var(--paper-200)', color: 'var(--ink-700)',
+                    fontSize: 13, fontWeight: 700, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}><IX size={14}/></button>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+                  <span style={{ fontSize: 18, fontWeight: 800, letterSpacing: '-0.02em' }}>{user?.nickname}</span>
+                  {user?.role === 'ADMIN' && <Tag color="clay" size="sm">관리자</Tag>}
+                </div>
+              )}
+              {!editingNickname && (
+                <div style={{ fontSize: 12.5, color: 'var(--ink-500)', fontWeight: 500 }}>{user?.email || ''}</div>
+              )}
             </div>
           )}
 
-          <div style={{ marginTop: 'var(--space-md)' }}>
-            <div style={{ fontWeight: 'bold', fontSize: 'var(--font-size-lg)' }}>{user?.nickname}</div>
-          </div>
-        </div>
-
-        <form onSubmit={handleUpdate} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-lg)' }}>
-          <div className="input-group">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <label className="input-label">닉네임 변경</label>
-              <span style={{ fontSize: 'var(--font-size-xs)', color: nickname.length >= 16 ? 'var(--color-danger)' : 'var(--color-text-light)' }}>
-                {nickname.length}/16
-              </span>
-            </div>
-            <input
-              className="input-field"
-              type="text"
-              value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
-              placeholder="변경할 닉네임을 입력하세요"
-              maxLength={16}
-            />
-          </div>
-
-          {message.text && (
-            <div style={{
-              padding: '12px',
-              borderRadius: 'var(--radius-md)',
-              fontSize: 'var(--font-size-sm)',
-              textAlign: 'center',
-              backgroundColor: message.type === 'success' ? 'var(--color-success-light)' : 'var(--color-danger-light)',
-              color: message.type === 'success' ? 'var(--color-success)' : 'var(--color-danger)',
-            }}>
-              {message.text}
-            </div>
+          {!imageFile && !editingNickname && (
+            <IconButton Icon={IPencil} onClick={() => setEditingNickname(true)}/>
           )}
-
-          <button className="btn btn-primary btn-full" disabled={loading || nickname === user?.nickname}>
-            {loading ? '저장 중...' : '정보 수정하기'}
-          </button>
-        </form>
-
-        <div style={{ marginTop: 'var(--space-2xl)', borderTop: '1px solid var(--color-border)', paddingTop: 'var(--space-lg)' }}>
-          <button
-            className="btn btn-secondary btn-full"
-            style={{ color: 'var(--color-danger)', borderColor: 'var(--color-danger-light)' }}
-            onClick={() => { if (window.confirm('로그아웃 하시겠습니까?')) logout() }}
-          >
-            <LogOut size={18} /> 로그아웃
-          </button>
         </div>
+
+        {message.text && (
+          <div style={{
+            padding: '12px', borderRadius: 'var(--r-sm)', fontSize: 13.5, textAlign: 'center', marginBottom: 16,
+            background: message.type === 'success' ? 'var(--tag-sage-bg)' : '#FDECEA',
+            color: message.type === 'success' ? 'var(--success)' : 'var(--danger)',
+            fontWeight: 600,
+          }}>{message.text}</div>
+        )}
+
+        {/* Admin section */}
+        {user?.role === 'ADMIN' && (
+          <MenuGroup title="관리자">
+            <MenuRow icon={<ISettings size={20}/>} label="관리자 대시보드" onClick={() => navigate('/admin')}/>
+          </MenuGroup>
+        )}
+
+        {/* App settings */}
+        <MenuGroup title="앱 설정">
+          <MenuRow icon={<IUser size={20}/>} label="계정 정보" right={<span style={{ fontSize: 13, color: 'var(--ink-500)', fontWeight: 600 }}>{user?.email || ''}</span>}/>
+          <MenuRow icon={<ILink size={20}/>} label="고객센터"/>
+        </MenuGroup>
+
+        {/* Logout */}
+        <button onClick={() => { if (window.confirm('로그아웃 하시겠습니까?')) logout() }} style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          width: '100%', height: 48, marginTop: 8,
+          color: 'var(--ink-500)', fontSize: 14, fontWeight: 600,
+          background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+        }}>
+          <ILogout size={18}/> 로그아웃
+        </button>
       </div>
 
-      {/* 이미지 확대 모달 */}
-      <Modal isOpen={showZoom} onClose={() => setShowZoom(false)} title="프로필 사진 확대">
-        <div style={{ display: 'flex', justifyContent: 'center', padding: 'var(--space-md) 0' }}>
-          <img 
-            src={displaySrc} 
-            alt="프로필 사진 확대" 
-            style={{ width: '100%', maxWidth: '100%', borderRadius: 'var(--radius-lg)', objectFit: 'contain' }} 
-          />
+      <TabBar/>
+
+      {/* Image zoom modal */}
+      <Modal isOpen={showZoom} onClose={() => setShowZoom(false)} title="프로필 사진">
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '8px 0' }}>
+          {displaySrc && <img src={displaySrc} alt="프로필" style={{ width: '100%', borderRadius: 'var(--r-md)', objectFit: 'contain' }}/>}
         </div>
-        <button className="btn btn-secondary btn-full" onClick={() => setShowZoom(false)} style={{ marginTop: 'var(--space-md)' }}>
-          닫기
-        </button>
+        <button className="btn btn-secondary btn-full" onClick={() => setShowZoom(false)} style={{ marginTop: 12 }}>닫기</button>
       </Modal>
     </div>
   )

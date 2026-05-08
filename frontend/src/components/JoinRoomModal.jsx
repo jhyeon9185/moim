@@ -38,7 +38,7 @@ export default function JoinRoomModal({ onClose, onJoined }) {
           </div>
           <h2 className="empty-state-title">신청 완료!</h2>
           <p className="empty-state-desc">
-            방장이 승인하면<br />모임에 참가할 수 있어요.
+            방장이 승인하면<br />MOIM에 참가할 수 있어요.
           </p>
           <button
             className="btn btn-primary btn-full"
