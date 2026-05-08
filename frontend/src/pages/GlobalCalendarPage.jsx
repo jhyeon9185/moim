@@ -7,6 +7,7 @@ import DesktopLayout from '../components/DesktopLayout'
 import { useIsDesktop } from '../hooks/useIsDesktop'
 import api from '../api'
 import LoadingSpinner from '../components/LoadingSpinner'
+import CreateScheduleModal from '../components/CreateScheduleModal'
 
 const EVENT_COLORS = ['coral', 'mustard', 'sage', 'plum', 'sky', 'rose']
 const hashColor = (id) => EVENT_COLORS[Math.abs(id || 0) % EVENT_COLORS.length]
@@ -44,6 +45,8 @@ export default function GlobalCalendarPage() {
   const [allSchedules, setAllSchedules] = useState([])
   const [selectedRoomId, setSelectedRoomId] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [showAddSchedule, setShowAddSchedule] = useState(false)
+  const [scheduleDefaultDate, setScheduleDefaultDate] = useState('')
 
   useEffect(() => {
     loadData()
@@ -179,10 +182,24 @@ export default function GlobalCalendarPage() {
           today={todayObj}
           events={eventsMap}
           selected={null}
-          onSelect={() => {}}
+          onSelect={({y,m,d}) => {
+            setScheduleDefaultDate(`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`)
+            setShowAddSchedule(true)
+          }}
           onPrev={prevMonth}
           onNext={nextMonth}
         />
+        {showAddSchedule && (
+          <CreateScheduleModal
+            availableRooms={rooms}
+            defaultDate={scheduleDefaultDate}
+            onClose={() => setShowAddSchedule(false)}
+            onCreated={() => {
+              setShowAddSchedule(false)
+              loadData()
+            }}
+          />
+        )}
       </DesktopLayout>
     )
   }
@@ -194,15 +211,12 @@ export default function GlobalCalendarPage() {
       display: 'flex', flexDirection: 'column', background: 'var(--paper-50)',
       position: 'relative',
     }}>
-      <div style={{ padding: '20px 20px 0', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-        <div>
-          <div style={{ fontSize: 12, color: 'var(--ink-500)', fontWeight: 700 }}>전체 일정</div>
-          <h1 style={{ fontSize: 24, fontWeight: 800, letterSpacing: '-0.025em', margin: 0 }}>{year}년 {month}월</h1>
-        </div>
+      <div style={{ padding: '20px 20px 16px' }}>
+        <div style={{ fontSize: 12, color: 'var(--ink-500)', fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}>전체 일정</div>
       </div>
 
       {rooms.length > 1 && (
-        <div style={{ padding: '12px 20px', display: 'flex', gap: 6, overflowX: 'auto' }}>
+        <div style={{ padding: '0 20px 12px', display: 'flex', gap: 6, overflowX: 'auto' }}>
           <button onClick={() => setSelectedRoomId(null)} style={{
             display: 'inline-flex', alignItems: 'center',
             padding: '7px 13px', borderRadius: 'var(--r-pill)',
@@ -233,7 +247,10 @@ export default function GlobalCalendarPage() {
           today={todayObj}
           events={eventsMap}
           selected={null}
-          onSelect={() => {}}
+          onSelect={({y,m,d}) => {
+            setScheduleDefaultDate(`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`)
+            setShowAddSchedule(true)
+          }}
           onPrev={prevMonth}
           onNext={nextMonth}
           compact
@@ -257,6 +274,18 @@ export default function GlobalCalendarPage() {
       </div>
 
       <TabBar/>
+
+      {showAddSchedule && (
+        <CreateScheduleModal
+          availableRooms={rooms}
+          defaultDate={scheduleDefaultDate}
+          onClose={() => setShowAddSchedule(false)}
+          onCreated={() => {
+            setShowAddSchedule(false)
+            loadData()
+          }}
+        />
+      )}
     </div>
   )
 }

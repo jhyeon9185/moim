@@ -13,7 +13,7 @@ const hashColor = id => EVENT_COLORS[Math.abs(id || 0) % EVENT_COLORS.length]
 function Sidebar({ rooms }) {
   const navigate = useNavigate()
   const { pathname } = useLocation()
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const { unreadCount } = useNotificationContext()
 
   const profileImgSrc = user?.profileImage
@@ -27,6 +27,13 @@ function Sidebar({ rooms }) {
     { path: '/profile', label: '마이페이지', Icon: IUser },
   ]
 
+  const handleLogout = () => {
+    if (window.confirm('로그아웃 하시겠습니까?')) {
+      logout()
+      navigate('/login')
+    }
+  }
+
   return (
     <aside style={{
       background: 'var(--surface)', borderRight: '1px solid var(--paper-200)',
@@ -36,10 +43,10 @@ function Sidebar({ rooms }) {
         display: 'flex', alignItems: 'center', gap: 12,
         padding: '0 8px 22px', cursor: 'pointer',
       }}>
-        <img src="/moim_main.png" alt="모임" style={{ width: 42, height: 42, borderRadius: 'var(--r-sm)', objectFit: 'cover', flexShrink: 0 }}/>
+        <img src="/moim_main.png" alt="MOIM" style={{ width: 42, height: 42, borderRadius: 'var(--r-sm)', objectFit: 'cover', flexShrink: 0 }}/>
         <div>
           <div style={{ fontSize: 19, fontWeight: 800, letterSpacing: '-0.025em' }}>모임</div>
-          <div style={{ fontSize: 11.5, color: 'var(--ink-500)', fontWeight: 600 }}>가족과 모이는 시간</div>
+          <div style={{ fontSize: 11.5, color: 'var(--ink-500)', fontWeight: 600 }}>지인과 모이는 시간</div>
         </div>
       </div>
 
@@ -93,18 +100,34 @@ function Sidebar({ rooms }) {
 
       <div style={{ flex: 1 }}/>
 
-      <div style={{
-        background: 'var(--paper-100)', padding: '12px 14px', borderRadius: 'var(--r-md)',
-        display: 'flex', alignItems: 'center', gap: 10,
-      }}>
-        <Avatar name={user?.nickname || '?'} src={profileImgSrc} size={38} color="var(--wood)"/>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 13.5, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.nickname}</div>
-          <div style={{ fontSize: 11, color: 'var(--ink-500)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.email}</div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{
+          background: 'var(--paper-100)', padding: '12px 14px', borderRadius: 'var(--r-md)',
+          display: 'flex', alignItems: 'center', gap: 10,
+        }}>
+          <Avatar name={user?.nickname || '?'} src={profileImgSrc} size={38} color="var(--wood)"/>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 13.5, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.nickname}</div>
+            <div style={{ fontSize: 11, color: 'var(--ink-500)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.email}</div>
+          </div>
+          <button onClick={() => navigate('/profile')} style={{ color: 'var(--ink-500)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}>
+            <ISettings size={18}/>
+          </button>
         </div>
-        <button onClick={() => navigate('/profile')} style={{ color: 'var(--ink-500)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}>
-          <ISettings size={18}/>
-        </button>
+        {user?.role === 'ADMIN' && (
+          <button onClick={() => navigate('/admin')} style={{
+            width: '100%', height: 38, borderRadius: 'var(--r-md)',
+            background: 'var(--tag-plum-bg)', color: 'var(--tag-plum)',
+            fontSize: 13, fontWeight: 700, border: 'none',
+            cursor: 'pointer', fontFamily: 'inherit',
+          }}>관리자 대시보드</button>
+        )}
+        <button onClick={handleLogout} style={{
+          width: '100%', height: 38, borderRadius: 'var(--r-md)',
+          background: 'transparent', color: 'var(--ink-400)',
+          fontSize: 13, fontWeight: 600, border: '1px solid var(--paper-200)',
+          cursor: 'pointer', fontFamily: 'inherit',
+        }}>로그아웃</button>
       </div>
     </aside>
   )

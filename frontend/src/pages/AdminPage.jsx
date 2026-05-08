@@ -3,11 +3,14 @@ import { useNavigate } from 'react-router-dom'
 import { Megaphone, Pencil, ToggleLeft, ToggleRight } from 'lucide-react'
 import { AppHeader, IconButton } from '../components/MoimUI'
 import { IBack, IUsers, IHome, IBell, ITrash, IChevR } from '../components/Icons'
+import DesktopLayout from '../components/DesktopLayout'
+import { useIsDesktop } from '../hooks/useIsDesktop'
 import api from '../api'
 import './AdminPage.css'
 
 export default function AdminPage() {
   const navigate = useNavigate()
+  const isDesktop = useIsDesktop()
   const [users, setUsers] = useState([])
   const [rooms, setRooms] = useState([])
   const [roomMembers, setRoomMembers] = useState({})
@@ -185,67 +188,36 @@ export default function AdminPage() {
     { id: 'notice', label: '공지사항', Icon: Megaphone },
   ]
 
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', background: 'var(--paper-50)', fontFamily: 'var(--font-sans)' }}>
-      <AppHeader title="관리자 대시보드" left={<IconButton Icon={IBack} onClick={() => navigate('/')}/>}/>
-
-      <div className="admin-stats">
-        <div className="admin-stat-card">
-          <div className="admin-stat-value">{users.length}</div>
-          <div className="admin-stat-label">전체 회원</div>
-        </div>
-        <div className="admin-stat-card">
-          <div className="admin-stat-value">{rooms.length}</div>
-          <div className="admin-stat-label">전체 모임</div>
-        </div>
-      </div>
-
-      <div style={{ display: 'flex', background: 'var(--surface)', borderBottom: '1px solid var(--paper-200)', padding: '0 20px' }}>
-        {TABS.map(t => (
-          <button key={t.id} onClick={() => { setTab(t.id); if (t.id === 'notify') fetchConnectedCount() }} style={{
-            flex: 1, background: 'none', border: 'none',
-            padding: '13px 4px',
-            fontFamily: 'var(--font-sans)', fontSize: 13.5,
-            fontWeight: tab === t.id ? 700 : 500,
-            color: tab === t.id ? 'var(--clay)' : 'var(--ink-300)',
-            borderBottom: `2.5px solid ${tab === t.id ? 'var(--clay)' : 'transparent'}`,
-            cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
-          }}>
-            <t.Icon size={15}/>{t.label}
-          </button>
-        ))}
-      </div>
-
-      <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-lg)' }}>
-        {tab === 'users' && (
-          <div className="admin-list">
-            {users.length === 0 && <p className="admin-empty">회원이 없습니다.</p>}
-            {users.map(u => (
-              <div key={u.id} className="admin-card">
-                <div className="admin-avatar">
-                  {imgSrc(u.profileImage) ? <img src={imgSrc(u.profileImage)} alt="" /> : getInitial(u.nickname)}
-                </div>
-                <div className="admin-card-info">
-                  <div className="admin-card-name">
-                    {u.nickname}
-                    <span className={`admin-role-badge ${u.role === 'ADMIN' ? 'is-admin' : ''}`}>
-                      {u.role === 'ADMIN' ? '관리자' : '일반'}
-                    </span>
-                    <span className="admin-provider-badge">{providerLabel(u.provider)}</span>
-                  </div>
-                  <div className="admin-card-sub">{u.email}</div>
-                  <div className="admin-card-sub">{new Date(u.createdAt).toLocaleDateString('ko-KR')} 가입</div>
-                </div>
-                {u.role !== 'ADMIN' && (
-                  <button className="admin-action-btn danger" onClick={() => handleDeleteUser(u.id)} aria-label="삭제">
-                    <ITrash size={16} />
-                  </button>
-                )}
+  const tabContent = (
+    <div>
+      {tab === 'users' && (
+        <div className="admin-list">
+          {users.length === 0 && <p className="admin-empty">회원이 없습니다.</p>}
+          {users.map(u => (
+            <div key={u.id} className="admin-card">
+              <div className="admin-avatar">
+                {imgSrc(u.profileImage) ? <img src={imgSrc(u.profileImage)} alt="" /> : getInitial(u.nickname)}
               </div>
-            ))}
-          </div>
-        )}
+              <div className="admin-card-info">
+                <div className="admin-card-name">
+                  {u.nickname}
+                  <span className={`admin-role-badge ${u.role === 'ADMIN' ? 'is-admin' : ''}`}>
+                    {u.role === 'ADMIN' ? '관리자' : '일반'}
+                  </span>
+                  <span className="admin-provider-badge">{providerLabel(u.provider)}</span>
+                </div>
+                <div className="admin-card-sub">{u.email}</div>
+                <div className="admin-card-sub">{new Date(u.createdAt).toLocaleDateString('ko-KR')} 가입</div>
+              </div>
+              {u.role !== 'ADMIN' && (
+                <button className="admin-action-btn danger" onClick={() => handleDeleteUser(u.id)} aria-label="삭제">
+                  <ITrash size={16} />
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
 
         {tab === 'rooms' && (
           <div className="admin-list">
@@ -465,6 +437,83 @@ export default function AdminPage() {
             </div>
           </div>
         )}
+    </div>
+  )
+
+  if (isDesktop) {
+    return (
+      <DesktopLayout>
+        <div style={{ marginBottom: 28 }}>
+          <div style={{ fontSize: 12, color: 'var(--ink-500)', fontWeight: 700 }}>관리자</div>
+          <h1 style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.025em', margin: '4px 0 0' }}>대시보드</h1>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, marginBottom: 28 }}>
+          <div style={{ background: 'var(--surface)', border: '1px solid var(--paper-200)', borderRadius: 'var(--r-xl)', padding: '20px 24px' }}>
+            <div style={{ fontSize: 32, fontWeight: 900, letterSpacing: '-0.03em', marginBottom: 4 }}>{users.length}</div>
+            <div style={{ fontSize: 13, color: 'var(--ink-500)', fontWeight: 700 }}>전체 회원</div>
+          </div>
+          <div style={{ background: 'var(--surface)', border: '1px solid var(--paper-200)', borderRadius: 'var(--r-xl)', padding: '20px 24px' }}>
+            <div style={{ fontSize: 32, fontWeight: 900, letterSpacing: '-0.03em', marginBottom: 4 }}>{rooms.length}</div>
+            <div style={{ fontSize: 13, color: 'var(--ink-500)', fontWeight: 700 }}>전체 모임</div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: 0, borderBottom: '1px solid var(--paper-200)', marginBottom: 28 }}>
+          {TABS.map(t => (
+            <button key={t.id} onClick={() => { setTab(t.id); if (t.id === 'notify') fetchConnectedCount() }} style={{
+              padding: '10px 20px', background: 'none', border: 'none',
+              borderBottom: `2.5px solid ${tab === t.id ? 'var(--clay)' : 'transparent'}`,
+              marginBottom: -1,
+              fontFamily: 'inherit', fontSize: 14,
+              fontWeight: tab === t.id ? 700 : 500,
+              color: tab === t.id ? 'var(--clay)' : 'var(--ink-400)',
+              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
+            }}>
+              <t.Icon size={15}/>{t.label}
+            </button>
+          ))}
+        </div>
+
+        <div style={{ maxWidth: 760 }}>
+          {tabContent}
+        </div>
+      </DesktopLayout>
+    )
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', background: 'var(--paper-50)', fontFamily: 'var(--font-sans)' }}>
+      <AppHeader title="관리자 대시보드" left={<IconButton Icon={IBack} onClick={() => navigate('/')}/>}/>
+
+      <div className="admin-stats">
+        <div className="admin-stat-card">
+          <div className="admin-stat-value">{users.length}</div>
+          <div className="admin-stat-label">전체 회원</div>
+        </div>
+        <div className="admin-stat-card">
+          <div className="admin-stat-value">{rooms.length}</div>
+          <div className="admin-stat-label">전체 모임</div>
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', background: 'var(--surface)', borderBottom: '1px solid var(--paper-200)', padding: '0 20px' }}>
+        {TABS.map(t => (
+          <button key={t.id} onClick={() => { setTab(t.id); if (t.id === 'notify') fetchConnectedCount() }} style={{
+            flex: 1, background: 'none', border: 'none', padding: '13px 4px',
+            fontFamily: 'var(--font-sans)', fontSize: 13.5,
+            fontWeight: tab === t.id ? 700 : 500,
+            color: tab === t.id ? 'var(--clay)' : 'var(--ink-300)',
+            borderBottom: `2.5px solid ${tab === t.id ? 'var(--clay)' : 'transparent'}`,
+            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+          }}>
+            <t.Icon size={15}/>{t.label}
+          </button>
+        ))}
+      </div>
+
+      <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-lg)' }}>
+        {tabContent}
       </div>
     </div>
   )

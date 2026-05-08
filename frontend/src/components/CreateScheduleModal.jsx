@@ -3,8 +3,9 @@ import api from '../api'
 import Modal from './Modal'
 import './MomiChat.css'
 
-export default function CreateScheduleModal({ roomId, onClose, onCreated, defaultDate = '', schedule = null }) {
+export default function CreateScheduleModal({ roomId, availableRooms = [], onClose, onCreated, defaultDate = '', schedule = null }) {
   const isEdit = !!schedule
+  const [targetRoomId, setTargetRoomId] = useState(roomId || (availableRooms.length > 0 ? availableRooms[0].roomId : ''))
   const [form, setForm] = useState({
     title: schedule?.title ?? '',
     eventDate: schedule?.eventDate ?? defaultDate,
@@ -65,6 +66,12 @@ export default function CreateScheduleModal({ roomId, onClose, onCreated, defaul
 
     setSubmitting(true)
     try {
+      if (!targetRoomId) {
+        setError('모임을 선택해주세요.')
+        setSubmitting(false)
+        return
+      }
+
       const payload = {
         title: form.title.trim(),
         eventDate: form.eventDate,
@@ -73,9 +80,9 @@ export default function CreateScheduleModal({ roomId, onClose, onCreated, defaul
         description: form.description.trim() || null,
       }
       if (isEdit) {
-        await api.put(`/rooms/${roomId}/schedules/${schedule.id}`, payload)
+        await api.put(`/rooms/${targetRoomId}/schedules/${schedule.id}`, payload)
       } else {
-        await api.post(`/rooms/${roomId}/schedules`, payload)
+        await api.post(`/rooms/${targetRoomId}/schedules`, payload)
       }
       onCreated()
     } catch {
@@ -89,6 +96,22 @@ export default function CreateScheduleModal({ roomId, onClose, onCreated, defaul
     <Modal isOpen={true} onClose={onClose} title={isEdit ? '일정 수정' : '일정 추가'}>
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
         {error && <div className="login-error">{error}</div>}
+
+        {!roomId && availableRooms.length > 0 && (
+          <div className="input-group">
+            <label className="input-label" htmlFor="schedule-room">어느 모임의 일정인가요?</label>
+            <select
+              id="schedule-room"
+              className="input-field"
+              value={targetRoomId}
+              onChange={(e) => setTargetRoomId(e.target.value)}
+            >
+              {availableRooms.map(r => (
+                <option key={r.roomId} value={r.roomId}>{r.roomName}</option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <div className="input-group">
           <label className="input-label" htmlFor="schedule-title">무슨 모임인가요?</label>
@@ -142,6 +165,50 @@ export default function CreateScheduleModal({ roomId, onClose, onCreated, defaul
           />
         </div>
 
+        {!isEdit && (
+          <div className="momi-section">
+            <div className="momi-header">
+              <div className="momi-badge">모미</div>
+              <div className="momi-header-text">
+                <span className="momi-name">모미에게 물어봐요!</span>
+                <span className="momi-desc">날씨 · 미세먼지 등 일정 정보를 알려드려요</span>
+              </div>
+            </div>
+
+            {chatMessages.length > 0 && (
+              <div className="momi-messages">
+                {chatMessages.map((m, i) => (
+                  <div key={i} className={`momi-msg ${m.role}`}>{m.content}</div>
+                ))}
+                {chatLoading && (
+                  <div className="momi-msg assistant momi-typing">
+                    <span /><span /><span />
+                  </div>
+                )}
+                <div ref={chatEndRef} />
+              </div>
+            )}
+
+            <div className="momi-input-row">
+              <input
+                className="input-field momi-input"
+                placeholder="예) 이날 비 올까요? 우산 챙겨야 해?"
+                value={chatInput}
+                onChange={e => setChatInput(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleChatSend()}
+                disabled={chatLoading}
+              />
+              <button
+                className="btn btn-primary momi-send-btn"
+                onClick={handleChatSend}
+                disabled={chatLoading || !chatInput.trim()}
+              >
+                {chatLoading ? <span className="spinner" style={{ width: 16, height: 16, borderWidth: 2 }} /> : '전송'}
+              </button>
+            </div>
+          </div>
+        )}
+
         <button type="submit" className="btn btn-primary btn-full" disabled={submitting}>
           {submitting ? (isEdit ? '수정 중...' : '추가 중...') : (isEdit ? '수정하기' : '일정 추가하기')}
         </button>
@@ -150,50 +217,6 @@ export default function CreateScheduleModal({ roomId, onClose, onCreated, defaul
           취소
         </button>
       </form>
-
-      {!isEdit && (
-        <div className="momi-section">
-          <div className="momi-header">
-            <div className="momi-badge">모미</div>
-            <div className="momi-header-text">
-              <span className="momi-name">모미에게 물어봐요!</span>
-              <span className="momi-desc">날씨 · 미세먼지 등 일정 정보를 알려드려요</span>
-            </div>
-          </div>
-
-          {chatMessages.length > 0 && (
-            <div className="momi-messages">
-              {chatMessages.map((m, i) => (
-                <div key={i} className={`momi-msg ${m.role}`}>{m.content}</div>
-              ))}
-              {chatLoading && (
-                <div className="momi-msg assistant momi-typing">
-                  <span /><span /><span />
-                </div>
-              )}
-              <div ref={chatEndRef} />
-            </div>
-          )}
-
-          <div className="momi-input-row">
-            <input
-              className="input-field momi-input"
-              placeholder="예) 이날 비 올까요? 우산 챙겨야 해?"
-              value={chatInput}
-              onChange={e => setChatInput(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleChatSend()}
-              disabled={chatLoading}
-            />
-            <button
-              className="btn btn-primary momi-send-btn"
-              onClick={handleChatSend}
-              disabled={chatLoading || !chatInput.trim()}
-            >
-              {chatLoading ? <span className="spinner" style={{ width: 16, height: 16, borderWidth: 2 }} /> : '전송'}
-            </button>
-          </div>
-        </div>
-      )}
     </Modal>
   )
 }

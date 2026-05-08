@@ -7,6 +7,8 @@ import { MonthCalendar } from '../components/Calendar'
 import InviteCodeModal from '../components/InviteCodeModal'
 import Modal from '../components/Modal'
 import LoadingSpinner from '../components/LoadingSpinner'
+import DesktopLayout from '../components/DesktopLayout'
+import { useIsDesktop } from '../hooks/useIsDesktop'
 import api from '../api'
 
 const EVENT_COLORS = ['coral', 'mustard', 'sage', 'plum', 'sky', 'rose']
@@ -258,6 +260,7 @@ export default function RoomPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { user } = useAuth()
+  const isDesktop = useIsDesktop()
 
   const [room, setRoom] = useState(null)
   const [members, setMembers] = useState([])
@@ -361,6 +364,196 @@ export default function RoomPage() {
   if (loading) return <div className="loading-page"><LoadingSpinner /></div>
 
   const profileSrc = (img) => img ? (img.startsWith('http') ? img : `${import.meta.env.VITE_API_URL}${img}`) : null
+
+  if (isDesktop) {
+    const selDateStr = sel ? `${sel.y}-${String(sel.m).padStart(2,'0')}-${String(sel.d).padStart(2,'0')}` : null
+    const daySchedules = selDateStr ? schedules.filter(s => s.eventDate?.startsWith(selDateStr)) : schedules
+    const eventsMap = buildEventsMap(schedules)
+
+    return (
+      <DesktopLayout title={room?.name}>
+        <div style={{ display: 'grid', gridTemplateColumns: '7fr 3fr', gap: 32, height: '100%', overflow: 'hidden' }}>
+          {/* Left: Main Content (Tabs) */}
+          <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <div style={{ padding: '0 0 20px', display: 'flex', gap: 6 }}>
+              {[
+                { id: 'calendar', label: '일정' },
+                { id: 'members', label: `멤버${pendingMembers.length > 0 && isOwner ? ` (${pendingMembers.length})` : ''}` },
+                { id: 'settings', label: '관리' },
+              ].map(t => (
+                <button key={t.id} onClick={() => setTab(t.id)} style={{
+                  padding: '8px 24px', borderRadius: 'var(--r-pill)',
+                  background: tab === t.id ? 'var(--ink-900)' : 'var(--paper-100)',
+                  color: tab === t.id ? 'var(--paper-50)' : 'var(--ink-500)',
+                  fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                }}>{t.label}</button>
+              ))}
+            </div>
+
+            <div style={{ flex: 1, overflowY: 'auto', paddingRight: 10 }}>
+              {tab === 'calendar' && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
+                  <div style={{ background: 'var(--surface)', borderRadius: 'var(--r-xl)', padding: 24, border: '1px solid var(--paper-200)' }}>
+                    <MonthCalendar
+                      year={calYear} month={calMonth}
+                      today={todayObj}
+                      events={eventsMap}
+                      selected={sel}
+                      onSelect={s => setSel(prev => prev?.d === s.d && prev?.m === s.m ? null : s)}
+                      onPrev={() => { if (calMonth === 1) { setCalMonth(12); setCalYear(y => y-1) } else setCalMonth(m => m-1) }}
+                      onNext={() => { if (calMonth === 12) { setCalMonth(1); setCalYear(y => y+1) } else setCalMonth(m => m+1) }}
+                    />
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 24 }}>
+                      {[['mustard','기념일'],['sage','모임/외식'],['coral','약속'],['sky','여행'],['plum','생일'],['rose','가족']].map(([c,l]) => (
+                        <div key={c} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--ink-500)', fontWeight: 600 }}>
+                          <span style={{ width: 8, height: 8, borderRadius: '50%', background: `var(--tag-${c})` }}/>
+                          {l}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+                      <h2 style={{ fontSize: 18, fontWeight: 800 }}>{sel ? `${sel.y}년 ${sel.m}월 ${sel.d}일 일정` : '전체 일정'}</h2>
+                      <button onClick={() => { setEditingSchedule(null); setShowAddSheet(true) }} style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 6,
+                        background: 'var(--clay)', color: '#fff',
+                        height: 36, padding: '0 16px', borderRadius: 'var(--r-pill)',
+                        fontSize: 13, fontWeight: 700, border: 'none', cursor: 'pointer'
+                      }}><IPlus size={16}/> 일정 추가</button>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                      {daySchedules.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--ink-400)', fontSize: 14 }}>일정이 없습니다.</div>
+                      ) : (
+                        daySchedules.map(s => (
+                          <ScheduleItem key={s.id} s={s} onEdit={sc => { setEditingSchedule(sc); setShowAddSheet(true) }} onDelete={handleDeleteSchedule} isOwnerOrAdmin={isOwner || user?.role === 'ADMIN'} />
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {tab === 'members' && (
+                <div style={{ maxWidth: 800 }}>
+                  {isOwner && pendingMembers.length > 0 && (
+                    <div style={{ marginBottom: 32 }}>
+                      <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 16 }}>가입 신청 ({pendingMembers.length})</h3>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
+                        {pendingMembers.map(m => (
+                          <div key={m.userId} style={{ display: 'flex', alignItems: 'center', gap: 14, background: 'var(--tag-mustard-bg)', padding: 16, borderRadius: 'var(--r-lg)' }}>
+                            <Avatar src={profileSrc(m.profileImage)} name={m.nickname} size={40} />
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ fontWeight: 700 }}>{m.nickname}</div>
+                              <div style={{ fontSize: 12, color: 'var(--ink-500)' }}>신청일: {m.joinedAt?.slice(0,10)}</div>
+                            </div>
+                            <div style={{ display: 'flex', gap: 6 }}>
+                              <button onClick={() => handleApprove(m.userId)} style={{ padding: '6px 12px', borderRadius: 'var(--r-pill)', background: 'var(--ink-900)', color: 'var(--paper-50)', fontSize: 12, fontWeight: 700, border: 'none', cursor: 'pointer' }}>승인</button>
+                              <button onClick={() => handleReject(m.userId)} style={{ padding: '6px 12px', borderRadius: 'var(--r-pill)', background: 'var(--paper-200)', color: 'var(--ink-700)', fontSize: 12, fontWeight: 700, border: 'none', cursor: 'pointer' }}>거절</button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 16 }}>참여 멤버 ({members.length})</h3>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+                    {members.map(m => (
+                      <div key={m.userId} style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'var(--surface)', border: '1px solid var(--paper-200)', padding: 12, borderRadius: 'var(--r-lg)' }}>
+                        <Avatar src={profileSrc(m.profileImage)} name={m.nickname} size={36} />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontWeight: 700, fontSize: 14 }}>{m.nickname}</div>
+                          <div style={{ fontSize: 11, color: 'var(--ink-500)' }}>{m.role === 'OWNER' ? '방장' : '멤버'}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {tab === 'settings' && (
+                <div style={{ maxWidth: 600 }}>
+                  <div style={{ background: 'var(--surface)', border: '1px solid var(--paper-200)', borderRadius: 'var(--r-xl)', padding: 24, marginBottom: 24 }}>
+                    <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 16 }}>초대 코드</h3>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16, background: 'var(--paper-100)', padding: '16px 24px', borderRadius: 'var(--r-lg)' }}>
+                      <div style={{ fontSize: 24, fontWeight: 900, letterSpacing: 4, fontFamily: 'monospace', color: 'var(--clay)' }}>{room?.inviteCode}</div>
+                      <button onClick={() => { navigator.clipboard.writeText(room?.inviteCode); alert('코드가 복사되었습니다.') }} style={{
+                        padding: '8px 16px', borderRadius: 'var(--r-pill)', background: 'var(--clay)', color: '#fff', fontSize: 13, fontWeight: 700, border: 'none', cursor: 'pointer'
+                      }}>복사하기</button>
+                    </div>
+                  </div>
+                  <div style={{ background: 'var(--surface)', border: '1px solid var(--paper-200)', borderRadius: 'var(--r-xl)', padding: 24 }}>
+                    <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 20 }}>알림 설정</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                      {[
+                        { id: 'enabled', label: '전체 알림 받기', desc: '이 모임의 모든 알림을 받습니다.' },
+                        { id: 'alert1h', label: '1시간 전 알림', desc: '일정 시작 1시간 전에 알려드립니다.' },
+                        { id: 'alert3h', label: '3시간 전 알림', desc: '일정 시작 3시간 전에 알려드립니다.' },
+                        { id: 'alertDay', label: '하루 전 알림', desc: '일정 시작 전날 오전에 알려드립니다.' },
+                      ].map(opt => (
+                        <div key={opt.id} onClick={() => handleToggleNotif(opt.id, !notifSetting[opt.id])} style={{
+                          display: 'flex', alignItems: 'center', gap: 16, cursor: 'pointer',
+                          padding: '12px 16px', borderRadius: 'var(--r-lg)',
+                          background: notifSetting[opt.id] ? 'var(--clay-100)' : 'var(--paper-50)',
+                          border: `1px solid ${notifSetting[opt.id] ? 'var(--clay)' : 'var(--paper-200)'}`,
+                        }}>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontWeight: 700, fontSize: 14 }}>{opt.label}</div>
+                            <div style={{ fontSize: 12, color: 'var(--ink-500)' }}>{opt.desc}</div>
+                          </div>
+                          <div style={{
+                            width: 44, height: 24, borderRadius: 12, background: notifSetting[opt.id] ? 'var(--clay)' : 'var(--paper-300)',
+                            position: 'relative', transition: '0.2s'
+                          }}>
+                            <div style={{
+                              width: 18, height: 18, borderRadius: '50%', background: '#fff',
+                              position: 'absolute', top: 3, left: notifSetting[opt.id] ? 23 : 3, transition: '0.2s'
+                            }}/>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Right: Room Info Rail */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <div style={{ background: 'var(--surface)', border: '1px solid var(--paper-200)', borderRadius: 'var(--r-xl)', padding: 24 }}>
+              <div style={{ fontSize: 13, color: 'var(--ink-500)', fontWeight: 700, marginBottom: 8 }}>현재 모임</div>
+              <h1 style={{ fontSize: 24, fontWeight: 900, marginBottom: 12 }}>{room?.name}</h1>
+              <p style={{ fontSize: 14, color: 'var(--ink-600)', lineHeight: 1.6, marginBottom: 20 }}>{room?.description || '모임에 대한 설명이 없습니다.'}</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 16px', background: 'var(--paper-100)', borderRadius: 'var(--r-lg)' }}>
+                <IUsers size={18} color="var(--ink-400)"/>
+                <span style={{ fontSize: 14, fontWeight: 700 }}>멤버 {members.length}명 참여 중</span>
+              </div>
+            </div>
+            {isOwner && (
+              <button style={{
+                height: 48, borderRadius: 'var(--r-xl)', background: 'var(--paper-200)', color: 'var(--ink-700)',
+                fontSize: 14, fontWeight: 800, border: 'none', cursor: 'pointer'
+              }} onClick={() => { if(window.confirm('모임을 정말로 삭제하시겠습니까?')) api.delete(`/rooms/${id}`).then(() => navigate('/')) }}>모임 삭제하기</button>
+            )}
+          </div>
+        </div>
+
+        {showAddSheet && (
+          <Modal title={editingSchedule ? "일정 수정" : "새 일정 추가"} onClose={() => setShowAddSheet(false)}>
+            <AddScheduleSheet
+              roomId={id}
+              defaultDate={selDateStr}
+              schedule={editingSchedule}
+              onClose={() => setShowAddSheet(false)}
+              onCreated={handleScheduleCreated}
+            />
+          </Modal>
+        )}
+      </DesktopLayout>
+    )
+  }
 
   return (
     <div className="moim paper-grain" style={{
