@@ -13,7 +13,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 16px;
   margin-bottom: var(--space-2xl);
 }
 
@@ -43,10 +43,10 @@
 }
 
 .login-logo-desc {
-  font-size: var(--font-size-sm);
+  font-size: 1.1rem;
+  font-weight: var(--font-weight-medium);
   color: var(--color-text-secondary);
-  letter-spacing: 0.01em;
-  margin-top: 2px;
+  letter-spacing: -0.01em;
 }
 
 .login-card {
