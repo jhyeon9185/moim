@@ -30,15 +30,14 @@ export default function Modal({ isOpen, onClose, title, children, className = ''
     const update = () => {
       const el = overlayRef.current
       if (!el) return
-      el.style.height = `${vv.height}px`
-      el.style.top = `${vv.offsetTop}px`
+      const keyboardHeight = Math.max(0, window.innerHeight - vv.height - vv.offsetTop)
+      el.style.paddingBottom = `${keyboardHeight}px`
     }
     vv.addEventListener('resize', update)
-    vv.addEventListener('scroll', update)
     update()
     return () => {
       vv.removeEventListener('resize', update)
-      vv.removeEventListener('scroll', update)
+      if (overlayRef.current) overlayRef.current.style.paddingBottom = ''
     }
   }, [isOpen])
 
