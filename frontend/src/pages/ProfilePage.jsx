@@ -113,12 +113,6 @@ export default function ProfilePage() {
           </div>
           <div style={{ marginTop: 'var(--space-md)' }}>
             <div style={{ fontWeight: 'bold', fontSize: 'var(--font-size-lg)' }}>{user?.nickname}</div>
-            <div style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-sm)', marginTop: '2px' }}>
-              {user?.email}
-            </div>
-            <div style={{ color: 'var(--color-text-light)', fontSize: 'var(--font-size-xs)', marginTop: '4px' }}>
-              {providerLabel(user?.provider)} 계정으로 로그인됨
-            </div>
           </div>
         </div>
 
