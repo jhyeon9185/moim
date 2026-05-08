@@ -220,7 +220,9 @@ export default function ProfilePage() {
       )}
 
       <MenuGroup title="앱 설정">
-        <MenuRow icon={<IUser size={20}/>} label="계정 정보" right={<span style={{ fontSize: 13, color: 'var(--ink-500)', fontWeight: 600 }}>{user?.email || ''}</span>}/>
+        <MenuRow icon={<IUser size={20}/>} label="계정 정보" right={<span style={{ fontSize: 13, color: 'var(--ink-500)', fontWeight: 600 }}>
+          {user?.provider === 'kakao' ? '카카오 계정' : user?.provider === 'google' ? '구글 계정' : user?.email || ''}
+        </span>}/>
         <MenuRow icon={<ISettings size={20}/>} label="알림 설정" onClick={() => navigate('/settings')}/>
         <MenuRow icon={<ILink size={20}/>} label="고객센터"/>
       </MenuGroup>
