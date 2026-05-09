@@ -249,7 +249,7 @@ export default function RoomListPage() {
   const fetchAnnouncements = async () => {
     try {
       const res = await api.get('/announcements/active')
-      setAnnouncement(res.data[0])
+      setAnnouncement(res.data || null)
     } catch {}
   }
 
