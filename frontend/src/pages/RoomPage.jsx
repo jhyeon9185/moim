@@ -277,6 +277,7 @@ export default function RoomPage() {
   const [showScheduleList, setShowScheduleList] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleteInput, setDeleteInput] = useState('')
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false)
 
   const today = new Date()
   const todayObj = { y: today.getFullYear(), m: today.getMonth() + 1, d: today.getDate() }
@@ -535,6 +536,12 @@ export default function RoomPage() {
                 <span style={{ fontSize: 14, fontWeight: 700 }}>멤버 {members.length}명 참여 중</span>
               </div>
             </div>
+            {!isOwner && (
+              <button style={{
+                height: 48, borderRadius: 'var(--r-xl)', background: '#FDECEA', color: 'var(--danger)',
+                fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer'
+              }} onClick={() => setShowLeaveConfirm(true)}>모임 나가기</button>
+            )}
             {isOwner && (
               <button style={{
                 height: 48, borderRadius: 'var(--r-xl)', background: 'var(--paper-200)', color: 'var(--ink-700)',
@@ -831,7 +838,17 @@ export default function RoomPage() {
             </div>
           </div>
 
-          {/* Delete room */}
+          {/* Leave / Delete room */}
+          {!isOwner && (
+            <button onClick={() => setShowLeaveConfirm(true)} style={{
+              width: '100%', height: 48, marginTop: 8,
+              color: 'var(--danger)', fontSize: 14, fontWeight: 600,
+              background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            }}>
+              모임 나가기
+            </button>
+          )}
           {isOwnerOrAdmin && (
             <button onClick={() => { setDeleteInput(''); setShowDeleteConfirm(true) }} style={{
               width: '100%', height: 48, marginTop: 8,
@@ -879,6 +896,22 @@ export default function RoomPage() {
             </div>
           </div>
           <button className="btn btn-secondary btn-full" onClick={() => setViewingMember(null)}>닫기</button>
+        </Modal>
+      )}
+
+      {showLeaveConfirm && (
+        <Modal isOpen={true} onClose={() => setShowLeaveConfirm(false)} title="모임 나가기">
+          <p style={{ fontSize: 14, color: 'var(--ink-500)', lineHeight: 1.7, marginBottom: 20 }}>
+            <strong style={{ color: 'var(--ink-900)' }}>{room?.name}</strong> 모임에서 나가시겠습니까?<br/>
+            나가면 다시 초대 코드로 재가입해야 합니다.
+          </p>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setShowLeaveConfirm(false)}>취소</button>
+            <button className="btn btn-danger" style={{ flex: 1 }} onClick={async () => {
+              try { await api.delete(`/rooms/${id}/members/me`); navigate('/', { replace: true }) }
+              catch { alert('모임 나가기에 실패했습니다.') }
+            }}>나가기</button>
+          </div>
         </Modal>
       )}
 
