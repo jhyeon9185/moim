@@ -264,7 +264,6 @@ export default function RoomListPage() {
   }
 
   const handleCancelJoin = async (roomId) => {
-    if (!window.confirm('가입 신청을 취소하시겠습니까?')) return
     try {
       await api.delete(`/rooms/${roomId}/join`)
       setPendingRooms(p => p.filter(r => r.roomId !== roomId))

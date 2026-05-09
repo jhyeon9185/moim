@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useNotificationContext } from '../notification/NotificationContext'
 import { AppHeader, TabBar } from '../components/MoimUI'
 import { IBell } from '../components/Icons'
@@ -46,10 +47,10 @@ export default function NotificationsPage() {
   const isDesktop = useIsDesktop()
   const { notifications, unreadCount, markAllRead, clearAll } = useNotificationContext()
 
-  const handleMarkRead = () => markAllRead()
+  useEffect(() => { markAllRead() }, [])
 
   const notifContent = (
-    <div onClick={handleMarkRead} style={{ maxWidth: isDesktop ? 640 : undefined, margin: isDesktop ? '0 auto' : undefined }}>
+    <div style={{ maxWidth: isDesktop ? 640 : undefined, margin: isDesktop ? '0 auto' : undefined }}>
       {notifications.length === 0 ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '80px 0', gap: 12 }}>
           <IBell size={48} stroke={1.2} style={{ color: 'var(--ink-300)' }}/>
