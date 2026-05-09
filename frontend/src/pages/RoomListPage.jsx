@@ -244,7 +244,7 @@ export default function RoomListPage() {
 
   const handleCancelJoin = async (roomId) => {
     try {
-      await api.delete(`/rooms/${roomId}/join`)
+      await api.delete(`/rooms/${roomId}/members/me`)
       setPendingRooms(p => p.filter(r => r.roomId !== roomId))
       setRejectedRooms(r => r.filter(x => x.roomId !== roomId))
     } catch {}

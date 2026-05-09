@@ -757,7 +757,7 @@ export default function RoomPage() {
                   <button onClick={e => {
                     e.stopPropagation()
                     if (window.confirm('이 멤버를 강제탈퇴 시키겠습니까?')) {
-                      api.delete(`/rooms/${id}/members/${m.userId}`).then(() => fetchRoom()).catch(() => alert('실패했습니다.'))
+                      api.delete(`/rooms/${id}/members/${m.userId}/kick`).then(() => fetchRoom()).catch(() => alert('실패했습니다.'))
                     }
                   }} style={{ width: 30, height: 30, borderRadius: 'var(--r-xs)', background: '#FDECEA', color: 'var(--danger)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <IX size={14}/>

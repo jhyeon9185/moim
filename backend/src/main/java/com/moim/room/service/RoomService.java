@@ -126,8 +126,24 @@ public class RoomService {
         member.setStatus(RoomMember.Status.REJECTED);
         roomMemberRepository.save(member);
 
-        Room room = getRoom(roomId);
         notificationService.send(userId, "모임 가입 거절", "'" + room.getName() + "' 모임 가입이 거절되었습니다.");
+    }
+
+    @Transactional
+    public void kickMember(Long roomId, Long userId, Long requesterId) {
+        Room room = getRoom(roomId);
+        User requester = userRepository.findById(requesterId)
+                .orElseThrow(() -> new IllegalArgumentException("요청자를 찾을 수 없습니다."));
+
+        if (!room.getOwnerId().equals(requesterId) && requester.getRole() != User.Role.ADMIN) {
+            throw new IllegalArgumentException("방장 또는 관리자만 강제탈퇴 시킬 수 있습니다.");
+        }
+
+        RoomMember member = roomMemberRepository.findByRoomIdAndUserId(roomId, userId)
+                .orElseThrow(() -> new IllegalArgumentException("멤버를 찾을 수 없습니다."));
+
+        roomMemberRepository.delete(member);
+        notificationService.send(userId, "모임 강제탈퇴", "'" + room.getName() + "' 모임에서 추방되었습니다.");
     }
 
     @Transactional

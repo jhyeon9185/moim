@@ -72,6 +72,14 @@ public class RoomController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/rooms/{id}/members/{userId}/kick")
+    public ResponseEntity<Void> kickMember(@PathVariable Long id,
+                                           @PathVariable Long userId,
+                                           @AuthenticationPrincipal User user) {
+        roomService.kickMember(id, userId, user.getId());
+        return ResponseEntity.ok().build();
+    }
+
     @DeleteMapping("/rooms/{id}/members/me")
     public ResponseEntity<Void> cancelJoin(@PathVariable Long id,
                                            @AuthenticationPrincipal User user) {
