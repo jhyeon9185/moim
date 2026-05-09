@@ -894,7 +894,7 @@ export default function RoomPage() {
               모임 나가기
             </button>
           )}
-          {isOwnerOrAdmin && (
+          {isOwner && (
             <button onClick={() => { setDeleteInput(''); setShowDeleteConfirm(true) }} style={{
               width: '100%', height: 48, marginTop: 8,
               color: 'var(--danger)', fontSize: 14, fontWeight: 600,

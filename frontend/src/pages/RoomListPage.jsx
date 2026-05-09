@@ -37,7 +37,16 @@ function GroupCard({ room, onClick }) {
         }}>
           <IDesignHouse size={32} color="#fff"/>
         </div>
-        <div style={{ fontSize: 13, color: 'var(--ink-500)', fontWeight: 600, paddingTop: 4 }}>멤버 {room.memberCount || 0}명</div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+          <div style={{ fontSize: 13, color: 'var(--ink-500)', fontWeight: 600 }}>멤버 {room.memberCount || 0}명</div>
+          {room.pendingCount > 0 && (
+            <div style={{
+              background: 'var(--tag-mustard)', color: '#fff',
+              borderRadius: 'var(--r-pill)', padding: '3px 10px',
+              fontSize: 11.5, fontWeight: 700,
+            }}>승인 대기 {room.pendingCount}명</div>
+          )}
+        </div>
       </div>
 
       <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: '-0.02em' }}>{room.roomName}</div>
