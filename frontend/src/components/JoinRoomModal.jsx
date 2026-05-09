@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Clock } from 'lucide-react'
 import { IDesignClock } from './Icons'
 import api from '../api'
 import Modal from './Modal'
@@ -33,18 +32,18 @@ export default function JoinRoomModal({ onClose, onJoined }) {
   return (
     <Modal isOpen={true} onClose={onClose} title={result === 'pending' ? '' : '초대 코드 입력'}>
       {result === 'pending' ? (
-        <div className="empty-state">
-          <div className="empty-state-icon" style={{ color: 'var(--color-primary)' }}>
-            <IDesignClock size={48} />
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '8px 0 4px', textAlign: 'center' }}>
+          <div style={{ color: 'var(--clay)' }}>
+            <IDesignClock size={52} />
           </div>
-          <h2 className="empty-state-title">신청 완료!</h2>
-          <p className="empty-state-desc">
+          <div style={{ fontSize: 19, fontWeight: 800, letterSpacing: '-0.02em' }}>신청 완료!</div>
+          <p style={{ fontSize: 14, color: 'var(--ink-500)', lineHeight: 1.7, margin: 0 }}>
             방장이 승인하면<br />모임에 참가할 수 있어요.
           </p>
           <button
             className="btn btn-primary btn-full"
             onClick={() => { onJoined(); onClose() }}
-            style={{ marginTop: 'var(--space-md)' }}
+            style={{ marginTop: 8 }}
           >
             확인
           </button>

@@ -220,15 +220,14 @@ export default function RoomListPage() {
   const fetchData = async () => {
     setLoading(true)
     try {
-      const [roomsRes, pendingRes, rejectedRes, schedsRes] = await Promise.all([
+      const [roomsRes, schedsRes] = await Promise.all([
         api.get('/rooms'),
-        api.get('/rooms/pending'),
-        api.get('/rooms/rejected'),
         api.get('/schedules/upcoming')
       ])
-      setRooms(roomsRes.data)
-      setPendingRooms(pendingRes.data)
-      setRejectedRooms(rejectedRes.data)
+      const allRooms = roomsRes.data || []
+      setRooms(allRooms.filter(r => r.status === 'APPROVED'))
+      setPendingRooms(allRooms.filter(r => r.status === 'PENDING'))
+      setRejectedRooms(allRooms.filter(r => r.status === 'REJECTED'))
       setUpcomingSchedules(schedsRes.data)
     } catch (e) {
       console.error('Fetch data failed', e)

@@ -145,6 +145,7 @@ function Sidebar({ rooms, onCreateRoom }) {
 export default function DesktopLayout({ children, rightRail, mainPadding = '36px 40px 56px' }) {
   const [rooms, setRooms] = useState([])
   const [showCreate, setShowCreate] = useState(false)
+  const navigate = useNavigate()
   const isWide = useIsDesktop(1280)
 
   const loadRooms = () => {
@@ -183,7 +184,7 @@ export default function DesktopLayout({ children, rightRail, mainPadding = '36px
           onCreated={(newRoom) => {
             setShowCreate(false)
             loadRooms()
-            window.location.href = `/room/${newRoom.id}`
+            navigate(`/room/${newRoom.id}`)
           }}
         />
       )}

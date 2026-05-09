@@ -36,7 +36,7 @@ export default function InviteCodeModal({ roomId, roomName, onClose }) {
     
     window.Kakao.Share.sendDefault({
       objectType: 'text',
-      text: `📬 ${name}모임 초대 코드: ${code}\n⏰ 24시간 이내 1회 사용 가능`,
+      text: `📬 ${name}모임 초대 코드: ${code}\n⏰ 24시간 후 만료 · 여러 명 사용 가능`,
       link: {
         mobileWebUrl: origin,
         webUrl: origin,
