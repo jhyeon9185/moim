@@ -1,25 +1,5 @@
-# Root .gitignore
-.idea/
-.vscode/
-*.swp
-*.log
-.DS_Store
+# Claude
+.claude/
 
-# Backend
-backend/.gradle/
-backend/build/
-backend/bin/
-backend/out/
-
-# Frontend
-frontend/node_modules/
-frontend/dist/
-frontend/.env
-frontend/.env.local
-frontend/.env.production.local
-frontend/.env.test.local
-
-# Database
-data/
-*.mv.db
-*.trace.db
+# Error logs
+error.md
