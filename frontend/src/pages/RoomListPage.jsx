@@ -255,8 +255,8 @@ export default function RoomListPage() {
 
   const handleRoomCreated = (newRoom) => {
     setShowCreate(false)
-    setRooms(prev => [newRoom, ...prev])
-    navigate(`/room/${newRoom.roomId}`)
+    fetchData()
+    navigate(`/room/${newRoom.id}`)
   }
 
   const handleJoined = () => {
@@ -442,9 +442,11 @@ export default function RoomListPage() {
 
           {/* 공지사항 */}
           {announcement && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'var(--tag-mustard-bg)', borderRadius: 'var(--r-lg)', padding: '14px 18px', marginBottom: 24 }}>
-              <Tag color="mustard" size="sm">공지</Tag>
-              <div style={{ fontSize: 14, color: 'var(--ink-700)', fontWeight: 600 }}>{announcement.content}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'var(--tag-mustard-bg)', borderRadius: 'var(--r-lg)', padding: '14px 18px', marginBottom: 24, overflow: 'hidden' }}>
+              <Tag color="mustard" size="sm" style={{ flexShrink: 0 }}>공지</Tag>
+              <div style={{ overflow: 'hidden', flex: 1 }}>
+                <div style={{ display: 'inline-block', whiteSpace: 'nowrap', animation: 'marquee 18s linear infinite', fontSize: 14, color: 'var(--ink-700)', fontWeight: 600 }}>{announcement.content}</div>
+              </div>
             </div>
           )}
 
@@ -567,10 +569,11 @@ export default function RoomListPage() {
             display: 'flex', alignItems: 'center', gap: 10,
             background: 'var(--tag-mustard-bg)',
             borderRadius: 'var(--r-md)', padding: '12px 14px', marginBottom: 20,
+            overflow: 'hidden',
           }}>
-            <Tag color="mustard" size="sm">공지</Tag>
-            <div style={{ fontSize: 13, color: 'var(--ink-700)', fontWeight: 600, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {announcement.content}
+            <Tag color="mustard" size="sm" style={{ flexShrink: 0 }}>공지</Tag>
+            <div style={{ overflow: 'hidden', flex: 1 }}>
+              <div style={{ display: 'inline-block', whiteSpace: 'nowrap', animation: 'marquee 18s linear infinite', fontSize: 13, color: 'var(--ink-700)', fontWeight: 600 }}>{announcement.content}</div>
             </div>
           </div>
         )}

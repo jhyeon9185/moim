@@ -140,7 +140,7 @@ export default function AdminPage() {
 
   const fetchConnectedCount = async () => {
     try {
-      const res = await api.get('/admin/notifications/connected')
+      const res = await api.get('/admin/notifications/subscribers')
       setConnectedCount(res.data.count)
     } catch {}
   }
@@ -284,7 +284,7 @@ export default function AdminPage() {
 
             {/* 접속 현황 */}
             <div className="admin-stat-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' }}>현재 SSE 연결 중</span>
+              <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' }}>알림 켜둔 회원</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)' }}>
                 <span style={{ fontSize: 'var(--font-size-xl)', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-primary)' }}>
                   {connectedCount ?? '-'}명
@@ -353,7 +353,7 @@ export default function AdminPage() {
             </div>
 
             <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-light)', textAlign: 'center' }}>
-              현재 앱에 접속 중이고 알림을 허용한 사용자에게만 발송됩니다.
+              알림을 켜둔 사용자에게 발송됩니다. (앱 미접속 시에도 수신 가능)
             </p>
           </div>
         )}

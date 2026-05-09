@@ -187,10 +187,6 @@ public class RoomService {
             throw new IllegalArgumentException("이미 참가한 모임입니다.");
         }
 
-        // 코드 사용 처리
-        inviteCode.setUsed(true);
-        inviteCode.setUsedBy(userId);
-        inviteCodeRepository.save(inviteCode);
 
         // PENDING 상태로 멤버 추가
         RoomMember member = RoomMember.builder()

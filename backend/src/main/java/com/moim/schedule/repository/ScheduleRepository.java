@@ -18,4 +18,6 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
                                            @Param("to") LocalTime to);
 
     List<Schedule> findByEventDate(LocalDate date);
+
+    List<Schedule> findByCreatedByAndRoomIdIsNullOrderByEventDateAsc(Long createdBy);
 }

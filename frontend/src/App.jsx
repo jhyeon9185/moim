@@ -8,6 +8,7 @@ import RoomListPage from './pages/RoomListPage'
 import RoomPage from './pages/RoomPage'
 import AdminPage from './pages/AdminPage'
 import ProfilePage from './pages/ProfilePage'
+import SettingsPage from './pages/SettingsPage'
 import GlobalCalendarPage from './pages/GlobalCalendarPage'
 import NotificationsPage from './pages/NotificationsPage'
 import NotificationPermissionModal from './components/NotificationPermissionModal'
@@ -101,6 +102,7 @@ function AppRoutes() {
         <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
         <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+        <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>

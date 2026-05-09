@@ -2,6 +2,7 @@ package com.moim.user.controller;
 
 import com.moim.notification.NotificationService;
 import com.moim.notification.SseEmitterStore;
+import com.moim.notification.repository.NotificationSettingRepository;
 import com.moim.room.entity.RoomMember;
 import com.moim.room.repository.RoomMemberRepository;
 import com.moim.room.repository.RoomRepository;
@@ -26,6 +27,7 @@ public class AdminController {
     private final RoomMemberRepository roomMemberRepository;
     private final NotificationService notificationService;
     private final SseEmitterStore emitterStore;
+    private final NotificationSettingRepository notificationSettingRepository;
 
     @GetMapping("/users")
     public ResponseEntity<List<Map<String, Object>>> getAllUsers() {
@@ -117,5 +119,11 @@ public class AdminController {
     @GetMapping("/notifications/connected")
     public ResponseEntity<Map<String, Object>> connectedCount() {
         return ResponseEntity.ok(Map.of("count", emitterStore.getAll().size()));
+    }
+
+    @GetMapping("/notifications/subscribers")
+    public ResponseEntity<Map<String, Object>> subscriberCount() {
+        long count = notificationSettingRepository.countDistinctUsersWithNotificationsEnabled();
+        return ResponseEntity.ok(Map.of("count", count));
     }
 }

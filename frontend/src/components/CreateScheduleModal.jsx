@@ -5,7 +5,7 @@ import './MomiChat.css'
 
 export default function CreateScheduleModal({ roomId, availableRooms = [], onClose, onCreated, defaultDate = '', schedule = null }) {
   const isEdit = !!schedule
-  const [targetRoomId, setTargetRoomId] = useState(roomId || (availableRooms.length > 0 ? availableRooms[0].roomId : ''))
+  const [targetRoomId, setTargetRoomId] = useState(roomId || (availableRooms.length > 0 ? availableRooms[0].roomId : 'personal'))
   const [form, setForm] = useState({
     title: schedule?.title ?? '',
     eventDate: schedule?.eventDate ?? defaultDate,
@@ -66,12 +66,6 @@ export default function CreateScheduleModal({ roomId, availableRooms = [], onClo
 
     setSubmitting(true)
     try {
-      if (!targetRoomId) {
-        setError('모임을 선택해주세요.')
-        setSubmitting(false)
-        return
-      }
-
       const payload = {
         title: form.title.trim(),
         eventDate: form.eventDate,
@@ -79,10 +73,13 @@ export default function CreateScheduleModal({ roomId, availableRooms = [], onClo
         location: form.location.trim() || null,
         description: form.description.trim() || null,
       }
+      const isPersonal = !targetRoomId || targetRoomId === 'personal'
       if (isEdit) {
-        await api.put(`/rooms/${targetRoomId}/schedules/${schedule.id}`, payload)
+        const url = isPersonal ? `/schedules/${schedule.id}` : `/rooms/${targetRoomId}/schedules/${schedule.id}`
+        await api.put(url, payload)
       } else {
-        await api.post(`/rooms/${targetRoomId}/schedules`, payload)
+        const url = isPersonal ? '/schedules' : `/rooms/${targetRoomId}/schedules`
+        await api.post(url, payload)
       }
       onCreated()
     } catch {
@@ -97,7 +94,7 @@ export default function CreateScheduleModal({ roomId, availableRooms = [], onClo
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
         {error && <div className="login-error">{error}</div>}
 
-        {!roomId && availableRooms.length > 0 && (
+        {!roomId && (
           <div className="input-group">
             <label className="input-label" htmlFor="schedule-room">어느 모임의 일정인가요?</label>
             <select
@@ -106,6 +103,7 @@ export default function CreateScheduleModal({ roomId, availableRooms = [], onClo
               value={targetRoomId}
               onChange={(e) => setTargetRoomId(e.target.value)}
             >
+              <option value="personal">개인 일정</option>
               {availableRooms.map(r => (
                 <option key={r.roomId} value={r.roomId}>{r.roomName}</option>
               ))}

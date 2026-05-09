@@ -52,4 +52,23 @@ public class ScheduleService {
     public void deleteSchedule(Long scheduleId) {
         scheduleRepository.deleteById(scheduleId);
     }
+
+    public List<Schedule> getPersonalSchedules(Long userId) {
+        return scheduleRepository.findByCreatedByAndRoomIdIsNullOrderByEventDateAsc(userId);
+    }
+
+    @Transactional
+    public Schedule createPersonalSchedule(Long userId, String title, String description,
+                                           LocalDate eventDate, LocalTime eventTime, String location) {
+        Schedule schedule = Schedule.builder()
+                .roomId(null)
+                .createdBy(userId)
+                .title(title)
+                .description(description)
+                .eventDate(eventDate)
+                .eventTime(eventTime)
+                .location(location)
+                .build();
+        return scheduleRepository.save(schedule);
+    }
 }

@@ -55,21 +55,13 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
-  mail:
-    host: ${SPRING_MAIL_HOST:smtp.gmail.com}
-    port: ${SPRING_MAIL_PORT:587}
-    username: ${SPRING_MAIL_USERNAME:entmoim@gmail.com}
-    password: ${SPRING_MAIL_PASSWORD:}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-            required: true
-          connectiontimeout: 5000 # 5초 타임아웃 추가
-          timeout: 5000
-          writetimeout: 5000
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration
+
+# Resend 이메일 API (SMTP 대체 - Render SMTP 포트 차단 우회)
+resend:
+  api-key: ${RESEND_API_KEY:}
+  from: ${RESEND_FROM:MOIM <onboarding@resend.dev>}
 
 server:
   port: ${PORT:8080}

@@ -49,6 +49,6 @@ public class InviteCode {
     }
 
     public boolean isAvailable() {
-        return !used && !isExpired() && !isDeleted;
+        return !isExpired() && !isDeleted;
     }
 }

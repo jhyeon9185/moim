@@ -20,20 +20,9 @@ export default function InviteCodeModal({ roomId, roomName, onClose }) {
 
   const copyCode = async () => {
     if (!code) return
-    try {
-      await navigator.clipboard.writeText(code)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    } catch {
-      const el = document.createElement('textarea')
-      el.value = code
-      document.body.appendChild(el)
-      el.select()
-      document.execCommand('copy')
-      document.body.removeChild(el)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    }
+    await navigator.clipboard.writeText(code)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   const shareKakao = () => {
@@ -57,57 +46,56 @@ export default function InviteCodeModal({ roomId, roomName, onClose }) {
 
   return (
     <Modal isOpen={true} onClose={onClose} title="초대 코드">
-      {code ? (
-        <>
-          <p style={{ textAlign: 'center', fontSize: 'var(--font-size-base)', color: 'var(--color-text-secondary)', marginBottom: 'var(--space-md)' }}>
-            아래 코드를 가족에게 보내주세요
-          </p>
-
-          <div className="invite-code-display">
-            <span className="invite-code-text">{code}</span>
-          </div>
-
-          <p style={{ textAlign: 'center', fontSize: 'var(--font-size-sm)', color: 'var(--color-text-light)', margin: 'var(--space-sm) 0 var(--space-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-            <Clock size={14} /> 24시간 후 만료 · 1회만 사용 가능
-          </p>
-
-          <button className="btn btn-kakao btn-full" onClick={shareKakao} style={{ marginBottom: 'var(--space-sm)' }}>
-            <img src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png" alt="" style={{ width: '22px', height: '22px', marginRight: '6px' }} />
-            카카오톡으로 공유하기
-          </button>
-
-          <button className="btn btn-secondary btn-full" onClick={copyCode}>
-            {copied ? '✓ 복사됨!' : '코드 복사하기'}
-          </button>
-        </>
-      ) : (
-        <>
-          <div className="empty-state" style={{ padding: 'var(--space-lg)' }}>
-            <div className="empty-state-icon" style={{ color: 'var(--color-primary)' }}>
-              <IDesignMail size={48} />
-            </div>
-            <p className="empty-state-desc">
-              초대 코드를 만들어<br />가족을 모임에 초대하세요
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+        {code ? (
+          <>
+            <p style={{ fontSize: 14, color: 'var(--color-text-secondary)', margin: 0 }}>
+              아래 코드를 친구에게 보내주세요
             </p>
-          </div>
 
-          <button
-            className="btn btn-primary btn-full"
-            onClick={generateCode}
-            disabled={loading}
-          >
-            {loading ? '만드는 중...' : '초대 코드 만들기'}
-          </button>
-        </>
-      )}
+            <div style={{
+              width: '100%', padding: '20px 16px',
+              background: 'var(--color-primary-light)',
+              borderRadius: 'var(--radius-lg)',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+            }}>
+              <span style={{
+                fontSize: 32, fontWeight: 900, letterSpacing: 6,
+                color: 'var(--color-primary-dark)', fontFamily: 'monospace',
+              }}>{code}</span>
+              <span style={{ fontSize: 12, color: 'var(--color-text-light)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                <Clock size={12} /> 24시간 후 만료 · 여러 명 사용 가능
+              </span>
+            </div>
 
-      <button
-        className="btn btn-secondary btn-full"
-        onClick={onClose}
-        style={{ marginTop: 'var(--space-sm)' }}
-      >
-        닫기
-      </button>
+            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <button className="btn btn-kakao btn-full" onClick={shareKakao}>
+                <img src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png" alt="" style={{ width: 20, height: 20, marginRight: 6 }} />
+                카카오톡으로 공유하기
+              </button>
+              <button className="btn btn-secondary btn-full" onClick={copyCode}>
+                {copied ? '✓ 복사됨!' : <><LinkIcon size={15} style={{ marginRight: 6 }} />코드 복사하기</>}
+              </button>
+              <button className="btn btn-ghost btn-full" onClick={onClose}>닫기</button>
+            </div>
+          </>
+        ) : (
+          <>
+            <div style={{ padding: '8px 0 4px', color: 'var(--color-primary)' }}>
+              <IDesignMail size={52} />
+            </div>
+            <p style={{ fontSize: 15, color: 'var(--color-text-secondary)', textAlign: 'center', margin: 0, lineHeight: 1.6 }}>
+              초대 코드를 만들어<br />친구를 모임에 초대하세요
+            </p>
+            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <button className="btn btn-primary btn-full" onClick={generateCode} disabled={loading}>
+                {loading ? '만드는 중...' : '초대 코드 만들기'}
+              </button>
+              <button className="btn btn-ghost btn-full" onClick={onClose}>닫기</button>
+            </div>
+          </>
+        )}
+      </div>
     </Modal>
   )
 }

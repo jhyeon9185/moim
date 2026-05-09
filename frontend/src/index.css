@@ -249,6 +249,8 @@ img { max-width: 100%; display: block; }
 .btn-primary:hover { background: var(--clay-600); }
 .btn-secondary { background: var(--surface); color: var(--ink-900); border: 1.5px solid var(--paper-300); }
 .btn-secondary:hover { background: var(--paper-100); }
+.btn-ghost { background: none; color: var(--ink-500); border: none; }
+.btn-ghost:hover { color: var(--ink-700); }
 .btn-danger { background: var(--danger); color: #fff; }
 .btn-full { width: 100%; }
 .btn-kakao { background: #FEE500; color: #191919; font-weight: 700; }
@@ -434,3 +436,5 @@ img { max-width: 100%; display: block; }
 .momi-input-row { display: flex; gap: 8px; align-items: center; }
 .momi-input { flex: 1; min-height: 44px; font-size: 14px !important; }
 .momi-send-btn { min-height: 44px !important; padding: 0 16px !important; flex-shrink: 0; }
+
+@keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }

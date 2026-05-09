@@ -55,7 +55,6 @@ public class AuthService {
         return code;
     }
 
-    // DB 저장 후 이메일을 별도 스레드에서 발송 (즉시 응답 반환)
     public void sendVerificationCode(String email) {
         String code = prepareVerificationCode(email);
         CompletableFuture.runAsync(() -> {

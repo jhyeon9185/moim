@@ -58,13 +58,15 @@ export default function GlobalCalendarPage() {
       const approved = roomsRes.data.filter(r => r.status === 'APPROVED')
       setRooms(approved)
 
-      const schedResults = await Promise.all(
-        approved.map(r => api.get(`/rooms/${r.roomId}/schedules`).catch(() => ({ data: [] })))
-      )
-      const all = schedResults.flatMap((res, i) =>
+      const [personalRes, ...schedResults] = await Promise.all([
+        api.get('/schedules').catch(() => ({ data: [] })),
+        ...approved.map(r => api.get(`/rooms/${r.roomId}/schedules`).catch(() => ({ data: [] })))
+      ])
+      const personal = (personalRes.data || []).map(s => ({ ...s, roomId: 'personal' }))
+      const room = schedResults.flatMap((res, i) =>
         (res.data || []).map(s => ({ ...s, roomId: approved[i].roomId }))
       )
-      setAllSchedules(all)
+      setAllSchedules([...personal, ...room])
     } catch {
       // ignore
     } finally {
