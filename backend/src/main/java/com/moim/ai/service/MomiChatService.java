@@ -171,8 +171,8 @@ public class MomiChatService {
 
             double pm25Avg = pm25Sum / count;
             double pm10Avg = pm10Sum / count;
-            return String.format("PM2.5: %.1fμg/m³ (%s) / PM10: %.1fμg/m³ (%s)",
-                    pm25Avg, pm25Level(pm25Avg), pm10Avg, pm10Level(pm10Avg));
+            return String.format("미세먼지(PM10): %s / 초미세먼지(PM2.5): %s",
+                    pm10Level(pm10Avg), pm25Level(pm25Avg));
         } catch (Exception e) {
             return "";
         }
@@ -259,6 +259,7 @@ public class MomiChatService {
 - 이모지를 자연스럽게 활용
 - 2~3문장으로 짧고 친근하게
 - 작년 참고 데이터인 경우 "정확한 예보는 없지만, 작년 이 시기엔~" 식으로 안내
+- 미세먼지는 수치(μg/m³, PM2.5, PM10 등 전문 용어) 절대 언급 금지, '좋음/보통/나쁨' 수준만 자연스럽게 표현
 - 날씨·미세먼지 외 질문은 "저는 일정 날씨 도우미라 잘 모르겠어요 😅" 안내
 """.formatted(
                 title != null ? title : "미정",
