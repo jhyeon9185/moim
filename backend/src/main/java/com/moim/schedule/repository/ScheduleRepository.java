@@ -20,4 +20,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     List<Schedule> findByEventDate(LocalDate date);
 
     List<Schedule> findByCreatedByAndRoomIdIsNullOrderByEventDateAsc(Long createdBy);
+
+    @Query("SELECT s FROM Schedule s WHERE s.roomId IN :roomIds OR (s.createdBy = :userId AND s.roomId IS NULL) ORDER BY s.eventDate ASC")
+    List<Schedule> findAllForUser(@Param("userId") Long userId, @Param("roomIds") List<Long> roomIds);
 }

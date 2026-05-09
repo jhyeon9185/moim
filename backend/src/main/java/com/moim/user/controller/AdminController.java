@@ -46,14 +46,15 @@ public class AdminController {
 
     @GetMapping("/rooms")
     public ResponseEntity<List<Map<String, Object>>> getAllRooms() {
+        Map<Long, Long> countByRoom = roomMemberRepository.findAll().stream()
+                .filter(m -> m.getStatus() == RoomMember.Status.APPROVED)
+                .collect(Collectors.groupingBy(RoomMember::getRoomId, Collectors.counting()));
         return ResponseEntity.ok(roomRepository.findAll().stream().map(r -> {
-            int memberCount = (int) roomMemberRepository.findByRoomId(r.getId()).stream()
-                    .filter(m -> m.getStatus() == RoomMember.Status.APPROVED).count();
             Map<String, Object> map = new HashMap<>();
             map.put("id", r.getId());
             map.put("name", r.getName());
             map.put("ownerId", r.getOwnerId());
-            map.put("memberCount", memberCount);
+            map.put("memberCount", countByRoom.getOrDefault(r.getId(), 0L).intValue());
             map.put("createdAt", r.getCreatedAt().toString());
             return map;
         }).collect(Collectors.toList()));

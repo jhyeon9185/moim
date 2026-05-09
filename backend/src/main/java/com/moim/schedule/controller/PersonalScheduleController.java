@@ -25,6 +25,11 @@ public class PersonalScheduleController {
         return ResponseEntity.ok(scheduleService.getPersonalSchedules(user.getId()));
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<List<Schedule>> getAllSchedules(@AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(scheduleService.getAllSchedulesForUser(user.getId()));
+    }
+
     @PostMapping
     public ResponseEntity<Schedule> createPersonalSchedule(@RequestBody Map<String, String> body,
                                                            @AuthenticationPrincipal User user) {
