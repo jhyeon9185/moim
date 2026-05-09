@@ -460,16 +460,8 @@ export default function RoomListPage() {
 
           <div style={{ display: 'grid', gridTemplateColumns: '7fr 3fr', gap: 24 }}>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <div style={{ marginBottom: 16 }}>
                 <h2 style={{ fontSize: 18, fontWeight: 900, letterSpacing: '-0.03em' }}>내 모임</h2>
-                <button onClick={() => setShowCreate(true)} style={{
-                  display: 'flex', alignItems: 'center', gap: 6,
-                  padding: '5px 10px', borderRadius: 'var(--r-pill)',
-                  background: 'var(--clay-100)', color: 'var(--clay)',
-                  fontSize: 12.5, fontWeight: 800, border: 'none', cursor: 'pointer'
-                }}>
-                  <IPlus size={13}/> 새 모임 만들기
-                </button>
               </div>
               
               {rooms.length === 0 && pendingRooms.length === 0 && rejectedRooms.length === 0 ? (

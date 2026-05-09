@@ -34,7 +34,7 @@ const useAuthStore = create((set, get) => ({
   oauthLogin: async (provider, code) => {
     const res = await api.post('/auth/oauth', { provider, code })
     localStorage.setItem('token', res.data.token)
-    get().fetchUser() // non-blocking: navigate first, user state resolves in background
+    await get().fetchUser()
     return res.data
   },
 

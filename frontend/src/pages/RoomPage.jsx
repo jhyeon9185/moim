@@ -179,11 +179,11 @@ function AddScheduleSheet({ onClose, onCreated, roomId, defaultDate = '', schedu
       <div style={{ display: 'flex', gap: 10, marginBottom: 0 }}>
         <div style={{ flex: 1 }}>
           <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--ink-700)', marginBottom: 6, paddingLeft: 4 }}>날짜</label>
-          <input type="date" value={form.eventDate} onChange={e => { setForm(f => ({ ...f, eventDate: e.target.value })); setError('') }} style={inputStyle}/>
+          <input type="date" value={form.eventDate} onChange={e => { setForm(f => ({ ...f, eventDate: e.target.value })); setError('') }} onClick={(e) => e.target.showPicker?.()} style={inputStyle}/>
         </div>
         <div style={{ flex: 1 }}>
           <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--ink-700)', marginBottom: 6, paddingLeft: 4 }}>시간 (선택)</label>
-          <input type="time" value={form.eventTime} onChange={e => setForm(f => ({ ...f, eventTime: e.target.value }))} style={inputStyle}/>
+          <input type="time" value={form.eventTime} onChange={e => setForm(f => ({ ...f, eventTime: e.target.value }))} onClick={(e) => e.target.showPicker?.()} style={inputStyle}/>
         </div>
       </div>
 
@@ -476,12 +476,15 @@ export default function RoomPage() {
                 <div style={{ maxWidth: 600 }}>
                   <div style={{ background: 'var(--surface)', border: '1px solid var(--paper-200)', borderRadius: 'var(--r-xl)', padding: 24, marginBottom: 24 }}>
                     <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 16 }}>초대 코드</h3>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 16, background: 'var(--paper-100)', padding: '16px 24px', borderRadius: 'var(--r-lg)' }}>
-                      <div style={{ fontSize: 24, fontWeight: 900, letterSpacing: 4, fontFamily: 'monospace', color: 'var(--clay)' }}>{room?.inviteCode}</div>
-                      <button onClick={() => { navigator.clipboard.writeText(room?.inviteCode); alert('코드가 복사되었습니다.') }} style={{
-                        padding: '8px 16px', borderRadius: 'var(--r-pill)', background: 'var(--clay)', color: '#fff', fontSize: 13, fontWeight: 700, border: 'none', cursor: 'pointer'
-                      }}>복사하기</button>
-                    </div>
+                    <button onClick={() => setShowInvite(true)} style={{
+                      width: '100%', display: 'flex', alignItems: 'center', gap: 12,
+                      background: 'var(--paper-100)', padding: '16px 24px', borderRadius: 'var(--r-lg)',
+                      border: 'none', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left',
+                    }}>
+                      <ILink size={20} color="var(--clay)"/>
+                      <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--ink-800)' }}>초대 코드 만들기</span>
+                      <span style={{ marginLeft: 'auto', color: 'var(--ink-400)', fontSize: 18 }}>›</span>
+                    </button>
                   </div>
                   <div style={{ background: 'var(--surface)', border: '1px solid var(--paper-200)', borderRadius: 'var(--r-xl)', padding: 24 }}>
                     <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 20 }}>알림 설정</h3>
@@ -550,6 +553,9 @@ export default function RoomPage() {
               onCreated={handleScheduleCreated}
             />
           </Modal>
+        )}
+        {showInvite && (
+          <InviteCodeModal roomId={id} roomName={room?.name} onClose={() => setShowInvite(false)}/>
         )}
       </DesktopLayout>
     )
