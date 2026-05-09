@@ -201,5 +201,13 @@ public class RoomService {
                 .status(RoomMember.Status.PENDING)
                 .build();
         roomMemberRepository.save(member);
+
+        // 방장에게 알림
+        Room room = getRoom(inviteCode.getRoomId());
+        String nickname = userRepository.findById(userId)
+                .map(u -> u.getNickname())
+                .orElse("누군가");
+        notificationService.send(room.getOwnerId(), "새 가입 신청",
+                "'" + room.getName() + "' 모임에 " + nickname + "님이 가입을 신청했습니다.");
     }
 }
