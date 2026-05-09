@@ -129,8 +129,8 @@ public class MomiChatService {
                     double precip = precipSum != null ? ((Number) precipSum.get(i)).doubleValue() : 0;
                     int wmo = weatherCode != null ? ((Number) weatherCode.get(i)).intValue() : 0;
                     double wind = windSpeed != null ? ((Number) windSpeed.get(i)).doubleValue() : 0;
-                    return String.format("날씨: %s\n최고: %.0f°C / 최저: %.0f°C\n강수확률: %d%% (강수량: %.1fmm)\n최대풍속: %.1fkm/h",
-                            wmoToDesc(wmo), maxT, minT, prob, precip, wind);
+                    return String.format("날씨: %s\n최고: %.0f°C / 최저: %.0f°C\n강수확률: %d%%\n바람: %s",
+                            wmoToDesc(wmo), maxT, minT, prob, windLevel(wind));
                 }
             }
             return "해당 날짜 예보 없음";
@@ -171,8 +171,9 @@ public class MomiChatService {
 
             double pm25Avg = pm25Sum / count;
             double pm10Avg = pm10Sum / count;
-            return String.format("미세먼지(PM10): %s / 초미세먼지(PM2.5): %s",
-                    pm10Level(pm10Avg), pm25Level(pm25Avg));
+            return String.format("미세먼지(PM10): 약 %d / 초미세먼지(PM2.5): 약 %d (등급: %s)",
+                    (int) Math.round(pm10Avg), (int) Math.round(pm25Avg),
+                    pm25Level(pm25Avg));
         } catch (Exception e) {
             return "";
         }
@@ -228,6 +229,13 @@ public class MomiChatService {
         return "흐림 ☁️";
     }
 
+    private String windLevel(double kmh) {
+        if (kmh < 10) return "약한 바람";
+        if (kmh < 30) return "바람 있음";
+        if (kmh < 50) return "강한 바람";
+        return "매우 강한 바람";
+    }
+
     private String pm25Level(double v) {
         if (v <= 15) return "좋음";
         if (v <= 35) return "보통";
@@ -259,7 +267,7 @@ public class MomiChatService {
 - 이모지를 자연스럽게 활용
 - 2~3문장으로 짧고 친근하게
 - 작년 참고 데이터인 경우 "정확한 예보는 없지만, 작년 이 시기엔~" 식으로 안내
-- 미세먼지는 수치(μg/m³, PM2.5, PM10 등 전문 용어) 절대 언급 금지, '좋음/보통/나쁨' 수준만 자연스럽게 표현
+- 미세먼지는 PM2.5·PM10·μg/m³ 등 전문 용어 절대 금지. "미세먼지 수치 약 OO으로 좋은 편이에요" 처럼 숫자를 자연스럽게 녹여서 표현
 - 날씨·미세먼지 외 질문은 "저는 일정 날씨 도우미라 잘 모르겠어요 😅" 안내
 """.formatted(
                 title != null ? title : "미정",
