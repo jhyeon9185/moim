@@ -4,14 +4,14 @@ import { useAuth } from '../auth/AuthContext'
 import { useNotificationContext } from '../notification/NotificationContext'
 import { useIsDesktop } from '../hooks/useIsDesktop'
 import { Avatar } from './MoimUI'
-import { IHome, ICalendar, IBell, IUser, ISettings, IPlus } from './Icons'
+import { IHome, ICalendar, IBell, IUser, ISettings } from './Icons'
 import CreateRoomModal from './CreateRoomModal'
 import api from '../api'
 
 const EVENT_COLORS = ['coral', 'mustard', 'sage', 'plum', 'sky', 'rose']
 const hashColor = id => EVENT_COLORS[Math.abs(id || 0) % EVENT_COLORS.length]
 
-function Sidebar({ rooms, onCreateRoom }) {
+function Sidebar({ rooms }) {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const { user, logout } = useAuth()
@@ -70,14 +70,8 @@ function Sidebar({ rooms, onCreateRoom }) {
       })}
 
       <div style={{ height: 1, background: 'var(--paper-200)', margin: '14px 4px' }}/>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 14px' }}>
+      <div style={{ padding: '4px 14px' }}>
         <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-500)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>내 모임</div>
-        <button onClick={onCreateRoom} style={{
-          display: 'flex', alignItems: 'center', gap: 3,
-          padding: '3px 8px', borderRadius: 'var(--r-pill)',
-          background: 'var(--clay-100)', color: 'var(--clay)',
-          fontSize: 11.5, fontWeight: 700, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
-        }}><IPlus size={11}/> 새 모임</button>
       </div>
 
       {rooms.map(r => {
@@ -165,7 +159,7 @@ export default function DesktopLayout({ children, rightRail, mainPadding = '36px
       gridTemplateColumns: showRail ? '240px 1fr 360px' : '240px 1fr',
       background: 'var(--paper-50)',
     }}>
-      <Sidebar rooms={rooms} onCreateRoom={() => setShowCreate(true)}/>
+      <Sidebar rooms={rooms}/>
       <main style={{ overflow: 'auto', padding: mainPadding, minWidth: 0 }}>
         {children}
       </main>
