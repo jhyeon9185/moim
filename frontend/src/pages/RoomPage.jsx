@@ -565,6 +565,51 @@ export default function RoomPage() {
         {showInvite && (
           <InviteCodeModal roomId={id} roomName={room?.name} onClose={() => setShowInvite(false)}/>
         )}
+        {showLeaveConfirm && (
+          <Modal isOpen={true} onClose={() => setShowLeaveConfirm(false)} title="모임 나가기">
+            <p style={{ fontSize: 14, color: 'var(--ink-500)', lineHeight: 1.7, marginBottom: 20 }}>
+              <strong style={{ color: 'var(--ink-900)' }}>{room?.name}</strong> 모임에서 나가시겠습니까?<br/>
+              나가면 다시 초대 코드로 재가입해야 합니다.
+            </p>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setShowLeaveConfirm(false)}>취소</button>
+              <button className="btn btn-danger" style={{ flex: 1 }} onClick={async () => {
+                try { await api.delete(`/rooms/${id}/members/me`); navigate('/', { replace: true }) }
+                catch { alert('모임 나가기에 실패했습니다.') }
+              }}>나가기</button>
+            </div>
+          </Modal>
+        )}
+        {showDeleteConfirm && (
+          <Modal isOpen={true} onClose={() => setShowDeleteConfirm(false)} title="모임 삭제">
+            <p style={{ fontSize: 14, color: 'var(--ink-500)', lineHeight: 1.7, marginBottom: 16 }}>
+              이 작업은 되돌릴 수 없습니다.<br/>
+              삭제하려면 모임 이름 <strong style={{ color: 'var(--ink-900)' }}>{room?.name}</strong>을 정확히 입력하세요.
+            </p>
+            <div className="input-group" style={{ marginBottom: 16 }}>
+              <input
+                className="input-field"
+                type="text"
+                placeholder={room?.name}
+                value={deleteInput}
+                onChange={e => setDeleteInput(e.target.value)}
+                autoFocus
+              />
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setShowDeleteConfirm(false)}>취소</button>
+              <button
+                className="btn btn-danger"
+                style={{ flex: 1, opacity: deleteInput === room?.name ? 1 : 0.4, cursor: deleteInput === room?.name ? 'pointer' : 'not-allowed' }}
+                disabled={deleteInput !== room?.name}
+                onClick={async () => {
+                  try { await api.delete(`/rooms/${id}`); navigate('/', { replace: true }) }
+                  catch { alert('모임 삭제에 실패했습니다.') }
+                }}
+              >삭제하기</button>
+            </div>
+          </Modal>
+        )}
       </DesktopLayout>
     )
   }
