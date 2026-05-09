@@ -55,6 +55,7 @@ public class AuthService {
         return code;
     }
 
+    @Transactional
     public void sendVerificationCode(String email) {
         String code = prepareVerificationCode(email);
         CompletableFuture.runAsync(() -> {
