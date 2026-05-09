@@ -21,13 +21,6 @@ const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토']
 
 function GroupCard({ room, onClick }) {
   const color = hashColor(room.roomId)
-  const members = room.members || [
-    { name: '김', color: 'var(--tag-coral)' },
-    { name: '이', color: 'var(--tag-mustard)' },
-    { name: '박', color: 'var(--tag-sage)' },
-    { name: '최', color: 'var(--tag-plum)' }
-  ]
-  
   return (
     <div onClick={onClick} style={{
       background: 'var(--surface)', border: '1px solid var(--paper-200)',
@@ -44,33 +37,10 @@ function GroupCard({ room, onClick }) {
         }}>
           <IDesignHouse size={32} color="#fff"/>
         </div>
-        
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          {members.slice(0, 4).map((m, i) => (
-            <div key={i} style={{
-              width: 24, height: 24, borderRadius: '50%',
-              background: m.color || 'var(--paper-300)',
-              border: '2px solid var(--surface)',
-              marginLeft: i === 0 ? 0 : -8,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 10, fontWeight: 700, color: '#fff'
-            }}>{m.name?.[0]}</div>
-          ))}
-          {room.memberCount > 4 && (
-            <div style={{
-              width: 24, height: 24, borderRadius: '50%',
-              background: 'var(--paper-100)', border: '2px solid var(--surface)',
-              marginLeft: -8, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 10, fontWeight: 700, color: 'var(--ink-500)'
-            }}>+{room.memberCount - 4}</div>
-          )}
-        </div>
+        <div style={{ fontSize: 13, color: 'var(--ink-500)', fontWeight: 600, paddingTop: 4 }}>멤버 {room.memberCount || 0}명</div>
       </div>
 
-      <div>
-        <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: '-0.02em', marginBottom: 2 }}>{room.roomName}</div>
-        <div style={{ fontSize: 13, color: 'var(--ink-500)', fontWeight: 500 }}>멤버 {room.memberCount || 0}명</div>
-      </div>
+      <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: '-0.02em' }}>{room.roomName}</div>
 
       <div style={{ 
         background: 'var(--surface-sunken)', borderRadius: 'var(--r-pill)',

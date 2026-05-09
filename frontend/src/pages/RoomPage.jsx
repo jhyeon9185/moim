@@ -275,6 +275,8 @@ export default function RoomPage() {
   const [viewingMember, setViewingMember] = useState(null)
   const [notifSetting, setNotifSetting] = useState({ enabled: true, alert1h: true, alert3h: false, alertDay: false })
   const [showScheduleList, setShowScheduleList] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleteInput, setDeleteInput] = useState('')
 
   const today = new Date()
   const todayObj = { y: today.getFullYear(), m: today.getMonth() + 1, d: today.getDate() }
@@ -537,7 +539,7 @@ export default function RoomPage() {
               <button style={{
                 height: 48, borderRadius: 'var(--r-xl)', background: 'var(--paper-200)', color: 'var(--ink-700)',
                 fontSize: 14, fontWeight: 800, border: 'none', cursor: 'pointer'
-              }} onClick={() => { if(window.confirm('모임을 정말로 삭제하시겠습니까?')) api.delete(`/rooms/${id}`).then(() => navigate('/')) }}>모임 삭제하기</button>
+              }} onClick={() => { setDeleteInput(''); setShowDeleteConfirm(true) }}>모임 삭제하기</button>
             )}
           </div>
         </div>
@@ -831,12 +833,7 @@ export default function RoomPage() {
 
           {/* Delete room */}
           {isOwnerOrAdmin && (
-            <button onClick={async () => {
-              if (window.confirm('정말 이 모임을 삭제하시겠습니까? (복구할 수 없습니다)')) {
-                try { await api.delete(`/rooms/${id}`); navigate('/', { replace: true }) }
-                catch { alert('모임 삭제에 실패했습니다.') }
-              }
-            }} style={{
+            <button onClick={() => { setDeleteInput(''); setShowDeleteConfirm(true) }} style={{
               width: '100%', height: 48, marginTop: 8,
               color: 'var(--danger)', fontSize: 14, fontWeight: 600,
               background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit',
@@ -882,6 +879,37 @@ export default function RoomPage() {
             </div>
           </div>
           <button className="btn btn-secondary btn-full" onClick={() => setViewingMember(null)}>닫기</button>
+        </Modal>
+      )}
+
+      {showDeleteConfirm && (
+        <Modal isOpen={true} onClose={() => setShowDeleteConfirm(false)} title="모임 삭제">
+          <p style={{ fontSize: 14, color: 'var(--ink-500)', lineHeight: 1.7, marginBottom: 16 }}>
+            이 작업은 되돌릴 수 없습니다.<br/>
+            삭제하려면 모임 이름 <strong style={{ color: 'var(--ink-900)' }}>{room?.name}</strong>을 정확히 입력하세요.
+          </p>
+          <div className="input-group" style={{ marginBottom: 16 }}>
+            <input
+              className="input-field"
+              type="text"
+              placeholder={room?.name}
+              value={deleteInput}
+              onChange={e => setDeleteInput(e.target.value)}
+              autoFocus
+            />
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setShowDeleteConfirm(false)}>취소</button>
+            <button
+              className="btn btn-danger"
+              style={{ flex: 1, opacity: deleteInput === room?.name ? 1 : 0.4, cursor: deleteInput === room?.name ? 'pointer' : 'not-allowed' }}
+              disabled={deleteInput !== room?.name}
+              onClick={async () => {
+                try { await api.delete(`/rooms/${id}`); navigate('/', { replace: true }) }
+                catch { alert('모임 삭제에 실패했습니다.') }
+              }}
+            >삭제하기</button>
+          </div>
         </Modal>
       )}
 
