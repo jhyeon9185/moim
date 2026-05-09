@@ -134,6 +134,7 @@ export default function CreateScheduleModal({ roomId, availableRooms = [], onClo
             name="eventDate"
             value={form.eventDate}
             onChange={handleChange}
+            onClick={(e) => e.target.showPicker?.()}
           />
         </div>
 

@@ -95,9 +95,9 @@ public class RoomController {
     }
 
     @PostMapping("/invite/join")
-    public ResponseEntity<Void> joinByCode(@RequestBody Map<String, String> body,
+    public ResponseEntity<Map<String, Long>> joinByCode(@RequestBody Map<String, String> body,
                                            @AuthenticationPrincipal User user) {
-        roomService.joinByInviteCode(body.get("code"), user.getId());
-        return ResponseEntity.ok().build();
+        Long roomId = roomService.joinByInviteCode(body.get("code"), user.getId());
+        return ResponseEntity.ok(Map.of("roomId", roomId));
     }
 }

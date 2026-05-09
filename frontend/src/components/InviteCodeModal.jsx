@@ -32,16 +32,26 @@ export default function InviteCodeModal({ roomId, roomName, onClose }) {
     }
 
     const origin = import.meta.env.VITE_FRONTEND_URL || window.location.origin
+    const inviteUrl = `${origin}/invite/${code}`
     const name = roomName ? `"${roomName}" ` : ''
-    
+
     window.Kakao.Share.sendDefault({
       objectType: 'text',
-      text: `📬 ${name}모임 초대 코드: ${code}\n⏰ 24시간 후 만료 · 여러 명 사용 가능`,
+      text: `📬 ${name}모임 초대\n링크를 클릭해 모임에 참여하세요!\n\n초대 코드: ${code}\n⏰ 24시간 후 만료`,
       link: {
-        mobileWebUrl: origin,
-        webUrl: origin,
+        mobileWebUrl: inviteUrl,
+        webUrl: inviteUrl,
       },
     })
+  }
+
+  const copyLink = async () => {
+    if (!code) return
+    const origin = import.meta.env.VITE_FRONTEND_URL || window.location.origin
+    const inviteUrl = `${origin}/invite/${code}`
+    await navigator.clipboard.writeText(inviteUrl)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   return (
@@ -73,8 +83,8 @@ export default function InviteCodeModal({ roomId, roomName, onClose }) {
                 <img src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png" alt="" style={{ width: 20, height: 20, marginRight: 6 }} />
                 카카오톡으로 공유하기
               </button>
-              <button className="btn btn-secondary btn-full" onClick={copyCode}>
-                {copied ? '✓ 복사됨!' : <><LinkIcon size={15} style={{ marginRight: 6 }} />코드 복사하기</>}
+              <button className="btn btn-secondary btn-full" onClick={copyLink}>
+                {copied ? '✓ 복사됨!' : <><LinkIcon size={15} style={{ marginRight: 6 }} />초대 링크 복사하기</>}
               </button>
               <button className="btn btn-ghost btn-full" onClick={onClose}>닫기</button>
             </div>

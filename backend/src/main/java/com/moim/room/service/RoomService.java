@@ -193,9 +193,9 @@ public class RoomService {
         return inviteCodeRepository.save(inviteCode);
     }
 
-    // 초대 코드로 가입 신청
+    // 초대 코드로 가입 신청 (초대 코드는 즉시 승인)
     @Transactional
-    public void joinByInviteCode(String code, Long userId) {
+    public Long joinByInviteCode(String code, Long userId) {
         InviteCode inviteCode = inviteCodeRepository.findByCode(code)
                 .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 초대 코드입니다."));
 
@@ -205,16 +205,15 @@ public class RoomService {
 
         // 이미 멤버인지 확인
         if (roomMemberRepository.existsByRoomIdAndUserId(inviteCode.getRoomId(), userId)) {
-            throw new IllegalArgumentException("이미 참가한 모임입니다.");
+            return inviteCode.getRoomId(); // 이미 멤버면 그냥 ID 반환
         }
 
-
-        // PENDING 상태로 멤버 추가
+        // APPROVED 상태로 멤버 추가 (초대 코드는 방장의 권한 위임으로 간주)
         RoomMember member = RoomMember.builder()
                 .roomId(inviteCode.getRoomId())
                 .userId(userId)
                 .role(RoomMember.Role.MEMBER)
-                .status(RoomMember.Status.PENDING)
+                .status(RoomMember.Status.APPROVED)
                 .build();
         roomMemberRepository.save(member);
 
@@ -223,7 +222,9 @@ public class RoomService {
         String nickname = userRepository.findById(userId)
                 .map(u -> u.getNickname())
                 .orElse("누군가");
-        notificationService.send(room.getOwnerId(), "새 가입 신청",
-                "'" + room.getName() + "' 모임에 " + nickname + "님이 가입을 신청했습니다.");
+        notificationService.send(room.getOwnerId(), "새 멤버 가입",
+                "'" + room.getName() + "' 모임에 " + nickname + "님이 초대 코드로 가입했습니다.");
+        
+        return inviteCode.getRoomId();
     }
 }

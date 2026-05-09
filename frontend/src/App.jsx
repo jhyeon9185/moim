@@ -15,6 +15,7 @@ import NotificationPermissionModal from './components/NotificationPermissionModa
 import { NotificationProvider, useNotificationContext } from './notification/NotificationContext'
 import LoadingSpinner from './components/LoadingSpinner'
 import api from './api'
+import InviteHandler from './pages/InviteHandler'
 
 function ProtectedRoute({ children }) {
   const { user, isAuthenticated, loading } = useAuth()
@@ -96,6 +97,7 @@ function AppRoutes() {
         <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
         <Route path="/reset-password" element={<PublicRoute><ResetPasswordPage /></PublicRoute>} />
         <Route path="/oauth/callback" element={<OAuthCallback />} />
+        <Route path="/invite/:code" element={<InviteHandler />} />
         <Route path="/" element={<ProtectedRoute><RoomListPage /></ProtectedRoute>} />
         <Route path="/room/:id" element={<ProtectedRoute><RoomPage /></ProtectedRoute>} />
         <Route path="/calendar" element={<ProtectedRoute><GlobalCalendarPage /></ProtectedRoute>} />
@@ -110,6 +112,19 @@ function AppRoutes() {
 }
 
 export default function App() {
+  const { isAuthenticated, loading } = useAuth()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (!loading && isAuthenticated) {
+      const pendingCode = sessionStorage.getItem('pendingInviteCode')
+      if (pendingCode) {
+        sessionStorage.removeItem('pendingInviteCode')
+        navigate(`/invite/${pendingCode}`, { replace: true })
+      }
+    }
+  }, [isAuthenticated, loading, navigate])
+
   useEffect(() => {
     const handleFocus = (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
