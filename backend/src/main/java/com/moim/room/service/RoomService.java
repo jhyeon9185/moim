@@ -1,5 +1,6 @@
 package com.moim.room.service;
 
+import com.moim.notification.NotificationService;
 import com.moim.room.dto.MemberResponse;
 import com.moim.room.dto.RoomListResponse;
 import com.moim.room.entity.*;
@@ -22,6 +23,7 @@ public class RoomService {
     private final RoomMemberRepository roomMemberRepository;
     private final InviteCodeRepository inviteCodeRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public Room createRoom(String name, Long userId) {
@@ -123,6 +125,9 @@ public class RoomService {
 
         member.setStatus(RoomMember.Status.REJECTED);
         roomMemberRepository.save(member);
+
+        Room room = getRoom(roomId);
+        notificationService.send(userId, "모임 가입 거절", "'" + room.getName() + "' 모임 가입이 거절되었습니다.");
     }
 
     @Transactional

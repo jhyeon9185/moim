@@ -32,18 +32,18 @@ export default function JoinRoomModal({ onClose, onJoined }) {
   return (
     <Modal isOpen={true} onClose={onClose} title={result === 'pending' ? '' : '초대 코드 입력'}>
       {result === 'pending' ? (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '8px 0 4px', textAlign: 'center' }}>
-          <div style={{ color: 'var(--clay)' }}>
-            <IDesignClock size={52} />
+        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14, padding: '16px 0 8px', textAlign: 'center' }}>
+          <div style={{ color: 'var(--clay)', display: 'flex', justifyContent: 'center' }}>
+            <IDesignClock size={56} />
           </div>
-          <div style={{ fontSize: 19, fontWeight: 800, letterSpacing: '-0.02em' }}>신청 완료!</div>
-          <p style={{ fontSize: 14, color: 'var(--ink-500)', lineHeight: 1.7, margin: 0 }}>
+          <div style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.02em' }}>신청 완료!</div>
+          <p style={{ fontSize: 14, color: 'var(--ink-500)', lineHeight: 1.8, margin: 0 }}>
             방장이 승인하면<br />모임에 참가할 수 있어요.
           </p>
           <button
             className="btn btn-primary btn-full"
             onClick={() => { onJoined(); onClose() }}
-            style={{ marginTop: 8 }}
+            style={{ marginTop: 4, width: '100%' }}
           >
             확인
           </button>

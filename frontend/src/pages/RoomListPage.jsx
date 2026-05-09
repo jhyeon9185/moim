@@ -222,7 +222,7 @@ export default function RoomListPage() {
     try {
       const [roomsRes, schedsRes] = await Promise.all([
         api.get('/rooms'),
-        api.get('/schedules/upcoming')
+        api.get('/schedules/upcoming').catch(() => ({ data: [] })),
       ])
       const allRooms = roomsRes.data || []
       setRooms(allRooms.filter(r => r.status === 'APPROVED'))
@@ -385,15 +385,31 @@ export default function RoomListPage() {
               </h1>
             </div>
 
-            <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+              <button onClick={() => setShowJoin(true)} style={{
+                height: 44, padding: '0 20px', borderRadius: 'var(--r-pill)',
+                background: 'var(--paper-100)', color: 'var(--ink-700)',
+                fontSize: 14, fontWeight: 700, border: '1px solid var(--paper-300)',
+                cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 7,
+              }}>
+                참가하기
+              </button>
+              <button onClick={() => setShowCreate(true)} style={{
+                height: 44, padding: '0 20px', borderRadius: 'var(--r-pill)',
+                background: 'var(--paper-100)', color: 'var(--ink-700)',
+                fontSize: 14, fontWeight: 700, border: '1px solid var(--paper-300)',
+                cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 7,
+              }}>
+                <IPlus size={16}/> 새 모임
+              </button>
               <button onClick={() => { setScheduleDefaultDate(''); setShowAddSchedule(true) }} style={{
-                height: 48, padding: '0 24px', borderRadius: 'var(--r-pill)',
+                height: 44, padding: '0 20px', borderRadius: 'var(--r-pill)',
                 background: 'var(--clay)', color: '#fff',
-                fontSize: 15, fontWeight: 800, border: 'none',
-                cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 8,
+                fontSize: 14, fontWeight: 800, border: 'none',
+                cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 7,
                 boxShadow: '0 4px 12px rgba(200, 105, 74, 0.25)'
               }}>
-                <IPlus size={20}/> 일정 추가
+                <IPlus size={16}/> 일정 추가
               </button>
             </div>
           </div>

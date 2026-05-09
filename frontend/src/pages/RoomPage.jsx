@@ -272,7 +272,6 @@ export default function RoomPage() {
   const [editingSchedule, setEditingSchedule] = useState(null)
   const [sel, setSel] = useState(null)
   const [showInvite, setShowInvite] = useState(false)
-  const [rejectConfirmUserId, setRejectConfirmUserId] = useState(null)
   const [viewingMember, setViewingMember] = useState(null)
   const [notifSetting, setNotifSetting] = useState({ enabled: true, alert1h: true, alert3h: false, alertDay: false })
   const [showScheduleList, setShowScheduleList] = useState(false)
@@ -680,7 +679,7 @@ export default function RoomPage() {
                   <Avatar name={m.nickname} src={profileSrc(m.profileImage)} size={40} color="var(--wood)"/>
                   <div style={{ flex: 1, fontSize: 15, fontWeight: 700 }}>{m.nickname}</div>
                   <button onClick={() => handleApprove(m.userId)} style={{ height: 34, padding: '0 14px', borderRadius: 'var(--r-pill)', background: 'var(--clay)', color: '#fff', fontSize: 13, fontWeight: 700, border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>승인</button>
-                  <button onClick={() => setRejectConfirmUserId(m.userId)} style={{ height: 34, padding: '0 14px', borderRadius: 'var(--r-pill)', background: '#FDECEA', color: 'var(--danger)', fontSize: 13, fontWeight: 700, border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>거절</button>
+                  <button onClick={() => handleReject(m.userId)} style={{ height: 34, padding: '0 14px', borderRadius: 'var(--r-pill)', background: '#FDECEA', color: 'var(--danger)', fontSize: 13, fontWeight: 700, border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>거절</button>
                 </div>
               ))}
             </div>
@@ -886,19 +885,6 @@ export default function RoomPage() {
         </Modal>
       )}
 
-      {/* Reject confirm modal */}
-      {rejectConfirmUserId && (
-        <Modal isOpen={true} onClose={() => setRejectConfirmUserId(null)} title="가입 거절">
-          <p style={{ textAlign: 'center', color: 'var(--ink-500)', marginBottom: 20 }}>
-            이 멤버의 가입을 거절하시겠습니까?<br/>
-            <span style={{ fontSize: 13 }}>거절된 멤버에게 알림이 표시됩니다.</span>
-          </p>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setRejectConfirmUserId(null)}>취소</button>
-            <button className="btn btn-danger" style={{ flex: 1 }} onClick={async () => { await handleReject(rejectConfirmUserId); setRejectConfirmUserId(null) }}>거절하기</button>
-          </div>
-        </Modal>
-      )}
     </div>
   )
 }
