@@ -28,16 +28,25 @@ export default function Modal({ isOpen, onClose, title, children, className = ''
     const vv = window.visualViewport
     if (!vv) return
     const update = () => {
-      const el = overlayRef.current
-      if (!el) return
+      const overlay = overlayRef.current
+      const content = contentRef.current
+      if (!overlay || !content) return
       const keyboardHeight = Math.max(0, window.innerHeight - vv.height - vv.offsetTop)
-      el.style.paddingBottom = `${keyboardHeight}px`
+      overlay.style.paddingBottom = `${keyboardHeight}px`
+      if (keyboardHeight > 0) {
+        content.style.maxHeight = `${vv.height - 16}px`
+        const focused = content.querySelector(':focus')
+        if (focused) setTimeout(() => focused.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50)
+      } else {
+        content.style.maxHeight = ''
+      }
     }
     vv.addEventListener('resize', update)
     update()
     return () => {
       vv.removeEventListener('resize', update)
       if (overlayRef.current) overlayRef.current.style.paddingBottom = ''
+      if (contentRef.current) contentRef.current.style.maxHeight = ''
     }
   }, [isOpen])
 

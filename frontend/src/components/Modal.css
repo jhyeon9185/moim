@@ -25,6 +25,7 @@
   max-width: var(--max-width);
   max-height: 90dvh;
   overflow-y: auto;
+  overscroll-behavior: contain;
   position: relative;
   box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.12);
   will-change: transform;
