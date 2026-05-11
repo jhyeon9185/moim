@@ -111,7 +111,9 @@ function Sidebar({ rooms }) {
           <Avatar name={user?.nickname || '?'} src={profileImgSrc} size={38} color="var(--wood)"/>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 13.5, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.nickname}</div>
-            <div style={{ fontSize: 11, color: 'var(--ink-500)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.email}</div>
+            <div style={{ fontSize: 11, color: 'var(--ink-500)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {user?.provider === 'KAKAO' ? '카카오 계정' : user?.provider === 'GOOGLE' ? '구글 계정' : user?.email || ''}
+            </div>
           </div>
           <button onClick={() => navigate('/profile')} style={{ color: 'var(--ink-500)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}>
             <ISettings size={18}/>

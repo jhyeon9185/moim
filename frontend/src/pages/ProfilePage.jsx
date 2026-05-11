@@ -194,7 +194,9 @@ export default function ProfilePage() {
               </div>
             )}
             {!editingNickname && (
-              <div style={{ fontSize: 12.5, color: 'var(--ink-500)', fontWeight: 500 }}>{user?.email || ''}</div>
+              <div style={{ fontSize: 12.5, color: 'var(--ink-500)', fontWeight: 500 }}>
+                {user?.provider === 'KAKAO' ? '카카오 계정' : user?.provider === 'GOOGLE' ? '구글 계정' : user?.email || ''}
+              </div>
             )}
           </div>
         )}
@@ -221,7 +223,7 @@ export default function ProfilePage() {
 
       <MenuGroup title="앱 설정">
         <MenuRow icon={<IUser size={20}/>} label="계정 정보" right={<span style={{ fontSize: 13, color: 'var(--ink-500)', fontWeight: 600 }}>
-          {user?.provider === 'kakao' ? '카카오 계정' : user?.provider === 'google' ? '구글 계정' : user?.email || ''}
+          {user?.provider === 'KAKAO' ? '카카오' : user?.provider === 'GOOGLE' ? '구글' : user?.email || ''}
         </span>}/>
         <MenuRow icon={<ISettings size={20}/>} label="알림 설정" onClick={() => navigate('/settings')}/>
         <MenuRow icon={<ILink size={20}/>} label="고객센터"/>
