@@ -229,6 +229,7 @@ public class AuthService {
                             .provider(authProvider)
                             .providerId(providerId)
                             .profileImage(profileImage)
+                            .privacyPolicyAgreed(true)
                             .build());
                 });
 

@@ -33,10 +33,6 @@ function ProtectedRoute({ children }) {
     return <Navigate to="/login" replace />
   }
 
-  if (!user.privacyPolicyAgreed && window.location.pathname !== '/privacy-agreement') {
-    return <Navigate to="/privacy-agreement" replace />
-  }
-
   const isAtMain = window.location.pathname === '/'
   if (!user.nicknameSet && !isAtMain && user?.role !== 'ADMIN') {
     return <Navigate to="/" replace state={{ showNicknameModal: true }} />
