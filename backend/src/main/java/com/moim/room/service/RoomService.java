@@ -108,6 +108,9 @@ public class RoomService {
 
         member.setStatus(RoomMember.Status.APPROVED);
         roomMemberRepository.save(member);
+
+        notificationService.send(userId, "모임 가입 승인",
+                "'" + room.getName() + "' 모임 가입 신청이 승인되었습니다. 지금 확인해보세요!");
     }
 
     @Transactional
@@ -224,6 +227,10 @@ public class RoomService {
                 .orElse("누군가");
         notificationService.send(room.getOwnerId(), "새 멤버 가입",
                 "'" + room.getName() + "' 모임에 " + nickname + "님이 초대 코드로 가입했습니다.");
+
+        // 참가한 유저에게도 알림
+        notificationService.send(userId, "모임 참가 성공",
+                "'" + room.getName() + "' 모임에 성공적으로 참가했습니다. 환영합니다!");
         
         return inviteCode.getRoomId();
     }

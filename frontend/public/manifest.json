@@ -1,7 +1,7 @@
 {
-  "name": "MOIM — 가족 모임 관리",
+  "name": "MOIM — 지인 모임 관리",
   "short_name": "MOIM",
-  "description": "우리 가족 모임을 한눈에 관리하세요",
+  "description": "우리 모임을 한눈에 관리하세요",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",

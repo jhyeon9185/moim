@@ -68,7 +68,7 @@ export default function JoinRoomModal({ onClose, onJoined }) {
           </div>
 
           <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', textAlign: 'center' }}>
-            가족에게 받은 코드를 입력해주세요
+            전달받은 초대 코드를 입력해주세요
           </p>
 
           <button type="submit" className="btn btn-primary btn-full" disabled={submitting}>

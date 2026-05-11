@@ -44,7 +44,7 @@ export default function UpdateNicknameModal({ onClose, onUpdated, isMandatory = 
         </div>
         <h2 className="modal-title" style={{ marginBottom: 'var(--space-xs)' }}>반가워요!</h2>
         <p style={{ fontSize: 'var(--font-size-base)', color: 'var(--color-text-secondary)', lineHeight: '1.4' }}>
-          가족 모임에서 사용할<br />닉네임을 설정해주세요.
+          모임에서 사용할<br />닉네임을 설정해주세요.
         </p>
       </div>
 

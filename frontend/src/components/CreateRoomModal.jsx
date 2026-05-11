@@ -37,7 +37,7 @@ export default function CreateRoomModal({ onClose, onCreated }) {
             id="room-name"
             className="input-field"
             type="text"
-            placeholder="예) 김씨 가족 모임"
+            placeholder="예) 우리들 지인 모임"
             value={name}
             onChange={(e) => { setName(e.target.value); setError('') }}
             autoFocus

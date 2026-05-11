@@ -31,8 +31,7 @@ export default function InviteCodeModal({ roomId, roomName, onClose }) {
       return
     }
 
-    const origin = import.meta.env.VITE_FRONTEND_URL || window.location.origin
-    const inviteUrl = `${origin}/invite/${code}`
+    const inviteUrl = `${window.location.origin}/invite/${code}`
     const name = roomName ? `"${roomName}" ` : ''
 
     window.Kakao.Share.sendDefault({
@@ -47,8 +46,7 @@ export default function InviteCodeModal({ roomId, roomName, onClose }) {
 
   const copyLink = async () => {
     if (!code) return
-    const origin = import.meta.env.VITE_FRONTEND_URL || window.location.origin
-    const inviteUrl = `${origin}/invite/${code}`
+    const inviteUrl = `${window.location.origin}/invite/${code}`
     await navigator.clipboard.writeText(inviteUrl)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)

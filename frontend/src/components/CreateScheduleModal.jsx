@@ -118,7 +118,7 @@ export default function CreateScheduleModal({ roomId, availableRooms = [], onClo
             className="input-field"
             type="text"
             name="title"
-            placeholder="예) 어버이날 가족 식사"
+            placeholder="예) 지인들과의 저녁 식사"
             value={form.title}
             onChange={handleChange}
             autoFocus

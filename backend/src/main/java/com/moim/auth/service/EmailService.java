@@ -44,7 +44,7 @@ public class EmailService {
                       <p style="margin:0;color:#bbb;font-size:12px">본인이 요청하지 않은 경우 이 메일을 무시해주세요.</p>
                     </td></tr>
                     <tr><td style="background:#f9f9f9;padding:18px 32px;border-top:1px solid #f0f0f0;text-align:center">
-                      <p style="margin:0;color:#ccc;font-size:11px">© 2025 MOIM · 가족 모임 관리 서비스</p>
+                      <p style="margin:0;color:#ccc;font-size:11px">© 2025 MOIM · 지인 모임 관리 서비스</p>
                     </td></tr>
                   </table>
                 </td></tr>
@@ -83,7 +83,7 @@ public class EmailService {
                       <p style="margin:0;color:#bbb;font-size:12px">본인이 요청하지 않은 경우 이 메일을 무시해주세요.</p>
                     </td></tr>
                     <tr><td style="background:#f9f9f9;padding:18px 32px;border-top:1px solid #f0f0f0;text-align:center">
-                      <p style="margin:0;color:#ccc;font-size:11px">© 2025 MOIM · 가족 모임 관리 서비스</p>
+                      <p style="margin:0;color:#ccc;font-size:11px">© 2025 MOIM · 지인 모임 관리 서비스</p>
                     </td></tr>
                   </table>
                 </td></tr>

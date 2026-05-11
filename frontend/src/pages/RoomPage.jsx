@@ -104,7 +104,7 @@ function AddScheduleSheet({ onClose, onCreated, roomId, defaultDate = '', schedu
     ['coral', '약속'],
     ['plum', '생일'],
     ['sky', '여행'],
-    ['rose', '가족'],
+    ['rose', '지인'],
   ]
 
   const ALERT_OPTIONS = ['1시간 전', '3시간 전', '하루 전', '꺼짐']
@@ -152,7 +152,7 @@ function AddScheduleSheet({ onClose, onCreated, roomId, defaultDate = '', schedu
 
       <div style={{ marginBottom: 14 }}>
         <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--ink-700)', marginBottom: 6, paddingLeft: 4 }}>무슨 모임인가요?</label>
-        <input value={form.title} onChange={e => { setForm(f => ({ ...f, title: e.target.value })); setError('') }} placeholder="예: 어버이날 가족 식사" autoFocus style={inputStyle}/>
+        <input value={form.title} onChange={e => { setForm(f => ({ ...f, title: e.target.value })); setError('') }} placeholder="예: 친구들과의 저녁 식사" autoFocus style={inputStyle}/>
       </div>
 
       {!isEdit && (
@@ -406,7 +406,7 @@ export default function RoomPage() {
                       onNext={() => { if (calMonth === 12) { setCalMonth(1); setCalYear(y => y+1) } else setCalMonth(m => m+1) }}
                     />
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 24 }}>
-                      {[['mustard','기념일'],['sage','모임/외식'],['coral','약속'],['sky','여행'],['plum','생일'],['rose','가족']].map(([c,l]) => (
+                      {[['mustard','기념일'],['sage','모임/외식'],['coral','약속'],['sky','여행'],['plum','생일'],['rose','지인']].map(([c,l]) => (
                         <div key={c} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--ink-500)', fontWeight: 600 }}>
                           <span style={{ width: 8, height: 8, borderRadius: '50%', background: `var(--tag-${c})` }}/>
                           {l}
@@ -658,7 +658,7 @@ export default function RoomPage() {
             />
             {/* Legend */}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 14 }}>
-              {[['mustard','기념일'],['sage','모임/외식'],['coral','약속'],['sky','여행'],['plum','생일'],['rose','가족']].map(([c,l]) => (
+              {[['mustard','기념일'],['sage','모임/외식'],['coral','약속'],['sky','여행'],['plum','생일'],['rose','지인']].map(([c,l]) => (
                 <div key={c} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--ink-500)', fontWeight: 600 }}>
                   <span style={{ width: 8, height: 8, borderRadius: '50%', background: `var(--tag-${c})` }}/>
                   {l}

@@ -344,7 +344,7 @@ export default function LoginPage() {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14, textAlign: 'left' }}>
               {[
-                { Icon: IDesignHouse, text: '가족 모임 일정을 한눈에 관리' },
+                { Icon: IDesignHouse, text: '지인 모임 일정을 한눈에 관리' },
                 { Icon: IDesignClock, text: '카카오·구글 간편 로그인' },
                 { Icon: IDesignPin, text: 'AI 일정 도우미 Momi와 함께' },
               ].map(({ Icon, text }) => (
