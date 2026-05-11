@@ -12,4 +12,5 @@ public class SignupRequest {
     private String password;
     @NotBlank
     private String nickname;
+    private boolean privacyPolicyAgreed;
 }

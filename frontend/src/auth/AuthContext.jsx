@@ -24,8 +24,8 @@ const useAuthStore = create((set, get) => ({
     return res.data
   },
 
-  signup: async (email, password, nickname) => {
-    const res = await api.post('/auth/signup', { email, password, nickname })
+  signup: async (email, password, nickname, privacyPolicyAgreed) => {
+    const res = await api.post('/auth/signup', { email, password, nickname, privacyPolicyAgreed })
     localStorage.setItem('token', res.data.token)
     await get().fetchUser()
     return res.data

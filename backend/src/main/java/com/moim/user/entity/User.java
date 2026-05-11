@@ -80,6 +80,10 @@ public class User {
     @Column(nullable = false)
     private boolean alertDay = false;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean privacyPolicyAgreed = false;
+
     public enum AuthProvider {
         LOCAL, KAKAO, GOOGLE
     }

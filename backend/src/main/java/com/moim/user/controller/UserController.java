@@ -58,18 +58,23 @@ public class UserController {
 
     @PutMapping("/me/nickname")
     public ResponseEntity<Void> updateNickname(@RequestBody Map<String, String> body,
-                                               @AuthenticationPrincipal User user) {
-        String newNickname = body.get("nickname");
-        if (newNickname == null || newNickname.trim().isEmpty()) {
-            throw new IllegalArgumentException("닉네임을 입력해주세요.");
+                                             @AuthenticationPrincipal User user) {
+        String nickname = body.get("nickname");
+        if (nickname == null || nickname.trim().isEmpty()) {
+            throw new IllegalArgumentException("닉네임은 필수입니다.");
         }
-        if (newNickname.trim().length() > 16) {
-            throw new IllegalArgumentException("닉네임은 16자 이하로 입력해주세요.");
-        }
+        User entity = userRepository.findById(user.getId()).orElseThrow();
+        entity.setNickname(nickname);
+        entity.setNicknameSet(true);
+        userRepository.save(entity);
+        return ResponseEntity.ok().build();
+    }
 
-        user.setNickname(newNickname);
-        user.setNicknameSet(true);
-        userRepository.save(user);
+    @PutMapping("/me/privacy")
+    public ResponseEntity<Void> agreePrivacyPolicy(@AuthenticationPrincipal User user) {
+        User entity = userRepository.findById(user.getId()).orElseThrow();
+        entity.setPrivacyPolicyAgreed(true);
+        userRepository.save(entity);
         return ResponseEntity.ok().build();
     }
 

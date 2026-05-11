@@ -94,6 +94,10 @@ public class AuthService {
             throw new IllegalArgumentException("이메일 인증이 필요합니다.");
         }
 
+        if (!request.isPrivacyPolicyAgreed()) {
+            throw new IllegalArgumentException("개인정보처리방침에 동의해야 합니다.");
+        }
+
         User user = User.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
@@ -101,6 +105,7 @@ public class AuthService {
                 .role(User.Role.USER)
                 .provider(User.AuthProvider.LOCAL)
                 .nicknameSet(true)
+                .privacyPolicyAgreed(true)
                 .build();
 
         userRepository.save(user);

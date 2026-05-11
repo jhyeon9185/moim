@@ -68,6 +68,7 @@ export default function LoginPage() {
   const [forgotSent, setForgotSent] = useState(false)
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [agreed, setAgreed] = useState(false)
 
   const clearError = () => setError('')
   const switchMode = (next) => {
@@ -110,8 +111,9 @@ export default function LoginPage() {
     if (!nickname || !password) { setError('모든 항목을 입력해주세요.'); return }
     if (password !== passwordConfirm) { setError('비밀번호가 일치하지 않습니다.'); return }
     if (password.length < 6) { setError('비밀번호는 6자 이상이어야 합니다.'); return }
+    if (!agreed) { setError('개인정보처리방침에 동의해주세요.'); return }
     setSubmitting(true); clearError()
-    try { await signup(signupEmail, password, nickname) }
+    try { await signup(signupEmail, password, nickname, agreed) }
     catch (err) { setError(err.response?.data?.message || '회원가입에 실패했습니다.') }
     finally { setSubmitting(false) }
   }
@@ -244,6 +246,17 @@ export default function LoginPage() {
               <Field label="닉네임" value={signupForm.nickname} onChange={e => { setSignupForm(f => ({ ...f, nickname: e.target.value })); clearError() }} placeholder="지인에게 보여줄 이름" autoFocus/>
               <Field label="비밀번호" value={signupForm.password} onChange={e => { setSignupForm(f => ({ ...f, password: e.target.value })); clearError() }} type="password" placeholder="6자 이상" autoComplete="new-password"/>
               <Field label="비밀번호 확인" value={signupForm.passwordConfirm} onChange={e => { setSignupForm(f => ({ ...f, passwordConfirm: e.target.value })); clearError() }} type="password" placeholder="비밀번호 재입력" autoComplete="new-password"/>
+              
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, margin: '8px 0 16px', padding: '0 4px' }}>
+                <input 
+                  type="checkbox" id="privacy" checked={agreed} onChange={e => setAgreed(e.target.checked)}
+                  style={{ width: 18, height: 18, marginTop: 2, accentColor: 'var(--clay)', cursor: 'pointer' }}
+                />
+                <label htmlFor="privacy" style={{ fontSize: 13, color: 'var(--ink-700)', fontWeight: 500, cursor: 'pointer', lineHeight: 1.5 }}>
+                  <span style={{ fontWeight: 700 }}>(필수)</span> <span style={{ textDecoration: 'underline' }}>개인정보처리방침</span>에 동의합니다.
+                </label>
+              </div>
+
               <button type="submit" style={primaryBtn} disabled={submitting}>
                 {submitting ? <span className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }}/> : '가입 완료'}
               </button>

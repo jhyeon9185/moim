@@ -17,6 +17,7 @@ public class UserResponse {
     private boolean alert1h;
     private boolean alert3h;
     private boolean alertDay;
+    private boolean privacyPolicyAgreed;
 
     public static UserResponse from(User user) {
         UserResponse res = new UserResponse();
@@ -32,6 +33,7 @@ public class UserResponse {
         res.setAlert1h(user.isAlert1h());
         res.setAlert3h(user.isAlert3h());
         res.setAlertDay(user.isAlertDay());
+        res.setPrivacyPolicyAgreed(user.isPrivacyPolicyAgreed());
         return res;
     }
 }

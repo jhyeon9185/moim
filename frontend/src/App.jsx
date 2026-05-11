@@ -16,6 +16,7 @@ import { NotificationProvider, useNotificationContext } from './notification/Not
 import LoadingSpinner from './components/LoadingSpinner'
 import api from './api'
 import InviteHandler from './pages/InviteHandler'
+import PrivacyAgreementPage from './pages/PrivacyAgreementPage'
 
 function ProtectedRoute({ children }) {
   const { user, isAuthenticated, loading } = useAuth()
@@ -30,6 +31,10 @@ function ProtectedRoute({ children }) {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />
+  }
+
+  if (!user.privacyPolicyAgreed && window.location.pathname !== '/privacy-agreement') {
+    return <Navigate to="/privacy-agreement" replace />
   }
 
   const isAtMain = window.location.pathname === '/'
@@ -98,6 +103,7 @@ function AppRoutes() {
         <Route path="/reset-password" element={<PublicRoute><ResetPasswordPage /></PublicRoute>} />
         <Route path="/oauth/callback" element={<OAuthCallback />} />
         <Route path="/invite/:code" element={<InviteHandler />} />
+        <Route path="/privacy-agreement" element={<ProtectedRoute><PrivacyAgreementPage /></ProtectedRoute>} />
         <Route path="/" element={<ProtectedRoute><RoomListPage /></ProtectedRoute>} />
         <Route path="/room/:id" element={<ProtectedRoute><RoomPage /></ProtectedRoute>} />
         <Route path="/calendar" element={<ProtectedRoute><GlobalCalendarPage /></ProtectedRoute>} />
