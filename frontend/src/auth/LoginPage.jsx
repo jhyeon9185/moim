@@ -90,6 +90,7 @@ export default function LoginPage() {
   const handleSendCode = async (e) => {
     e.preventDefault()
     if (!signupEmail) { setError('이메일을 입력해주세요.'); return }
+    if (!agreed) { setError('개인정보처리방침에 동의해주세요.'); return }
     setSubmitting(true); clearError()
     try { await api.post('/auth/send-verification', { email: signupEmail }); setSignupStep(2) }
     catch (err) { setError(err.response?.data?.message || '인증 코드 발송에 실패했습니다.') }
@@ -217,6 +218,17 @@ export default function LoginPage() {
           {signupStep === 1 && (
             <form onSubmit={handleSendCode} style={{ display: 'flex', flexDirection: 'column' }}>
               <Field label="이메일" value={signupEmail} onChange={e => { setSignupEmail(e.target.value); clearError() }} type="email" placeholder="가입할 이메일 주소" autoFocus autoComplete="email"/>
+              
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, margin: '4px 0 16px', padding: '0 4px' }}>
+                <input 
+                  type="checkbox" id="privacy-step1" checked={agreed} onChange={e => setAgreed(e.target.checked)}
+                  style={{ width: 18, height: 18, marginTop: 2, accentColor: 'var(--clay)', cursor: 'pointer' }}
+                />
+                <label htmlFor="privacy-step1" style={{ fontSize: 13, color: 'var(--ink-700)', fontWeight: 500, cursor: 'pointer', lineHeight: 1.5 }}>
+                  <span style={{ fontWeight: 700 }}>(필수)</span> <span style={{ textDecoration: 'underline' }}>개인정보처리방침</span>에 동의합니다.
+                </label>
+              </div>
+
               <button type="submit" style={primaryBtn} disabled={submitting}>
                 {submitting ? <span className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }}/> : '인증 코드 받기'}
               </button>
@@ -247,16 +259,6 @@ export default function LoginPage() {
               <Field label="비밀번호" value={signupForm.password} onChange={e => { setSignupForm(f => ({ ...f, password: e.target.value })); clearError() }} type="password" placeholder="6자 이상" autoComplete="new-password"/>
               <Field label="비밀번호 확인" value={signupForm.passwordConfirm} onChange={e => { setSignupForm(f => ({ ...f, passwordConfirm: e.target.value })); clearError() }} type="password" placeholder="비밀번호 재입력" autoComplete="new-password"/>
               
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, margin: '8px 0 16px', padding: '0 4px' }}>
-                <input 
-                  type="checkbox" id="privacy" checked={agreed} onChange={e => setAgreed(e.target.checked)}
-                  style={{ width: 18, height: 18, marginTop: 2, accentColor: 'var(--clay)', cursor: 'pointer' }}
-                />
-                <label htmlFor="privacy" style={{ fontSize: 13, color: 'var(--ink-700)', fontWeight: 500, cursor: 'pointer', lineHeight: 1.5 }}>
-                  <span style={{ fontWeight: 700 }}>(필수)</span> <span style={{ textDecoration: 'underline' }}>개인정보처리방침</span>에 동의합니다.
-                </label>
-              </div>
-
               <button type="submit" style={primaryBtn} disabled={submitting}>
                 {submitting ? <span className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }}/> : '가입 완료'}
               </button>
