@@ -1,5 +1,41 @@
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Build artifacts
+build/
+bin/
+out/
+.gradle/
+*.class
+*.jar
+*.war
+
+# Frontend
+node_modules/
+dist/
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+*.log
+backend.log
+backend-err.log
+
+# Database
+data/
+*.mv.db
+*.trace.db
+*.lock.db
+
+# OS
+.DS_Store
+Thumbs.db
+
 # Claude
 .claude/
-
-# Error logs
 error.md

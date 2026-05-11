@@ -1,5 +1,9 @@
 package com.moim.user.controller;
 
+import com.moim.room.entity.RoomMember;
+import com.moim.room.repository.RoomMemberRepository;
+import com.moim.schedule.repository.ScheduleRepository;
+import com.moim.user.dto.UserStatsResponse;
 import com.moim.user.entity.User;
 import com.moim.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -23,33 +28,33 @@ import java.util.UUID;
 public class UserController {
 
     private final UserRepository userRepository;
-    private final com.moim.room.repository.RoomMemberRepository roomMemberRepository;
-    private final com.moim.schedule.repository.ScheduleRepository scheduleRepository;
+    private final RoomMemberRepository roomMemberRepository;
+    private final ScheduleRepository scheduleRepository;
 
     @GetMapping("/stats")
-    public ResponseEntity<com.moim.user.dto.UserStatsResponse> getUserStats(@AuthenticationPrincipal User user) {
-        List<com.moim.room.entity.RoomMember> memberships = roomMemberRepository.findByUserId(user.getId());
+    public ResponseEntity<UserStatsResponse> getUserStats(@AuthenticationPrincipal User user) {
+        List<RoomMember> memberships = roomMemberRepository.findByUserId(user.getId());
         List<Long> approvedRoomIds = memberships.stream()
-                .filter(m -> m.getStatus() == com.moim.room.entity.RoomMember.Status.APPROVED)
-                .map(com.moim.room.entity.RoomMember::getRoomId)
+                .filter(m -> m.getStatus() == RoomMember.Status.APPROVED)
+                .map(RoomMember::getRoomId)
                 .toList();
 
         int totalMoments = 0;
         if (!approvedRoomIds.isEmpty()) {
             totalMoments = scheduleRepository.findByRoomIdInAndEventDateGreaterThanEqualOrderByEventDateAsc(
-                    approvedRoomIds, java.time.LocalDate.now().minusYears(1)).size();
+                    approvedRoomIds, LocalDate.now().minusYears(1)).size();
         }
 
         long totalConnections = memberships.stream()
-                .filter(m -> m.getStatus() == com.moim.room.entity.RoomMember.Status.APPROVED)
+                .filter(m -> m.getStatus() == RoomMember.Status.APPROVED)
                 .flatMap(m -> roomMemberRepository.findByRoomId(m.getRoomId()).stream())
-                .filter(m -> m.getStatus() == com.moim.room.entity.RoomMember.Status.APPROVED)
-                .map(com.moim.room.entity.RoomMember::getUserId)
+                .filter(m -> m.getStatus() == RoomMember.Status.APPROVED)
+                .map(RoomMember::getUserId)
                 .filter(id -> !id.equals(user.getId()))
                 .distinct()
                 .count();
 
-        return ResponseEntity.ok(com.moim.user.dto.UserStatsResponse.builder()
+        return ResponseEntity.ok(UserStatsResponse.builder()
                 .totalMoments(totalMoments)
                 .momentsSub("최근 1년 기준")
                 .totalConnections((int) totalConnections)
