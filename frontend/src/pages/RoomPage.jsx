@@ -91,8 +91,11 @@ function AddScheduleSheet({ onClose, onCreated, roomId, defaultDate = '', schedu
         title: form.title,
       })
       setChatMessages([...next, { role: 'assistant', content: res.data.reply }])
-    } catch {
-      setChatMessages([...next, { role: 'assistant', content: '오류가 발생했어요. 다시 시도해주세요.' }])
+    } catch (err) {
+      const msg = err.response?.status === 429
+        ? '하루 사용 한도(10회)에 도달했어요. 내일 다시 이용해주세요 🙏'
+        : '오류가 발생했어요. 다시 시도해주세요.'
+      setChatMessages([...next, { role: 'assistant', content: msg }])
     } finally {
       setChatLoading(false)
     }
